@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poly-Glot AI — Analytics Dashboard</title>
+<meta name="description" content="Real-time App Store analytics dashboard for Poly-Glot AI: Prompt Studio">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0b14;
+  --bg-alt: #12142a;
+  --bg-surface: #141730;
+  --bg-surface2: #1a1e3a;
+  --text: #e8ecf4;
+  --text-muted: #8892b0;
+  --text-faint: #525e78;
+  --accent: #7dd3fc;
+  --accent-rgb: 125,211,252;
+  --purple: #a78bfa;
+  --purple-rgb: 167,139,250;
+  --green: #10b981;
+  --green-rgb: 16,185,129;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --gradient-primary: linear-gradient(135deg, #7dd3fc 0%, #a78bfa 50%, #c084fc 100%);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-card: 0 4px 32px rgba(0,0,0,0.3), 0 0 1px rgba(125,211,252,0.1);
+  --shadow-glow: 0 0 60px rgba(125,211,252,0.08);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== NAV ===== */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,9,26,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(125,211,252,0.08);
+  padding: 14px 0;
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.1rem; color: var(--text);
+}
+.nav-brand .icon { font-size: 1.4rem; }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a { color: var(--text-muted); font-size: 0.88rem; font-weight: 500; }
+.nav-links a:hover { color: var(--text); }
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 600; color: var(--green);
+  font-family: 'Fira Code', monospace;
+}
+.live-badge .dot {
+  width: 6px; height: 6px; background: var(--green);
+  border-radius: 50%; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ===== HERO ===== */
+.hero {
+  padding: 60px 0 40px;
+  background: linear-gradient(160deg, #0a0b14 0%, #141730 40%, #1a1040 100%);
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 350px; height: 350px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: 2.6rem; font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 12px;
+}
+.hero h1 .gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub { font-size: 1.05rem; color: var(--text-muted); max-width: 600px; margin-bottom: 8px; }
+.hero-meta { font-size: 0.8rem; color: var(--text-faint); font-family: 'Fira Code', monospace; }
+.hero-meta #last-updated { color: var(--accent); }
+
+/* ===== STAT CARDS ===== */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; padding: 40px 0;
+}
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(125,211,252,0.08);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.stat-card:hover {
+  border-color: rgba(125,211,252,0.2);
+  transform: translateY(-2px);
+}
+.stat-label {
+  font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 2.2rem; font-weight: 800; color: var(--text);
+  line-height: 1;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-detail {
+  font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;
+}
+
+/* ===== SECTION ===== */
+.section { padding: 40px 0; }
+.section-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2);
+  color: var(--purple); font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.12em; padding: 5px 14px; border-radius: 4px;
+  margin-bottom: 16px; font-family: 'Fira Code', monospace;
+}
+.section-title {
+  font-size: 1.8rem; font-weight: 800; color: var(--text);
+  letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.section-desc { font-size: 0.95rem; color: var(--text-muted); max-width: 600px; margin-bottom: 28px; }
+
+/* ===== CHART CARDS ===== */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(125,211,252,0.08);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-title {
+  font-size: 0.88rem; font-weight: 700; color: var(--text);
+  margin-bottom: 16px;
+}
+.chart-subtitle {
+  font-size: 0.72rem; color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+  margin-bottom: 16px;
+}
+
+/* ===== BAR CHART ===== */
+.bar-chart { display: flex; flex-direction: column; gap: 8px; }
+.bar-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.bar-label {
+  width: 40px; font-size: 0.75rem; color: var(--text-muted);
+  font-family: 'Fira Code', monospace; text-align: right;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1; height: 28px; background: rgba(125,211,252,0.04);
+  border-radius: 4px; overflow: hidden; position: relative;
+}
+.bar-fill {
+  height: 100%; border-radius: 4px;
+  background: var(--gradient-primary);
+  transition: width 0.8s ease;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 8px;
+  min-width: 30px;
+}
+.bar-count {
+  font-size: 0.7rem; font-weight: 700; color: #0a0b14;
+  font-family: 'Fira Code', monospace;
+}
+
+/* ===== COUNTRY TABLE ===== */
+.country-table { width: 100%; border-collapse: collapse; }
+.country-table th {
+  text-align: left; font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+  padding: 8px 12px; border-bottom: 1px solid rgba(125,211,252,0.08);
+}
+.country-table td {
+  padding: 10px 12px; font-size: 0.85rem; color: var(--text-muted);
+  border-bottom: 1px solid rgba(125,211,252,0.04);
+}
+.country-table tr:hover td { color: var(--text); background: rgba(125,211,252,0.02); }
+.country-table .count {
+  font-family: 'Fira Code', monospace; font-weight: 600;
+  color: var(--accent);
+}
+.country-table .pct {
+  font-family: 'Fira Code', monospace; font-size: 0.75rem;
+  color: var(--text-faint);
+}
+.country-flag { margin-right: 6px; }
+
+/* ===== MINI SPARKLINE ===== */
+.sparkline-row { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+.spark-bar {
+  flex: 1; background: var(--gradient-primary); border-radius: 2px 2px 0 0;
+  min-width: 8px; transition: height 0.6s ease;
+  position: relative;
+}
+.spark-bar:hover { opacity: 0.8; }
+.spark-bar .tooltip {
+  display: none; position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%); background: var(--bg-surface2);
+  border: 1px solid rgba(125,211,252,0.15);
+  padding: 4px 8px; border-radius: 4px; white-space: nowrap;
+  font-size: 0.68rem; color: var(--text); font-family: 'Fira Code', monospace;
+  z-index: 10;
+}
+.spark-bar:hover .tooltip { display: block; }
+.spark-labels { display: flex; gap: 3px; margin-top: 4px; }
+.spark-label {
+  flex: 1; text-align: center; font-size: 0.6rem;
+  color: var(--text-faint); font-family: 'Fira Code', monospace;
+}
+
+/* ===== ENGAGEMENT TABLE ===== */
+.engagement-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.engagement-table th {
+  text-align: left; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+  padding: 8px 10px; border-bottom: 1px solid rgba(125,211,252,0.08);
+}
+.engagement-table td {
+  padding: 8px 10px; color: var(--text-muted);
+  border-bottom: 1px solid rgba(125,211,252,0.04);
+}
+.engagement-table tr:hover td { color: var(--text); background: rgba(125,211,252,0.02); }
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 40px 0; text-align: center;
+  border-top: 1px solid rgba(125,211,252,0.06);
+  color: var(--text-faint); font-size: 0.8rem;
+}
+footer a { color: var(--accent); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.8rem; }
+  .stat-value { font-size: 1.6rem; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .nav-links { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-brand">
+      <span class="icon">🐙</span>
+      <span>Poly-Glot AI</span>
+    </div>
+    <div class="nav-links">
+      <a href="https://hmoses.github.io/poly-glot-site/">Product Page</a>
+      <a href="https://apps.apple.com/app/id6762054909">App Store</a>
+      <span class="live-badge"><span class="dot"></span>LIVE DATA</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <h1>App Store <span class="gradient-text">Analytics</span></h1>
+    <p class="hero-sub">Real-time App Store performance data for Poly-Glot AI: Prompt Studio — impressions, reach, and engagement across 52 countries.</p>
+    <p class="hero-meta">Last updated: <span id="last-updated">loading...</span></p>
+  </div>
+</section>
+
+<!-- STAT CARDS -->
+<section class="section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Impressions</div>
+        <div class="stat-value" id="stat-impressions">—</div>
+        <div class="stat-detail" id="stat-impressions-detail">App Store search results</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Countries Reached</div>
+        <div class="stat-value" id="stat-countries">—</div>
+        <div class="stat-detail">Unique territories</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Product Page Views</div>
+        <div class="stat-value" id="stat-pageviews">—</div>
+        <div class="stat-detail" id="stat-taps-detail">— taps · — web previews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days Tracked</div>
+        <div class="stat-value" id="stat-days">—</div>
+        <div class="stat-detail" id="stat-date-range">—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY IMPRESSIONS -->
+<section class="section">
+  <div class="container">
+    <span class="section-eyebrow">📊 Daily Trends</span>
+    <h2 class="section-title">Impressions Over Time</h2>
+    <p class="section-desc">Daily App Store search impressions — how often Poly-Glot appeared in search results.</p>
+    <div class="chart-grid">
+      <div class="chart-card full">
+        <div class="chart-title">Daily Impressions</div>
+        <div id="daily-chart" class="sparkline-row"></div>
+        <div id="daily-labels" class="spark-labels"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GEOGRAPHY -->
+<section class="section">
+  <div class="container">
+    <span class="section-eyebrow">🌍 Global Reach</span>
+    <h2 class="section-title">Impressions by Country</h2>
+    <p class="section-desc">Where users are discovering Poly-Glot AI in the Mac App Store.</p>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Top Countries</div>
+        <div id="country-bars" class="bar-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">All Countries</div>
+        <div style="max-height: 400px; overflow-y: auto;">
+          <table class="country-table" id="country-table">
+            <thead><tr><th>Country</th><th>Impressions</th><th>Share</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RAW ENGAGEMENT -->
+<section class="section">
+  <div class="container">
+    <span class="section-eyebrow">📋 Raw Data</span>
+    <h2 class="section-title">Recent Engagement Events</h2>
+    <p class="section-desc">Individual App Store engagement events with full detail.</p>
+    <div class="chart-card full">
+      <div style="max-height: 500px; overflow-y: auto;">
+        <table class="engagement-table" id="engagement-table">
+          <thead><tr><th>Date</th><th>Event</th><th>Source</th><th>Device</th><th>OS</th><th>Territory</th><th>Count</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p>Poly-Glot AI: Prompt Studio — <a href="https://hmoses.github.io/poly-glot-site/">poly-glot.ai</a> · Data from App Store Connect API · Updated via GitHub Actions</p>
+  </div>
+</footer>
+
+<script>
+const COUNTRY_NAMES = {US:'United States',CA:'Canada',GB:'United Kingdom',AU:'Australia',DE:'Germany',FR:'France',BR:'Brazil',IN:'India',JP:'Japan',KR:'South Korea',MX:'Mexico',TW:'Taiwan',HK:'Hong Kong',SG:'Singapore',NL:'Netherlands',SE:'Sweden',NO:'Norway',DK:'Denmark',FI:'Finland',CH:'Switzerland',BE:'Belgium',IT:'Italy',ES:'Spain',PT:'Portugal',PL:'Poland',CZ:'Czechia',SK:'Slovakia',BG:'Bulgaria',SI:'Slovenia',TR:'Türkiye',RU:'Russia',UA:'Ukraine',TH:'Thailand',VN:'Vietnam',PH:'Philippines',ID:'Indonesia',AE:'UAE',SA:'Saudi Arabia',BH:'Bahrain',IL:'Israel',ZA:'South Africa',NG:'Nigeria',GH:'Ghana',UG:'Uganda',CO:'Colombia',CL:'Chile',CR:'Costa Rica',UZ:'Uzbekistan',KZ:'Kazakhstan',KG:'Kyrgyzstan',CD:'DR Congo',LK:'Sri Lanka'};
+const COUNTRY_FLAGS = {US:'🇺🇸',CA:'🇨🇦',GB:'🇬🇧',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',BR:'🇧🇷',IN:'🇮🇳',JP:'🇯🇵',KR:'🇰🇷',MX:'🇲🇽',TW:'🇹🇼',HK:'🇭🇰',SG:'🇸🇬',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',FI:'🇫🇮',CH:'🇨🇭',BE:'🇧🇪',IT:'🇮🇹',ES:'🇪🇸',PT:'🇵🇹',PL:'🇵🇱',CZ:'🇨🇿',SK:'🇸🇰',BG:'🇧🇬',SI:'🇸🇮',TR:'🇹🇷',RU:'🇷🇺',UA:'🇺🇦',TH:'🇹🇭',VN:'🇻🇳',PH:'🇵🇭',ID:'🇮🇩',AE:'🇦🇪',SA:'🇸🇦',BH:'🇧🇭',IL:'🇮🇱',ZA:'🇿🇦',NG:'🇳🇬',GH:'🇬🇭',UG:'🇺🇬',CO:'🇨🇴',CL:'🇨🇱',CR:'🇨🇷',UZ:'🇺🇿',KZ:'🇰🇿',KG:'🇰🇬',CD:'🇨🇩',LK:'🇱🇰'};
+
+async function loadData() {
+  try {
+    const r = await fetch('data/analytics.json');
+    const data = await r.json();
+    render(data);
+  } catch(e) {
+    console.error('Failed to load analytics:', e);
+    document.getElementById('last-updated').textContent = 'Error loading data';
+  }
+}
+
+function render(data) {
+  // Last updated
+  const updated = new Date(data.updated_at);
+  document.getElementById('last-updated').textContent = updated.toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+  });
+
+  // Stats
+  const s = data.summary;
+  document.getElementById('stat-impressions').textContent = s.total_impressions.toLocaleString();
+  document.getElementById('stat-countries').textContent = Object.keys(data.impressions_by_country).length;
+  document.getElementById('stat-pageviews').textContent = (s.total_page_views || 0).toLocaleString();
+  document.getElementById('stat-taps-detail').textContent = `${(s.total_taps||0)} taps · ${(s.total_web_preview_views||0)} web previews`;
+  document.getElementById('stat-days').textContent = s.days_tracked;
+
+  const dates = Object.keys(data.impressions_by_date).sort();
+  if (dates.length) {
+    document.getElementById('stat-date-range').textContent = `${dates[0]} → ${dates[dates.length-1]}`;
+  }
+
+  // Daily chart
+  const dailyChart = document.getElementById('daily-chart');
+  const dailyLabels = document.getElementById('daily-labels');
+  const maxDaily = Math.max(...Object.values(data.impressions_by_date));
+  dates.forEach(date => {
+    const count = data.impressions_by_date[date];
+    const pct = (count / maxDaily) * 100;
+    const bar = document.createElement('div');
+    bar.className = 'spark-bar';
+    bar.style.height = `${pct}%`;
+    bar.innerHTML = `<div class="tooltip">${date}: ${count}</div>`;
+    dailyChart.appendChild(bar);
+
+    const label = document.createElement('div');
+    label.className = 'spark-label';
+    label.textContent = date.slice(5);
+    dailyLabels.appendChild(label);
+  });
+
+  // Country bars (top 10)
+  const countryBars = document.getElementById('country-bars');
+  const countries = Object.entries(data.impressions_by_country).sort((a,b) => b[1]-a[1]);
+  const maxCountry = countries[0]?.[1] || 1;
+  countries.slice(0, 12).forEach(([code, count]) => {
+    const pct = (count / maxCountry) * 100;
+    const flag = COUNTRY_FLAGS[code] || '🏳️';
+    const name = COUNTRY_NAMES[code] || code;
+    countryBars.innerHTML += `
+      <div class="bar-row">
+        <div class="bar-label">${flag} ${code}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%">
+            <span class="bar-count">${count}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Country table
+  const tbody = document.querySelector('#country-table tbody');
+  countries.forEach(([code, count]) => {
+    const flag = COUNTRY_FLAGS[code] || '🏳️';
+    const name = COUNTRY_NAMES[code] || code;
+    const pct = ((count / s.total_impressions) * 100).toFixed(1);
+    tbody.innerHTML += `<tr>
+      <td><span class="country-flag">${flag}</span>${name}</td>
+      <td class="count">${count}</td>
+      <td class="pct">${pct}%</td>
+    </tr>`;
+  });
+
+  // Engagement table
+  const engBody = document.querySelector('#engagement-table tbody');
+  const events = data.raw_engagement || [];
+  events.forEach(row => {
+    engBody.innerHTML += `<tr>
+      <td>${row['Date'] || ''}</td>
+      <td>${row['Event'] || ''}</td>
+      <td>${row['Source Type'] || ''}</td>
+      <td>${row['Device'] || ''}</td>
+      <td>${row['Platform Version'] || ''}</td>
+      <td>${COUNTRY_FLAGS[row['Territory']] || ''} ${row['Territory'] || ''}</td>
+      <td style="font-family:'Fira Code',monospace;color:var(--accent)">${row['Counts'] || ''}</td>
+    </tr>`;
+  });
+}
+
+loadData();
+// Auto-refresh every 5 minutes
+setInterval(loadData, 300000);
+</script>
+</body>
+</html>
