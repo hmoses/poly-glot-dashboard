@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-17T15:55:31.112365Z",
+  "updated_at": "2026-08-17T16:13:45.152442Z",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 279,
@@ -10,7 +10,9 @@
     "date_range_start": "2026-08-13",
     "date_range_end": "2026-08-15",
     "total_countries": 52,
-    "total_installs": 0
+    "total_downloads": 18,
+    "total_subscriptions": 0,
+    "total_purchases": 0
   },
   "impressions_by_date": {
     "2026-08-13": 80,
@@ -3172,5 +3174,179 @@
   "taps_by_date": {
     "2026-08-14": 19,
     "2026-08-15": 6
-  }
+  },
+  "downloads_by_date": {
+    "2026-08-14": 10,
+    "2026-08-15": 4,
+    "2026-08-16": 4
+  },
+  "downloads_by_type": {
+    "Redownload": 14,
+    "Auto-update": 3,
+    "Manual update": 1
+  },
+  "downloads_by_country": {
+    "US": 16,
+    "FR": 1,
+    "BE": 1
+  },
+  "downloads_by_version": {
+    "2.0": 12,
+    "2.1": 5,
+    "2.2": 1
+  },
+  "raw_downloads": [
+    {
+      "Date": "2026-08-15",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.0",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "2",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-15",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Manual update",
+      "App Version": "2.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-15",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Auto-update",
+      "App Version": "2.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 26.5",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "FR",
+      "Counts": "1",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-14",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.0",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-14",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.0",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "6",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-14",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.0",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "3",
+      "_date": "2026-08-16"
+    },
+    {
+      "Date": "2026-08-16",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Auto-update",
+      "App Version": "2.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 27.0",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-08-17"
+    },
+    {
+      "Date": "2026-08-16",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.2",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-08-17"
+    },
+    {
+      "Date": "2026-08-16",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Redownload",
+      "App Version": "2.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 15.7",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-08-17"
+    },
+    {
+      "Date": "2026-08-16",
+      "App Name": "Poly-Glot AI: Prompt Studio",
+      "App Apple Identifier": "6762222589",
+      "Download Type": "Auto-update",
+      "App Version": "2.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 26.5",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "BE",
+      "Counts": "1",
+      "_date": "2026-08-17"
+    }
+  ],
+  "raw_subscriptions": [],
+  "raw_purchases": []
 }

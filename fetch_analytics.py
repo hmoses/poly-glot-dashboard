@@ -174,19 +174,78 @@ def main():
             output["summary"]["total_web_preview_views"] = total_web_extra
         print(f"  Web preview total: {total_web_extra}")
 
-    # --- Install report ---
-    print("Finding install report...")
-    install_id = find_report_id(REQ_ID, "Platform App Installs")
-    if install_id:
-        print(f"  Found: {install_id}")
-        install_rows = get_report_rows(install_id)
-        print(f"  Got {len(install_rows)} install rows")
-        total_installs = 0
-        for row in install_rows:
+    # --- Downloads report ---
+    print("Finding downloads report...")
+    dl_id = find_report_id(REQ_ID, "App Downloads Standard")
+    if dl_id:
+        print(f"  Found: {dl_id}")
+        dl_rows = get_report_rows(dl_id)
+        # Deduplicate rows that appear in multiple instances
+        seen = set()
+        unique_rows = []
+        for row in dl_rows:
+            key = (row.get('Date',''), row.get('Download Type',''), row.get('App Version',''),
+                   row.get('Platform Version',''), row.get('Source Type',''),
+                   row.get('Page Type',''), row.get('Territory',''))
+            if key not in seen:
+                seen.add(key)
+                unique_rows.append(row)
+
+        print(f"  Got {len(unique_rows)} unique download rows")
+        downloads_by_date = defaultdict(int)
+        downloads_by_type = defaultdict(int)
+        downloads_by_country = defaultdict(int)
+        downloads_by_version = defaultdict(int)
+        total_downloads = 0
+        for row in unique_rows:
             counts = int(row.get('Counts', '0') or '0')
-            total_installs += counts
-        output["summary"]["total_installs"] = total_installs
-        print(f"  Total installs: {total_installs}")
+            total_downloads += counts
+            downloads_by_date[row.get('Date', '')] += counts
+            downloads_by_type[row.get('Download Type', '')] += counts
+            downloads_by_country[row.get('Territory', '')] += counts
+            downloads_by_version[row.get('App Version', '')] += counts
+
+        output["downloads_by_date"] = dict(sorted(downloads_by_date.items()))
+        output["downloads_by_type"] = dict(sorted(downloads_by_type.items(), key=lambda x: -x[1]))
+        output["downloads_by_country"] = dict(sorted(downloads_by_country.items(), key=lambda x: -x[1]))
+        output["downloads_by_version"] = dict(sorted(downloads_by_version.items(), key=lambda x: -x[1]))
+        output["raw_downloads"] = unique_rows
+        output["summary"]["total_downloads"] = total_downloads
+        print(f"  Total downloads: {total_downloads}")
+        print(f"  By type: {dict(downloads_by_type)}")
+        print(f"  By country: {dict(downloads_by_country)}")
+    else:
+        output["summary"]["total_downloads"] = 0
+
+    # --- Subscription reports ---
+    print("Finding subscription reports...")
+    sub_id = find_report_id(REQ_ID, "App Store Subscription Event Report Standard")
+    if sub_id:
+        print(f"  Found: {sub_id}")
+        sub_rows = get_report_rows(sub_id)
+        print(f"  Got {len(sub_rows)} subscription rows")
+        output["raw_subscriptions"] = sub_rows
+        total_subs = sum(int(r.get('Counts', '0') or '0') for r in sub_rows)
+        output["summary"]["total_subscriptions"] = total_subs
+        print(f"  Total subscription events: {total_subs}")
+    else:
+        output["summary"]["total_subscriptions"] = 0
+        print("  No subscription data yet")
+
+    # --- Purchases report ---
+    print("Finding purchases report...")
+    purch_id = find_report_id(REQ_ID, "App Store Purchases Standard")
+    if purch_id:
+        print(f"  Found: {purch_id}")
+        purch_rows = get_report_rows(purch_id)
+        print(f"  Got {len(purch_rows)} purchase rows")
+        output["raw_purchases"] = purch_rows
+        total_purchases = sum(int(r.get('Counts', '0') or '0') for r in purch_rows)
+        output["summary"]["total_purchases"] = total_purchases
+        print(f"  Total purchases: {total_purchases}")
+    else:
+        output["summary"]["total_purchases"] = 0
+        print("  No purchase data yet")
 
     # Write JSON
     with open("data/analytics.json", "w") as f:

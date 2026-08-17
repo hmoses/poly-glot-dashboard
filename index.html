@@ -306,14 +306,14 @@ footer a { color: var(--accent); }
   <div class="container">
     <div class="stats-grid">
       <div class="stat-card">
+        <div class="stat-label">Total Downloads</div>
+        <div class="stat-value" id="stat-downloads">—</div>
+        <div class="stat-detail" id="stat-downloads-detail">—</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-label">Total Impressions</div>
         <div class="stat-value" id="stat-impressions">—</div>
         <div class="stat-detail" id="stat-impressions-detail">App Store search results</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Countries Reached</div>
-        <div class="stat-value" id="stat-countries">—</div>
-        <div class="stat-detail">Unique territories</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Product Page Views</div>
@@ -321,9 +321,31 @@ footer a { color: var(--accent); }
         <div class="stat-detail" id="stat-taps-detail">— taps · — web previews</div>
       </div>
       <div class="stat-card">
+        <div class="stat-label">Subscriptions</div>
+        <div class="stat-value" id="stat-subs">—</div>
+        <div class="stat-detail" id="stat-subs-detail">—</div>
+      </div>
+    </div>
+    <div class="stats-grid" style="margin-top:16px">
+      <div class="stat-card">
+        <div class="stat-label">Countries Reached</div>
+        <div class="stat-value" id="stat-countries">—</div>
+        <div class="stat-detail">Unique territories</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-label">Days Tracked</div>
         <div class="stat-value" id="stat-days">—</div>
         <div class="stat-detail" id="stat-date-range">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Purchases</div>
+        <div class="stat-value" id="stat-purchases">—</div>
+        <div class="stat-detail">In-app purchases</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-value" id="stat-conversion">—</div>
+        <div class="stat-detail">Downloads ÷ Impressions</div>
       </div>
     </div>
   </div>
@@ -340,6 +362,26 @@ footer a { color: var(--accent); }
         <div class="chart-title">Daily Impressions</div>
         <div id="daily-chart" class="sparkline-row"></div>
         <div id="daily-labels" class="spark-labels"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOADS -->
+<section class="section">
+  <div class="container">
+    <span class="section-eyebrow">⬇️ Downloads</span>
+    <h2 class="section-title">Downloads &amp; Installs</h2>
+    <p class="section-desc">Daily downloads by type — redownloads, updates, and new installs.</p>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">Daily Downloads</div>
+        <div id="dl-daily-chart" class="sparkline-row"></div>
+        <div id="dl-daily-labels" class="spark-labels"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Download Type Breakdown</div>
+        <div id="dl-type-bars" class="bar-chart"></div>
       </div>
     </div>
   </div>
@@ -418,13 +460,32 @@ function render(data) {
 
   // Stats
   const s = data.summary;
-  document.getElementById('stat-impressions').textContent = s.total_impressions.toLocaleString();
-  document.getElementById('stat-countries').textContent = Object.keys(data.impressions_by_country).length;
+  const totalDl = s.total_downloads || 0;
+  const totalSubs = s.total_subscriptions || 0;
+  const totalPurch = s.total_purchases || 0;
+  const totalImpr = s.total_impressions || 0;
+
+  document.getElementById('stat-downloads').textContent = totalDl.toLocaleString();
+  const dlTypes = data.downloads_by_type || {};
+  const dlParts = Object.entries(dlTypes).map(([k,v]) => `${v} ${k}`).join(' · ');
+  document.getElementById('stat-downloads-detail').textContent = dlParts || 'No data yet';
+
+  document.getElementById('stat-impressions').textContent = totalImpr.toLocaleString();
+  document.getElementById('stat-countries').textContent = Object.keys(data.impressions_by_country || {}).length;
   document.getElementById('stat-pageviews').textContent = (s.total_page_views || 0).toLocaleString();
   document.getElementById('stat-taps-detail').textContent = `${(s.total_taps||0)} taps · ${(s.total_web_preview_views||0)} web previews`;
+
+  document.getElementById('stat-subs').textContent = totalSubs.toLocaleString();
+  document.getElementById('stat-subs-detail').textContent = totalSubs > 0 ? 'Active subscriptions' : 'No subscriptions yet';
+
+  document.getElementById('stat-purchases').textContent = totalPurch.toLocaleString();
+
+  const convRate = totalImpr > 0 ? ((totalDl / totalImpr) * 100).toFixed(1) + '%' : '—';
+  document.getElementById('stat-conversion').textContent = convRate;
+
   document.getElementById('stat-days').textContent = s.days_tracked;
 
-  const dates = Object.keys(data.impressions_by_date).sort();
+  const dates = Object.keys(data.impressions_by_date || {}).sort();
   if (dates.length) {
     document.getElementById('stat-date-range').textContent = `${dates[0]} → ${dates[dates.length-1]}`;
   }
@@ -447,6 +508,52 @@ function render(data) {
     label.textContent = date.slice(5);
     dailyLabels.appendChild(label);
   });
+
+  // Download daily chart
+  const dlByDate = data.downloads_by_date || {};
+  const dlDates = Object.keys(dlByDate).sort();
+  const dlChart = document.getElementById('dl-daily-chart');
+  const dlLabels = document.getElementById('dl-daily-labels');
+  if (dlDates.length > 0) {
+    const maxDl = Math.max(...Object.values(dlByDate));
+    dlDates.forEach(date => {
+      const count = dlByDate[date];
+      const pct = maxDl > 0 ? (count / maxDl) * 100 : 0;
+      const bar = document.createElement('div');
+      bar.className = 'spark-bar';
+      bar.style.height = `${Math.max(pct, 5)}%`;
+      bar.style.background = 'linear-gradient(135deg, #10b981 0%, #7dd3fc 100%)';
+      bar.innerHTML = `<div class="tooltip">${date}: ${count}</div>`;
+      dlChart.appendChild(bar);
+      const label = document.createElement('div');
+      label.className = 'spark-label';
+      label.textContent = date.slice(5);
+      dlLabels.appendChild(label);
+    });
+  } else {
+    dlChart.innerHTML = '<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No download data yet — data populates within 48 hours of first install</div>';
+  }
+
+  // Download type bars
+  const dlTypeBars = document.getElementById('dl-type-bars');
+  const dlTypeEntries = Object.entries(data.downloads_by_type || {}).sort((a,b) => b[1]-a[1]);
+  if (dlTypeEntries.length > 0) {
+    const maxType = dlTypeEntries[0][1];
+    dlTypeEntries.forEach(([type, count]) => {
+      const pct = (count / maxType) * 100;
+      dlTypeBars.innerHTML += `
+        <div class="bar-row">
+          <div class="bar-label" style="width:100px">${type}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:linear-gradient(135deg, #10b981 0%, #7dd3fc 100%)">
+              <span class="bar-count">${count}</span>
+            </div>
+          </div>
+        </div>`;
+    });
+  } else {
+    dlTypeBars.innerHTML = '<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No download type data yet</div>';
+  }
 
   // Country bars (top 10)
   const countryBars = document.getElementById('country-bars');
