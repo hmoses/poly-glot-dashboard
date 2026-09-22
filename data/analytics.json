@@ -3473,5 +3473,23 @@
     }
   ],
   "raw_subscriptions": [],
-  "raw_purchases": []
+  "raw_purchases": [],
+  "app_versions": [
+    {
+      "id": "placeholder-ios",
+      "platform": "IOS",
+      "versionString": "1.0",
+      "appStoreState": "READY_FOR_SALE",
+      "releaseType": "MANUAL",
+      "createdDate": "2026-08-12T00:00:00Z"
+    },
+    {
+      "id": "placeholder-mac",
+      "platform": "MAC_OS",
+      "versionString": "1.0",
+      "appStoreState": "READY_FOR_SALE",
+      "releaseType": "MANUAL",
+      "createdDate": "2026-08-12T00:00:00Z"
+    }
+  ]
 }

@@ -8,6 +8,8 @@ import jwt, time, requests, gzip, io, csv, json, os, sys
 from datetime import datetime
 from collections import defaultdict
 
+APP_ID = os.environ.get("ASC_APP_ID", "6804499285")
+APP_ID = "6804499285"
 KEY_ID = os.environ.get("ASC_KEY_ID", "3M53HUUZF3")
 ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "27273279-3df5-4fd7-b3f9-b6e882c1fc38")
 PRIVATE_KEY = os.environ.get("ASC_PRIVATE_KEY", "")
@@ -73,6 +75,29 @@ def find_report_id(req_id, name_contains):
         if name_contains.lower() in rpt['attributes'].get('name', '').lower():
             return rpt['id']
     return None
+
+
+def fetch_app_versions():
+    """Fetch iOS and macOS app version info from App Store Connect."""
+    versions = []
+    try:
+        url = f"https://api.appstoreconnect.apple.com/v1/apps/{APP_ID}/appStoreVersions"
+        params = {"limit": 10, "sort": "-createdDate"}
+        data = api_get(url, params)
+        for v in data.get("data", []):
+            attr = v.get("attributes", {})
+            versions.append({
+                "id": v.get("id"),
+                "platform": attr.get("platform", ""),
+                "versionString": attr.get("versionString", ""),
+                "appStoreState": attr.get("appStoreState", ""),
+                "releaseType": attr.get("releaseType", ""),
+                "createdDate": attr.get("createdDate", ""),
+            })
+        print(f"  Found {len(versions)} app store versions")
+    except Exception as e:
+        print(f"  Error fetching versions: {e}")
+    return versions
 
 
 def main():
@@ -236,6 +261,10 @@ def main():
     else:
         output["summary"]["total_purchases"] = 0
         print("  No purchase data yet")
+
+    # --- App Store Versions ---
+    print("Fetching app store versions...")
+    output["app_versions"] = fetch_app_versions()
 
     with open("data/analytics.json", "w") as f:
         json.dump(output, f, indent=2, default=str)

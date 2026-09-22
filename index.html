@@ -164,6 +164,31 @@ footer {
   padding: 40px 0; text-align: center;
   border-top: 1px solid rgba(125,211,252,0.06); color: var(--text-faint); font-size: 0.8rem;
 }
+.version-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+.version-card {
+  background: var(--bg-surface); border-radius: var(--radius); padding: 20px 24px;
+  border: 1px solid rgba(125,211,252,0.08); position: relative; overflow: hidden;
+}
+.version-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.version-card.ios::before { background: linear-gradient(90deg, #7dd3fc, #a78bfa); }
+.version-card.macos::before { background: linear-gradient(90deg, #10b981, #7dd3fc); }
+.version-platform { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); font-family: 'Fira Code', monospace; margin-bottom: 6px; }
+.version-number { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+.version-card.ios .version-number { color: var(--accent); }
+.version-card.macos .version-number { color: var(--green); }
+.version-state {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+  font-family: 'Fira Code', monospace;
+}
+.state-ready { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.state-review { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+.state-waiting { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+.state-rejected { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+.state-preparing { background: rgba(125,211,252,0.12); color: var(--accent); border: 1px solid rgba(125,211,252,0.25); }
+.version-meta { margin-top: 10px; font-size: 0.75rem; color: var(--text-faint); font-family: 'Fira Code', monospace; }
 footer a { color: var(--accent); }
 @media (max-width: 768px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -187,6 +212,14 @@ footer a { color: var(--accent); }
   <h1>App Store <span class="gradient-text">Analytics</span></h1>
   <p class="hero-sub">Real-time App Store performance data for Poly-Glot AI: Prompt Studio — downloads, impressions, and engagement across 52 countries.</p>
   <p class="hero-meta">Last updated: <span id="last-updated">loading...</span></p>
+</div></section>
+<section class="section"><div class="container">
+  <span class="section-eyebrow">📱 App Status</span>
+  <h2 class="section-title">iOS & Mac App Versions</h2>
+  <p class="section-desc">Current submission status from App Store Connect (App ID: 6804499285)</p>
+  <div class="version-grid" id="version-grid">
+    <div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">Loading version data...</div>
+  </div>
 </div></section>
 <section class="section"><div class="container">
   <div class="stats-grid">
@@ -371,6 +404,20 @@ function render(data){
   countries.forEach(([code,count])=>{
     tb.innerHTML+=`<tr><td><span class="country-flag">${CF[code]||'🏳️'}</span>${CN[code]||code}</td><td class="count">${count}</td><td class="pct">${((count/totalImpr)*100).toFixed(1)}%</td></tr>`;
   });
+  // Version cards
+  const vg=document.getElementById('version-grid');
+  const versions=data.app_versions||[];
+  if(versions.length>0){
+    vg.innerHTML='';
+    const stateMap={'READY_FOR_SALE':['✅ Live','state-ready'],'WAITING_FOR_REVIEW':['⏳ Waiting for Review','state-waiting'],'IN_REVIEW':['🔍 In Review','state-review'],'PREPARE_FOR_SUBMISSION':['📝 Preparing','state-preparing'],'DEVELOPER_REJECTED':['↩️ Dev Rejected','state-rejected'],'REJECTED':['❌ Rejected','state-rejected'],'PENDING_DEVELOPER_RELEASE':['🚀 Pending Release','state-waiting'],'PROCESSING_FOR_APP_STORE':['⚙️ Processing','state-waiting'],'DEVELOPER_REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REPLACED_WITH_NEW_VERSION':['🔄 Replaced','state-preparing']};
+    const platName={'IOS':'📱 iPhone & iPad','MAC_OS':'💻 macOS','VISION_OS':'🥽 visionOS'};
+    versions.forEach(v=>{
+      const cls=v.platform==='IOS'?'ios':'macos';
+      const [label,stCls]=stateMap[v.appStoreState]||[v.appStoreState,'state-preparing'];
+      const created=v.createdDate?new Date(v.createdDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+      vg.innerHTML+=`<div class="version-card ${cls}"><div class="version-platform">${platName[v.platform]||v.platform}</div><div class="version-number">v${v.versionString}</div><div class="version-state ${stCls}">${label}</div><div class="version-meta">${created}${v.releaseType?' · '+v.releaseType:''}</div></div>`;
+    });
+  } else { vg.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No version data available</div>'; }
   // Engagement table
   const eB=document.querySelector('#engagement-table tbody');
   (data.raw_engagement||[]).forEach(row=>{
