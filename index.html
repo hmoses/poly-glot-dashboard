@@ -357,7 +357,7 @@ const CN={US:'United States',CA:'Canada',GB:'United Kingdom',AU:'Australia',DE:'
 const CF={US:'🇺🇸',CA:'🇨🇦',GB:'🇬🇧',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',BR:'🇧🇷',IN:'🇮🇳',JP:'🇯🇵',KR:'🇰🇷',MX:'🇲🇽',TW:'🇹🇼',HK:'🇭🇰',SG:'🇸🇬',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',FI:'🇫🇮',CH:'🇨🇭',BE:'🇧🇪',IT:'🇮🇹',ES:'🇪🇸',PT:'🇵🇹',PL:'🇵🇱',CZ:'🇨🇿',SK:'🇸🇰',BG:'🇧🇬',SI:'🇸🇮',TR:'🇹🇷',RU:'🇷🇺',UA:'🇺🇦',TH:'🇹🇭',VN:'🇻🇳',PH:'🇵🇭',ID:'🇮🇩',AE:'🇦🇪',SA:'🇸🇦',BH:'🇧🇭',IL:'🇮🇱',ZA:'🇿🇦',NG:'🇳🇬',GH:'🇬🇭',UG:'🇺🇬',CO:'🇨🇴',CL:'🇨🇱',CR:'🇨🇷',UZ:'🇺🇿',KZ:'🇰🇿',KG:'🇰🇬',CD:'🇨🇩',LK:'🇱🇰'};
 async function loadData(){
   try{
-    const r=await fetch('data/analytics.json');
+    const r=await fetch('data/analytics.json?t='+Date.now());
     const data=await r.json();
     try{ render(data); }catch(e2){ document.getElementById('last-updated').textContent='Render error: '+e2.message; console.error('Render error:',e2); }
   }catch(e){ document.getElementById('last-updated').textContent='Fetch error: '+e.message; console.error('Fetch error:',e); }
