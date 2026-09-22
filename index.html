@@ -356,8 +356,11 @@ footer a { color: var(--accent); }
 const CN={US:'United States',CA:'Canada',GB:'United Kingdom',AU:'Australia',DE:'Germany',FR:'France',BR:'Brazil',IN:'India',JP:'Japan',KR:'South Korea',MX:'Mexico',TW:'Taiwan',HK:'Hong Kong',SG:'Singapore',NL:'Netherlands',SE:'Sweden',NO:'Norway',DK:'Denmark',FI:'Finland',CH:'Switzerland',BE:'Belgium',IT:'Italy',ES:'Spain',PT:'Portugal',PL:'Poland',CZ:'Czechia',SK:'Slovakia',BG:'Bulgaria',SI:'Slovenia',TR:'Türkiye',RU:'Russia',UA:'Ukraine',TH:'Thailand',VN:'Vietnam',PH:'Philippines',ID:'Indonesia',AE:'UAE',SA:'Saudi Arabia',BH:'Bahrain',IL:'Israel',ZA:'South Africa',NG:'Nigeria',GH:'Ghana',UG:'Uganda',CO:'Colombia',CL:'Chile',CR:'Costa Rica',UZ:'Uzbekistan',KZ:'Kazakhstan',KG:'Kyrgyzstan',CD:'DR Congo',LK:'Sri Lanka'};
 const CF={US:'🇺🇸',CA:'🇨🇦',GB:'🇬🇧',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',BR:'🇧🇷',IN:'🇮🇳',JP:'🇯🇵',KR:'🇰🇷',MX:'🇲🇽',TW:'🇹🇼',HK:'🇭🇰',SG:'🇸🇬',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',FI:'🇫🇮',CH:'🇨🇭',BE:'🇧🇪',IT:'🇮🇹',ES:'🇪🇸',PT:'🇵🇹',PL:'🇵🇱',CZ:'🇨🇿',SK:'🇸🇰',BG:'🇧🇬',SI:'🇸🇮',TR:'🇹🇷',RU:'🇷🇺',UA:'🇺🇦',TH:'🇹🇭',VN:'🇻🇳',PH:'🇵🇭',ID:'🇮🇩',AE:'🇦🇪',SA:'🇸🇦',BH:'🇧🇭',IL:'🇮🇱',ZA:'🇿🇦',NG:'🇳🇬',GH:'🇬🇭',UG:'🇺🇬',CO:'🇨🇴',CL:'🇨🇱',CR:'🇨🇷',UZ:'🇺🇿',KZ:'🇰🇿',KG:'🇰🇬',CD:'🇨🇩',LK:'🇱🇰'};
 async function loadData(){
-  try{ const r=await fetch('data/analytics.json'); const data=await r.json(); render(data); }
-  catch(e){ document.getElementById('last-updated').textContent='Error loading data'; }
+  try{
+    const r=await fetch('data/analytics.json');
+    const data=await r.json();
+    try{ render(data); }catch(e2){ document.getElementById('last-updated').textContent='Render error: '+e2.message; console.error('Render error:',e2); }
+  }catch(e){ document.getElementById('last-updated').textContent='Fetch error: '+e.message; console.error('Fetch error:',e); }
 }
 function render(data){
   const updated=new Date(data.updated_at);
@@ -475,7 +478,13 @@ function render(data){
     vg.innerHTML='';
     const stateMap={'READY_FOR_SALE':['✅ Live','state-ready'],'WAITING_FOR_REVIEW':['⏳ Waiting for Review','state-waiting'],'IN_REVIEW':['🔍 In Review','state-review'],'PREPARE_FOR_SUBMISSION':['📝 Preparing','state-preparing'],'DEVELOPER_REJECTED':['↩️ Dev Rejected','state-rejected'],'REJECTED':['❌ Rejected','state-rejected'],'PENDING_DEVELOPER_RELEASE':['🚀 Pending Release','state-waiting'],'PROCESSING_FOR_APP_STORE':['⚙️ Processing','state-waiting'],'DEVELOPER_REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REPLACED_WITH_NEW_VERSION':['🔄 Replaced','state-preparing']};
     const platName={'IOS':'📱 iPhone & iPad','MAC_OS':'💻 macOS','VISION_OS':'🥽 visionOS'};
+    // Only show the CURRENT (latest) version per platform
+    var latest={};
     versions.forEach(v=>{
+      if(!latest[v.platform]||new Date(v.createdDate)>new Date(latest[v.platform].createdDate)){latest[v.platform]=v;}
+    });
+    ['IOS','MAC_OS'].forEach(p=>{
+      const v=latest[p]; if(!v) return;
       const cls=v.platform==='IOS'?'ios':'macos';
       const [label,stCls]=stateMap[v.appStoreState]||[v.appStoreState,'state-preparing'];
       const created=v.createdDate?new Date(v.createdDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
