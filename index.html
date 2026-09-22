@@ -352,15 +352,20 @@ footer a { color: var(--accent); }
 <footer><div class="container">
   <p>Poly-Glot AI: Prompt Studio — <a href="https://hmoses.github.io/poly-glot-site/">poly-glot.ai</a> · Data from App Store Connect API · Updated via GitHub Actions</p>
 </div></footer>
+<div id="load-status" style="position:fixed;top:0;left:0;right:0;padding:12px;background:#ff0;color:#000;font-size:16px;font-weight:bold;z-index:99999;text-align:center;font-family:sans-serif">⏳ Loading dashboard data...</div>
 <script>
 const CN={US:'United States',CA:'Canada',GB:'United Kingdom',AU:'Australia',DE:'Germany',FR:'France',BR:'Brazil',IN:'India',JP:'Japan',KR:'South Korea',MX:'Mexico',TW:'Taiwan',HK:'Hong Kong',SG:'Singapore',NL:'Netherlands',SE:'Sweden',NO:'Norway',DK:'Denmark',FI:'Finland',CH:'Switzerland',BE:'Belgium',IT:'Italy',ES:'Spain',PT:'Portugal',PL:'Poland',CZ:'Czechia',SK:'Slovakia',BG:'Bulgaria',SI:'Slovenia',TR:'Türkiye',RU:'Russia',UA:'Ukraine',TH:'Thailand',VN:'Vietnam',PH:'Philippines',ID:'Indonesia',AE:'UAE',SA:'Saudi Arabia',BH:'Bahrain',IL:'Israel',ZA:'South Africa',NG:'Nigeria',GH:'Ghana',UG:'Uganda',CO:'Colombia',CL:'Chile',CR:'Costa Rica',UZ:'Uzbekistan',KZ:'Kazakhstan',KG:'Kyrgyzstan',CD:'DR Congo',LK:'Sri Lanka'};
 const CF={US:'🇺🇸',CA:'🇨🇦',GB:'🇬🇧',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',BR:'🇧🇷',IN:'🇮🇳',JP:'🇯🇵',KR:'🇰🇷',MX:'🇲🇽',TW:'🇹🇼',HK:'🇭🇰',SG:'🇸🇬',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',FI:'🇫🇮',CH:'🇨🇭',BE:'🇧🇪',IT:'🇮🇹',ES:'🇪🇸',PT:'🇵🇹',PL:'🇵🇱',CZ:'🇨🇿',SK:'🇸🇰',BG:'🇧🇬',SI:'🇸🇮',TR:'🇹🇷',RU:'🇷🇺',UA:'🇺🇦',TH:'🇹🇭',VN:'🇻🇳',PH:'🇵🇭',ID:'🇮🇩',AE:'🇦🇪',SA:'🇸🇦',BH:'🇧🇭',IL:'🇮🇱',ZA:'🇿🇦',NG:'🇳🇬',GH:'🇬🇭',UG:'🇺🇬',CO:'🇨🇴',CL:'🇨🇱',CR:'🇨🇷',UZ:'🇺🇿',KZ:'🇰🇿',KG:'🇰🇬',CD:'🇨🇩',LK:'🇱🇰'};
 async function loadData(){
+  var ls=document.getElementById('load-status');
   try{
+    ls.textContent='📡 Fetching data...';
     const r=await fetch('data/analytics.json?t='+Date.now());
+    ls.textContent='📊 Parsing JSON...';
     const data=await r.json();
-    try{ render(data); }catch(e2){ document.getElementById('last-updated').textContent='Render error: '+e2.message; console.error('Render error:',e2); }
-  }catch(e){ document.getElementById('last-updated').textContent='Fetch error: '+e.message; console.error('Fetch error:',e); }
+    ls.textContent='🎨 Rendering...';
+    try{ render(data); ls.style.display='none'; }catch(e2){ ls.textContent='❌ Render error: '+e2.message; ls.style.background='#f00'; ls.style.color='#fff'; console.error('Render error:',e2); }
+  }catch(e){ ls.textContent='❌ Fetch error: '+e.message; ls.style.background='#f00'; ls.style.color='#fff'; console.error('Fetch error:',e); }
 }
 function render(data){
   const updated=new Date(data.updated_at);
