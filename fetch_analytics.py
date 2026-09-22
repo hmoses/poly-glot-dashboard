@@ -266,6 +266,39 @@ def main():
     print("Fetching app store versions...")
     output["app_versions"] = fetch_app_versions()
 
+    # --- Pre-aggregate funnel data for fast dashboard rendering ---
+    web_ref = 0
+    app_ref = 0
+    web_ref_countries = defaultdict(int)
+    src_data = defaultdict(int)
+    for r in output.get("raw_engagement", []):
+        c = int(r.get("Counts", "0") or "0")
+        st = r.get("Source Type", "Unavailable")
+        src_data[st] += c
+        if st == "Web referrer":
+            web_ref += c
+            web_ref_countries[r.get("Territory", "??")] += c
+        elif st == "App referrer":
+            app_ref += c
+    real_dl = 0
+    for r in output.get("raw_downloads", []):
+        if r.get("Download Type") != "Auto-update":
+            real_dl += int(r.get("Counts", "0") or "0")
+    output["funnel"] = {
+        "web_referrer": web_ref,
+        "app_referrer": app_ref,
+        "real_downloads": real_dl,
+        "web_ref_countries": dict(sorted(web_ref_countries.items(), key=lambda x: -x[1])),
+        "source_breakdown": dict(sorted(src_data.items(), key=lambda x: -x[1])),
+    }
+    print(f"  Funnel: web_ref={web_ref}, app_ref={app_ref}, real_dl={real_dl}")
+
+    # Trim raw_engagement to last 200 rows for table display (keeps JSON small)
+    raw_eng = output.get("raw_engagement", [])
+    raw_eng.sort(key=lambda x: x.get("Date", ""), reverse=True)
+    output["raw_engagement"] = raw_eng[:200]
+    print(f"  Raw engagement trimmed: {len(raw_eng)} → {len(output['raw_engagement'])} rows")
+
     with open("data/analytics.json", "w") as f:
         json.dump(output, f, indent=2, default=str)
 

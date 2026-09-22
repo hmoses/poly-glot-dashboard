@@ -428,30 +428,17 @@ function render(data){
   countries.forEach(([code,count])=>{
     tb.innerHTML+=`<tr><td><span class="country-flag">${CF[code]||'🏳️'}</span>${CN[code]||code}</td><td class="count">${count}</td><td class="pct">${((count/totalImpr)*100).toFixed(1)}%</td></tr>`;
   });
-  // TikTok Ad Funnel
-  var webRef=0, appRef=0, webRefCountries={};
-  (data.raw_engagement||[]).forEach(function(r){
-    var c=parseInt(r.Counts||'0')||0;
-    if(r['Source Type']==='Web referrer') { webRef+=c;
-      var t=r.Territory||'??'; webRefCountries[t]=(webRefCountries[t]||0)+c;
-    }
-    if(r['Source Type']==='App referrer') appRef+=c;
-  });
-  var realDl=0;
-  (data.raw_downloads||[]).forEach(function(r){
-    if(r['Download Type']!=='Auto-update') realDl+=parseInt(r.Counts||'0')||0;
-  });
+  // TikTok Ad Funnel (uses pre-aggregated data)
+  var funnel=data.funnel||{};
+  var webRef=funnel.web_referrer||0, appRef=funnel.app_referrer||0, realDl=funnel.real_downloads||0;
+  var webRefCountries=funnel.web_ref_countries||{};
   document.getElementById('stat-webref').textContent=webRef.toLocaleString();
   document.getElementById('stat-appref').textContent=appRef.toLocaleString();
   document.getElementById('stat-realdl').textContent=realDl.toLocaleString();
   if(webRef>0&&realDl>0) document.getElementById('stat-convrate').textContent=((realDl/webRef)*100).toFixed(1)+'%';
 
-  // Source breakdown bars
-  var srcData={'App Store search':0,'Web referrer':0,'App referrer':0,'App Store browse':0,'Unavailable':0};
-  (data.raw_engagement||[]).forEach(function(r){
-    var s=r['Source Type']||'Unavailable', c=parseInt(r.Counts||'0')||0;
-    srcData[s]=(srcData[s]||0)+c;
-  });
+  // Source breakdown bars (pre-aggregated)
+  var srcData=funnel.source_breakdown||{'App Store search':0,'Web referrer':0,'App referrer':0,'App Store browse':0,'Unavailable':0};
   var srcB=document.getElementById('source-bars');
   var srcE=Object.entries(srcData).sort(function(a,b){return b[1]-a[1]});
   var mxS=srcE[0]?srcE[0][1]:1;
@@ -491,11 +478,13 @@ function render(data){
       vg.innerHTML+=`<div class="version-card ${cls}"><div class="version-platform">${platName[v.platform]||v.platform}</div><div class="version-number">v${v.versionString}</div><div class="version-state ${stCls}">${label}</div><div class="version-meta">${created}${v.releaseType?' · '+v.releaseType:''}</div></div>`;
     });
   } else { vg.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No version data available</div>'; }
-  // Engagement table
+  // Engagement table (batch DOM insert)
   const eB=document.querySelector('#engagement-table tbody');
+  var rows='';
   (data.raw_engagement||[]).forEach(row=>{
-    eB.innerHTML+=`<tr><td>${row['Date']||''}</td><td>${row['Event']||''}</td><td>${row['Source Type']||''}</td><td>${row['Device']||''}</td><td>${row['Platform Version']||''}</td><td>${CF[row['Territory']]||''} ${row['Territory']||''}</td><td style="font-family:'Fira Code',monospace;color:var(--accent)">${row['Counts']||''}</td></tr>`;
+    rows+=`<tr><td>${row['Date']||''}</td><td>${row['Event']||''}</td><td>${row['Source Type']||''}</td><td>${row['Device']||''}</td><td>${row['Platform Version']||''}</td><td>${CF[row['Territory']]||''} ${row['Territory']||''}</td><td style="font-family:'Fira Code',monospace;color:var(--accent)">${row['Counts']||''}</td></tr>`;
   });
+  eB.innerHTML=rows;
 }
 loadData();
 setInterval(loadData,300000);
