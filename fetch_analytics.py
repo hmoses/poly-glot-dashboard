@@ -82,7 +82,7 @@ def fetch_app_versions():
     versions = []
     try:
         url = f"https://api.appstoreconnect.apple.com/v1/apps/{APP_ID}/appStoreVersions"
-        params = {"limit": 10, "sort": "-createdDate"}
+        params = {"limit": 10}
         data = api_get(url, params)
         for v in data.get("data", []):
             attr = v.get("attributes", {})
