@@ -2,18 +2,20 @@
 """
 Fetch Poly-Glot AI analytics from App Store Connect API.
 Outputs data/analytics.json for the GitHub Pages dashboard.
+Uses TWO report requests: historical (one-time) + ongoing (rolling current).
 """
 
 import jwt, time, requests, gzip, io, csv, json, os, sys
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 
 APP_ID = os.environ.get("ASC_APP_ID", "6804499285")
-APP_ID = "6804499285"
 KEY_ID = os.environ.get("ASC_KEY_ID", "3M53HUUZF3")
 ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "27273279-3df5-4fd7-b3f9-b6e882c1fc38")
 PRIVATE_KEY = os.environ.get("ASC_PRIVATE_KEY", "")
-REQ_ID = os.environ.get("ASC_REPORT_REQUEST_ID", "f46b6fd5-272c-4b46-9a88-55b399ea11f0")
+# Two report request IDs:
+REQ_HISTORICAL = "f46b6fd5-272c-4b46-9a88-55b399ea11f0"  # one-time snapshot (older data)
+REQ_ONGOING = os.environ.get("ASC_REPORT_REQUEST_ID", "7d3c05d9-4ec7-46f3-a37d-0665ab7b9896")  # ongoing (current data)
 
 if not PRIVATE_KEY:
     key_path = os.path.expanduser(f"~/private_keys/AuthKey_{KEY_ID}.p8")
@@ -41,7 +43,7 @@ def download_report(url):
     r = requests.get(url)
     try:
         content = gzip.decompress(r.content).decode('utf-8')
-    except:
+    except Exception:
         content = r.text
     return list(csv.DictReader(io.StringIO(content), delimiter='\t'))
 
@@ -50,7 +52,7 @@ def get_report_rows(report_id):
     all_rows = []
     instances = api_get(
         f"https://api.appstoreconnect.apple.com/v1/analyticsReports/{report_id}/instances",
-        {"limit": 30}
+        {"limit": 50}
     )
     for inst in instances.get('data', []):
         proc_date = inst['attributes'].get('processingDate', '')
@@ -78,33 +80,44 @@ def find_report_id(req_id, name_contains):
 
 
 def fetch_app_versions():
-    """Fetch iOS and macOS app version info from App Store Connect."""
     versions = []
-    try:
-        url = f"https://api.appstoreconnect.apple.com/v1/apps/{APP_ID}/appStoreVersions"
-        params = {"limit": 10}
-        data = api_get(url, params)
-        for v in data.get("data", []):
-            attr = v.get("attributes", {})
-            versions.append({
-                "id": v.get("id"),
-                "platform": attr.get("platform", ""),
-                "versionString": attr.get("versionString", ""),
-                "appStoreState": attr.get("appStoreState", ""),
-                "releaseType": attr.get("releaseType", ""),
-                "createdDate": attr.get("createdDate", ""),
-            })
-        print(f"  Found {len(versions)} app store versions")
-    except Exception as e:
-        print(f"  Error fetching versions: {e}")
+    url = f"https://api.appstoreconnect.apple.com/v1/apps/{APP_ID}/appStoreVersions"
+    params = {"limit": 10, "fields[appStoreVersions]": "versionString,appStoreState,platform,createdDate,releaseType"}
+    data = api_get(url, params)
+    for v in data.get('data', []):
+        a = v['attributes']
+        versions.append({
+            "id": v['id'],
+            "versionString": a.get('versionString'),
+            "platform": a.get('platform'),
+            "appStoreState": a.get('appStoreState'),
+            "createdDate": a.get('createdDate'),
+            "releaseType": a.get('releaseType'),
+        })
     return versions
+
+
+def merge_report_rows(req_ids, report_name):
+    """Fetch rows from multiple report requests, merge and deduplicate."""
+    all_rows = []
+    for req_id in req_ids:
+        rid = find_report_id(req_id, report_name)
+        if rid:
+            print(f"    Fetching from {req_id[:12]}... ({report_name})")
+            rows = get_report_rows(rid)
+            print(f"    Got {len(rows)} rows")
+            all_rows.extend(rows)
+        else:
+            print(f"    Not found in {req_id[:12]}...")
+    return all_rows
 
 
 def main():
     os.makedirs("data", exist_ok=True)
+    req_ids = [REQ_HISTORICAL, REQ_ONGOING]
 
     output = {
-        "updated_at": datetime.utcnow().isoformat() + "Z",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "app_name": "Poly-Glot AI: Prompt Studio",
         "summary": {},
         "impressions_by_date": {},
@@ -122,16 +135,23 @@ def main():
         "raw_purchases": [],
     }
 
-    # --- Engagement report ---
-    print("Finding engagement report...")
-    eng_id = find_report_id(REQ_ID, "App Store Discovery and Engagement Standard")
-    if not eng_id:
-        eng_id = find_report_id(REQ_ID, "App Store Discovery and Engagement Detailed")
+    # --- Engagement (merge historical + ongoing) ---
+    print("Fetching engagement reports (historical + ongoing)...")
+    eng_rows = merge_report_rows(req_ids, "App Store Discovery and Engagement Standard")
+    if not eng_rows:
+        eng_rows = merge_report_rows(req_ids, "App Store Discovery and Engagement Detailed")
 
-    if eng_id:
-        print(f"  Found: {eng_id}")
-        rows = get_report_rows(eng_id)
-        print(f"  Got {len(rows)} rows")
+    if eng_rows:
+        # Deduplicate by (Date, Territory, Event, Source Type, Counts)
+        seen = set()
+        unique = []
+        for row in eng_rows:
+            key = (row.get('Date',''), row.get('Territory',''), row.get('Event',''), row.get('Source Type',''), row.get('Counts',''))
+            if key not in seen:
+                seen.add(key)
+                unique.append(row)
+        eng_rows = unique
+        print(f"  Total unique engagement rows: {len(eng_rows)}")
 
         impressions_by_date = defaultdict(int)
         impressions_by_country = defaultdict(int)
@@ -143,7 +163,7 @@ def main():
         total_page_views = 0
         total_taps = 0
 
-        for row in rows:
+        for row in eng_rows:
             date = row.get('Date', row.get('_date', ''))
             territory = row.get('Territory', row.get('Storefront', ''))
             event = row.get('Event', '')
@@ -182,33 +202,29 @@ def main():
             "date_range_end": dates[-1] if dates else "",
             "total_countries": len(impressions_by_country),
         }
+        print(f"  Range: {dates[0] if dates else '?'} → {dates[-1] if dates else '?'} ({len(dates)} days)")
         print(f"  Impressions: {total_impressions}, Page Views: {total_page_views}, Taps: {total_taps}")
-    else:
-        print("  No engagement report found")
 
-    # --- Web preview report ---
-    print("Finding web preview report...")
-    web_id = find_report_id(REQ_ID, "App Store Web Preview Engagement")
-    if web_id:
-        print(f"  Found: {web_id}")
-        web_rows = get_report_rows(web_id)
+    # --- Web preview (merge) ---
+    print("Fetching web preview reports...")
+    web_rows = merge_report_rows(req_ids, "Web Preview Engagement")
+    if web_rows:
         total_web_extra = sum(int(r.get('Counts', '0') or '0') for r in web_rows)
         if total_web_extra > output["summary"].get("total_web_preview_views", 0):
             output["summary"]["total_web_preview_views"] = total_web_extra
         print(f"  Web preview total: {total_web_extra}")
 
-    # --- Downloads report ---
-    print("Finding downloads report...")
-    dl_id = find_report_id(REQ_ID, "App Downloads Standard")
-    if dl_id:
-        print(f"  Found: {dl_id}")
-        dl_rows = get_report_rows(dl_id)
+    # --- Downloads (merge) ---
+    print("Fetching download reports...")
+    dl_rows = merge_report_rows(req_ids, "App Downloads Standard")
+    if not dl_rows:
+        dl_rows = merge_report_rows(req_ids, "App Downloads Detailed")
+
+    if dl_rows:
         seen = set()
         unique_rows = []
         for row in dl_rows:
-            key = (row.get('Date',''), row.get('Download Type',''), row.get('App Version',''),
-                   row.get('Platform Version',''), row.get('Source Type',''),
-                   row.get('Page Type',''), row.get('Territory',''))
+            key = (row.get('Date',''), row.get('Territory',''), row.get('Download Type',''), row.get('App Version',''), row.get('Counts',''))
             if key not in seen:
                 seen.add(key)
                 unique_rows.append(row)
@@ -236,37 +252,33 @@ def main():
     else:
         output["summary"]["total_downloads"] = 0
 
-    # --- Subscription reports ---
-    print("Finding subscription reports...")
-    sub_id = find_report_id(REQ_ID, "App Store Subscription Event Report Standard")
-    if sub_id:
-        sub_rows = get_report_rows(sub_id)
+    # --- Subscriptions ---
+    print("Fetching subscription reports...")
+    sub_rows = merge_report_rows(req_ids, "App Store Subscription Event Report Standard")
+    if sub_rows:
         output["raw_subscriptions"] = sub_rows
         total_subs = sum(int(r.get('Counts', '0') or '0') for r in sub_rows)
         output["summary"]["total_subscriptions"] = total_subs
         print(f"  Subscription events: {total_subs}")
     else:
         output["summary"]["total_subscriptions"] = 0
-        print("  No subscription data yet")
 
-    # --- Purchases report ---
-    print("Finding purchases report...")
-    purch_id = find_report_id(REQ_ID, "App Store Purchases Standard")
-    if purch_id:
-        purch_rows = get_report_rows(purch_id)
+    # --- Purchases ---
+    print("Fetching purchase reports...")
+    purch_rows = merge_report_rows(req_ids, "App Store Purchases Standard")
+    if purch_rows:
         output["raw_purchases"] = purch_rows
         total_purchases = sum(int(r.get('Counts', '0') or '0') for r in purch_rows)
         output["summary"]["total_purchases"] = total_purchases
         print(f"  Purchases: {total_purchases}")
     else:
         output["summary"]["total_purchases"] = 0
-        print("  No purchase data yet")
 
     # --- App Store Versions ---
     print("Fetching app store versions...")
     output["app_versions"] = fetch_app_versions()
 
-    # --- Pre-aggregate funnel data for fast dashboard rendering ---
+    # --- Pre-aggregate funnel ---
     web_ref = 0
     app_ref = 0
     web_ref_countries = defaultdict(int)
@@ -291,20 +303,19 @@ def main():
         "web_ref_countries": dict(sorted(web_ref_countries.items(), key=lambda x: -x[1])),
         "source_breakdown": dict(sorted(src_data.items(), key=lambda x: -x[1])),
     }
-    print(f"  Funnel: web_ref={web_ref}, app_ref={app_ref}, real_dl={real_dl}")
 
-    # Trim raw_engagement to last 200 rows for table display (keeps JSON small)
+    # Trim raw_engagement
     raw_eng = output.get("raw_engagement", [])
     raw_eng.sort(key=lambda x: x.get("Date", ""), reverse=True)
     output["raw_engagement"] = raw_eng[:200]
-    print(f"  Raw engagement trimmed: {len(raw_eng)} → {len(output['raw_engagement'])} rows")
 
     with open("data/analytics.json", "w") as f:
         json.dump(output, f, indent=2, default=str)
 
     print(f"\nData written to data/analytics.json")
     s = output["summary"]
-    print(f"Summary: {s.get('total_downloads',0)} downloads | {s.get('total_impressions',0)} impressions | {s.get('total_subscriptions',0)} subs | {s.get('total_countries',0)} countries")
+    print(f"Summary: {s.get('total_downloads',0)} downloads | {s.get('total_impressions',0)} impressions | {s.get('total_countries',0)} countries")
+    print(f"Range: {s.get('date_range_start','')} → {s.get('date_range_end','')}")
 
 
 if __name__ == "__main__":
