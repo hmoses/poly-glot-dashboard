@@ -1,0 +1,45 @@
+name: Refresh Analytics Daily
+
+on:
+  schedule:
+    # 8 AM Pacific = 3 PM UTC (PDT) / 4 PM UTC (PST)
+    # Using 16:00 UTC to cover PST year-round (runs 8 AM PST / 9 AM PDT)
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch analytics from ASC
+        env:
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          ASC_REPORT_REQUEST_ID: ${{ secrets.ASC_REPORT_REQUEST_ID }}
+        run: python fetch_analytics.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/analytics.json
+          if git diff --cached --quiet; then
+            echo "No changes to analytics data"
+          else
+            git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%d)"
+            git push
+          fi
