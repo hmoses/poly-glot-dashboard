@@ -625,6 +625,139 @@ def main():
         output["summary"]["total_purchases"] = 0
 
     # =========================================================================
+    # TIKTOK ADS DATA
+    # =========================================================================
+    print("Loading TikTok Ads data...")
+    # TikTok Marketing API integration — if token is set, fetch live data
+    tiktok_token = os.environ.get("TIKTOK_ACCESS_TOKEN", "")
+    tiktok_adv_id = os.environ.get("TIKTOK_ADVERTISER_ID", "7674635512447238161")
+
+    tiktok_data = {
+        "advertiser_id": tiktok_adv_id,
+        "campaigns": [],
+        "totals": {
+            "impressions": 0,
+            "clicks": 0,
+            "ctr": 0.0,
+            "cpc": 0.0,
+            "cost": 0.0,
+            "conversions": 0,
+        },
+        "daily": {},
+        "source": "manual",  # "api" when token works
+        "last_fetched": datetime.now(timezone.utc).isoformat(),
+    }
+
+    if tiktok_token:
+        try:
+            print("  Fetching from TikTok Marketing API...")
+            tt_headers = {"Access-Token": tiktok_token}
+            # Get campaign list
+            tt_camp = requests.get(
+                "https://business-api.tiktok.com/open_api/v1.3/campaign/get/",
+                headers=tt_headers,
+                params={"advertiser_id": tiktok_adv_id, "page_size": 50}
+            ).json()
+            # Get ad group performance (last 30 days)
+            from datetime import timedelta
+            end_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            start_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
+            tt_report = requests.get(
+                "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/",
+                headers=tt_headers,
+                params={
+                    "advertiser_id": tiktok_adv_id,
+                    "report_type": "BASIC",
+                    "data_level": "AUCTION_ADGROUP",
+                    "dimensions": '["adgroup_id","stat_time_day"]',
+                    "metrics": '["spend","impressions","clicks","ctr","cpc","conversion","cost_per_conversion"]',
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "page_size": 1000,
+                }
+            ).json()
+            if tt_report.get("code") == 0:
+                daily = defaultdict(lambda: {"impressions": 0, "clicks": 0, "cost": 0.0, "conversions": 0})
+                tot_imp = tot_clicks = tot_conv = 0
+                tot_cost = 0.0
+                for row in tt_report.get("data", {}).get("list", []):
+                    m = row.get("metrics", {})
+                    d = row.get("dimensions", {}).get("stat_time_day", "")
+                    imp = int(m.get("impressions", 0))
+                    clk = int(m.get("clicks", 0))
+                    cost = float(m.get("spend", 0))
+                    conv = int(m.get("conversion", 0))
+                    daily[d]["impressions"] += imp
+                    daily[d]["clicks"] += clk
+                    daily[d]["cost"] += cost
+                    daily[d]["conversions"] += conv
+                    tot_imp += imp
+                    tot_clicks += clk
+                    tot_cost += cost
+                    tot_conv += conv
+                tiktok_data["totals"] = {
+                    "impressions": tot_imp,
+                    "clicks": tot_clicks,
+                    "ctr": round(tot_clicks / tot_imp * 100, 2) if tot_imp > 0 else 0,
+                    "cpc": round(tot_cost / tot_clicks, 2) if tot_clicks > 0 else 0,
+                    "cost": round(tot_cost, 2),
+                    "conversions": tot_conv,
+                }
+                tiktok_data["daily"] = {k: dict(v) for k, v in sorted(daily.items())}
+                tiktok_data["source"] = "api"
+                print(f"  API: {tot_imp} impressions, {tot_clicks} clicks, ${tot_cost:.2f} cost")
+            else:
+                print(f"  API error: {tt_report.get('message','unknown')}")
+        except Exception as e:
+            print(f"  TikTok API error: {e}")
+
+    # If no API data, use last known values (manual snapshot from ASC screen)
+    if tiktok_data["source"] == "manual":
+        # Load previous data if exists, otherwise use latest known snapshot
+        prev_tiktok = {}
+        try:
+            with open("data/analytics.json") as f:
+                prev = json.load(f)
+                prev_tiktok = prev.get("tiktok_ads", {})
+        except Exception:
+            pass
+
+        if prev_tiktok and prev_tiktok.get("totals", {}).get("impressions", 0) > 0:
+            # Keep previous data
+            tiktok_data = prev_tiktok
+            tiktok_data["source"] = "cached"
+            print(f"  Using cached: {tiktok_data['totals'].get('impressions',0)} impressions")
+        else:
+            # Hardcoded snapshot from Sep 16-23 TikTok Ads Manager
+            tiktok_data["totals"] = {
+                "impressions": 29795,
+                "clicks": 541,
+                "ctr": 1.82,
+                "cpc": 0.26,
+                "cost": 139.98,
+                "conversions": 0,
+            }
+            tiktok_data["campaigns"] = [
+                {
+                    "name": "Poly-Glot_ios",
+                    "status": "ACTIVE",
+                    "budget_per_day": 20.00,
+                    "start_date": "2026-09-16",
+                    "end_date": "2026-09-23",
+                    "impressions": 29795,
+                    "clicks": 541,
+                    "ctr": 1.82,
+                    "cpc": 0.26,
+                    "cost": 139.98,
+                    "conversions": 0,
+                }
+            ]
+            tiktok_data["source"] = "snapshot_2026-09-23"
+            print(f"  Using snapshot: 29,795 impressions, $139.98 cost")
+
+    output["tiktok_ads"] = tiktok_data
+
+    # =========================================================================
     # APP STORE VERSIONS
     # =========================================================================
     print("Fetching app store versions...")

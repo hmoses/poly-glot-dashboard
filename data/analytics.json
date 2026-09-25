@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-25T17:17:11.901865+00:00",
+  "updated_at": "2026-09-25T17:23:50.756616+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 3980,
@@ -4474,6 +4474,35 @@
     "active_by_plan": {},
     "raw_events": [],
     "raw_state": []
+  },
+  "tiktok_ads": {
+    "advertiser_id": "7674635512447238161",
+    "campaigns": [
+      {
+        "name": "Poly-Glot_ios",
+        "status": "ACTIVE",
+        "budget_per_day": 20.0,
+        "start_date": "2026-09-16",
+        "end_date": "2026-09-23",
+        "impressions": 29795,
+        "clicks": 541,
+        "ctr": 1.82,
+        "cpc": 0.26,
+        "cost": 139.98,
+        "conversions": 0
+      }
+    ],
+    "totals": {
+      "impressions": 29795,
+      "clicks": 541,
+      "ctr": 1.82,
+      "cpc": 0.26,
+      "cost": 139.98,
+      "conversions": 0
+    },
+    "daily": {},
+    "source": "snapshot_2026-09-23",
+    "last_fetched": "2026-09-25T17:24:27.774639+00:00"
   },
   "app_versions": [
     {

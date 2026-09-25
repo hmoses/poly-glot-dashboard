@@ -319,6 +319,40 @@ footer a { color: var(--accent); }
   </div>
 </div></section>
 
+<!-- ============ TIKTOK ADS SPEND ============ -->
+<section class="section"><div class="container">
+  <span class="section-eyebrow">💸 TikTok Ads Spend</span>
+  <h2 class="section-title">Paid Acquisition Performance</h2>
+  <p class="section-desc">Real spend data from TikTok Ads Manager — impressions, clicks, cost, and conversions for Poly-Glot campaigns.</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-top:20px">
+    <div class="stat-card"><div class="stat-label">Total Spend</div><div class="stat-value" id="stat-tt-cost" style="color:#f87171;font-size:2rem">—</div><div class="stat-detail" id="stat-tt-cost-detail">—</div></div>
+    <div class="stat-card"><div class="stat-label">Impressions</div><div class="stat-value" id="stat-tt-impressions" style="color:#7dd3fc">—</div><div class="stat-detail" id="stat-tt-imp-detail">Times ad was shown</div></div>
+    <div class="stat-card"><div class="stat-label">Clicks</div><div class="stat-value" id="stat-tt-clicks" style="color:#10b981">—</div><div class="stat-detail" id="stat-tt-click-detail">—</div></div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
+    <div class="stat-card"><div class="stat-label">CTR</div><div class="stat-value" id="stat-tt-ctr" style="color:#fbbf24">—</div><div class="stat-detail">Click-through rate</div></div>
+    <div class="stat-card"><div class="stat-label">CPC</div><div class="stat-value" id="stat-tt-cpc" style="color:#a78bfa">—</div><div class="stat-detail">Cost per click</div></div>
+    <div class="stat-card"><div class="stat-label">Conversions</div><div class="stat-value" id="stat-tt-conv" style="color:#10b981">—</div><div class="stat-detail">App installs attributed</div></div>
+    <div class="stat-card"><div class="stat-label">Cost / Install</div><div class="stat-value" id="stat-tt-cpi" style="color:#f472b6">—</div><div class="stat-detail" id="stat-tt-cpi-detail">Spend ÷ App Referrer installs</div></div>
+  </div>
+  <div class="chart-grid" style="margin-top:20px">
+    <div class="chart-card full">
+      <div class="chart-title">📢 Active Campaigns</div>
+      <div id="tt-campaign-grid" class="version-grid" style="margin-top:0"></div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card full">
+      <div class="chart-title">📅 Daily Ad Spend</div>
+      <div id="tt-daily-chart" class="sparkline-row" style="height:80px"></div>
+      <div id="tt-daily-labels" class="spark-labels"></div>
+    </div>
+  </div>
+  <div style="margin-top:12px;padding:12px 16px;background:rgba(125,211,252,0.04);border:1px solid rgba(125,211,252,0.08);border-radius:8px;font-size:0.75rem;color:var(--text-faint);font-family:'Fira Code',monospace">
+    <span id="tt-data-source">—</span>
+  </div>
+</div></section>
+
 <!-- ============ ACQUISITIONS + CAMPAIGNS ============ -->
 <section class="section"><div class="container">
   <span class="section-eyebrow">🎯 Acquisitions</span>
@@ -575,6 +609,64 @@ function render(data){
       wrcB.innerHTML+='<div class="bar-row"><div class="bar-label">'+(CF[e[0]]||'🏳️')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxW*100)+'%;background:linear-gradient(135deg,#a78bfa 0%,#c084fc 100%)"><span class="bar-count">'+e[1]+'</span></div></div></div>';
     });
   } else { wrcB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:10px 0">No web referral data yet</div>'; }
+
+  // ============ TIKTOK ADS RENDERING ============
+  var tt=data.tiktok_ads||{};
+  var ttT=tt.totals||{};
+  document.getElementById('stat-tt-cost').textContent=ttT.cost?'$'+ttT.cost.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'$0.00';
+  document.getElementById('stat-tt-cost-detail').textContent=ttT.cost?'Budget: $'+(tt.campaigns&&tt.campaigns[0]?tt.campaigns[0].budget_per_day:'?')+'/day':'No spend yet';
+  document.getElementById('stat-tt-impressions').textContent=(ttT.impressions||0).toLocaleString();
+  document.getElementById('stat-tt-imp-detail').textContent=ttT.impressions?ttT.impressions.toLocaleString()+' times ad was shown':'No impressions yet';
+  document.getElementById('stat-tt-clicks').textContent=(ttT.clicks||0).toLocaleString();
+  document.getElementById('stat-tt-click-detail').textContent=ttT.clicks?ttT.clicks+' clicks to App Store':'No clicks yet';
+  document.getElementById('stat-tt-ctr').textContent=ttT.ctr?ttT.ctr+'%':'—';
+  document.getElementById('stat-tt-cpc').textContent=ttT.cpc?'$'+ttT.cpc.toFixed(2):'—';
+  document.getElementById('stat-tt-conv').textContent=(ttT.conversions||0).toLocaleString();
+  // Calculate cost per install using App Referrer installs from ASC
+  var appRefInstalls=(data.installs||{}).installs_by_source||{};
+  var ttInstalls=appRefInstalls['App referrer']||0;
+  if(ttT.cost>0&&ttInstalls>0){
+    document.getElementById('stat-tt-cpi').textContent='$'+(ttT.cost/ttInstalls).toFixed(2);
+    document.getElementById('stat-tt-cpi-detail').textContent='$'+ttT.cost.toFixed(2)+' ÷ '+ttInstalls+' app-referred installs';
+  } else if(ttT.cost>0){
+    document.getElementById('stat-tt-cpi').textContent='—';
+    document.getElementById('stat-tt-cpi-detail').textContent='No app-referred installs yet';
+  }
+
+  // Campaign cards
+  var ttCG=document.getElementById('tt-campaign-grid');
+  var ttCamps=tt.campaigns||[];
+  if(ttCamps.length>0){
+    ttCG.innerHTML='';
+    ttCamps.forEach(function(c){
+      var statusCls=c.status==='ACTIVE'?'state-ready':c.status==='PAUSED'?'state-waiting':'state-preparing';
+      var statusLabel=c.status==='ACTIVE'?'✅ Active':c.status==='PAUSED'?'⏸️ Paused':'📝 '+c.status;
+      ttCG.innerHTML+='<div class="version-card ios"><div class="version-platform">🎵 TikTok · '+c.start_date+' → '+c.end_date+'</div><div class="version-number" style="font-size:1.4rem">'+c.name+'</div><div style="display:flex;gap:16px;margin:8px 0;font-size:0.82rem;color:var(--text-muted)"><span>'+c.impressions.toLocaleString()+' imp</span><span>'+c.clicks+' clicks</span><span>$'+c.cost.toFixed(2)+' spent</span></div><div class="version-state '+statusCls+'">'+statusLabel+'</div><div class="version-meta">$'+c.budget_per_day.toFixed(2)+'/day budget · CTR '+c.ctr+'% · CPC $'+c.cpc.toFixed(2)+'</div></div>';
+    });
+  } else { ttCG.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No campaign data — add TIKTOK_ACCESS_TOKEN to enable API sync</div>'; }
+
+  // Daily ad spend chart
+  var ttDaily=tt.daily||{};
+  var ttDates=Object.keys(ttDaily).sort();
+  var ttDC=document.getElementById('tt-daily-chart'), ttDL=document.getElementById('tt-daily-labels');
+  if(ttDates.length>0){
+    var mxTT=Math.max.apply(null,ttDates.map(function(d){return ttDaily[d].cost||0}));
+    if(mxTT<0.01) mxTT=1;
+    ttDates.forEach(function(date){
+      var dayData=ttDaily[date];
+      var cost=dayData.cost||0;
+      var bar=document.createElement('div'); bar.className='spark-bar';
+      bar.style.height=Math.max((cost/mxTT)*100,5)+'%';
+      bar.style.background='linear-gradient(135deg, #f87171 0%, #fbbf24 100%)';
+      bar.innerHTML='<div class="tooltip">'+date+': $'+cost.toFixed(2)+' ('+dayData.clicks+' clicks, '+(dayData.impressions||0).toLocaleString()+' imp)</div>';
+      ttDC.appendChild(bar);
+      var lb=document.createElement('div'); lb.className='spark-label'; lb.textContent=date.slice(5); ttDL.appendChild(lb);
+    });
+  } else { ttDC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">Daily breakdown available with API integration</div>'; }
+
+  // Data source badge
+  var srcLabel={'api':'🟢 Live from TikTok Marketing API','cached':'🟡 Cached (last API fetch: '+tt.last_fetched+')','manual':'🔵 Manual snapshot','snapshot_2026-09-23':'📸 Snapshot from Sep 23, 2026 TikTok Ads Manager'};
+  document.getElementById('tt-data-source').textContent='Data source: '+(srcLabel[tt.source]||tt.source||'unknown')+' · To enable auto-refresh: set TIKTOK_ACCESS_TOKEN + TIKTOK_ADVERTISER_ID secrets in GitHub repo';
 
   // Version cards — show LIVE version + any pending/in-review version per platform
   const vg=document.getElementById('version-grid');
