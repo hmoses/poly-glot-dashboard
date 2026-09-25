@@ -221,6 +221,37 @@ footer a { color: var(--accent); }
     <div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">Loading version data...</div>
   </div>
 </div></section>
+
+<!-- ============ SUBSCRIPTIONS & REVENUE ============ -->
+<section class="section"><div class="container">
+  <span class="section-eyebrow">💰 Subscriptions & Revenue</span>
+  <h2 class="section-title">Monetization</h2>
+  <p class="section-desc">Subscription plans, active subscribers, and revenue tracking from App Store Connect.</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
+    <div class="stat-card"><div class="stat-label">Active Subscribers</div><div class="stat-value" id="stat-sub-active" style="color:#10b981">0</div><div class="stat-detail" id="stat-sub-active-detail">—</div></div>
+    <div class="stat-card"><div class="stat-label">Sub Events</div><div class="stat-value" id="stat-sub-events" style="color:#7dd3fc">0</div><div class="stat-detail" id="stat-sub-events-detail">Subscribes, renewals, cancels</div></div>
+    <div class="stat-card"><div class="stat-label">Est. Revenue</div><div class="stat-value" id="stat-sub-revenue" style="color:#fbbf24">$0</div><div class="stat-detail" id="stat-sub-revenue-detail">Based on subscription events × price</div></div>
+    <div class="stat-card"><div class="stat-label">Plans Available</div><div class="stat-value" id="stat-sub-plans" style="color:#a78bfa">0</div><div class="stat-detail" id="stat-sub-plans-detail">—</div></div>
+  </div>
+  <div class="chart-grid" style="margin-top:20px">
+    <div class="chart-card full">
+      <div class="chart-title">📦 Subscription Plans</div>
+      <div id="sub-plans-grid" class="version-grid" style="margin-top:0"></div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card">
+      <div class="chart-title">📊 Subscription Events</div>
+      <div id="sub-event-bars" class="bar-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📅 Events Over Time</div>
+      <div id="sub-daily-chart" class="sparkline-row" style="height:60px"></div>
+      <div id="sub-daily-labels" class="spark-labels"></div>
+    </div>
+  </div>
+</div></section>
+
 <section class="section"><div class="container">
   <div class="stats-grid">
     <div class="stat-card">
@@ -584,6 +615,67 @@ function render(data){
       });
     });
   } else { vg.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No version data available</div>'; }
+  // ============ SUBSCRIPTIONS RENDERING ============
+  var subs=data.subscriptions||{};
+  var subPlans=subs.plans||[];
+  var subActive=subs.total_active||0;
+  var subEvents=subs.total_events||0;
+  var subRevenue=subs.total_revenue_estimate||0;
+  document.getElementById('stat-sub-active').textContent=subActive.toLocaleString();
+  document.getElementById('stat-sub-active-detail').textContent=subActive>0?Object.entries(subs.active_by_plan||{}).map(function(e){return e[0]+': '+e[1]}).join(' · '):'No active subscribers yet';
+  document.getElementById('stat-sub-events').textContent=subEvents.toLocaleString();
+  document.getElementById('stat-sub-events-detail').textContent=subEvents>0?Object.entries(subs.events_by_type||{}).map(function(e){return e[0]+': '+e[1]}).join(' · '):'No subscription events yet';
+  document.getElementById('stat-sub-revenue').textContent=subRevenue>0?'$'+subRevenue.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'$0.00';
+  document.getElementById('stat-sub-revenue-detail').textContent=subRevenue>0?'Estimated from events × plan price':'Waiting for first subscriber';
+  document.getElementById('stat-sub-plans').textContent=subPlans.length.toString();
+  document.getElementById('stat-sub-plans-detail').textContent=subPlans.map(function(p){return p.name}).join(' · ')||'Loading...';
+
+  // Plan cards
+  var spG=document.getElementById('sub-plans-grid');
+  if(subPlans.length>0){
+    spG.innerHTML='';
+    var periodLabels={'ONE_MONTH':'Monthly','ONE_YEAR':'Annual','THREE_MONTHS':'Quarterly','SIX_MONTHS':'Semi-Annual','ONE_WEEK':'Weekly'};
+    subPlans.forEach(function(plan){
+      var isAnnual=plan.period==='ONE_YEAR';
+      var cls=isAnnual?'macos':'ios';
+      var priceStr=plan.price?'$'+plan.price.toFixed(2):'—';
+      var procStr=plan.proceeds?'$'+plan.proceeds.toFixed(2)+' proceeds':'';
+      var perLabel=periodLabels[plan.period]||plan.period;
+      var stateLabel=plan.state==='APPROVED'?'✅ Live':plan.state==='WAITING_FOR_REVIEW'?'⏳ In Review':'📝 '+plan.state;
+      var activeCount=(subs.active_by_plan||{})[plan.name]||0;
+      spG.innerHTML+='<div class="version-card '+cls+'"><div class="version-platform">'+plan.group+' · '+perLabel+'</div><div class="version-number">'+priceStr+'</div><div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">'+plan.name+'</div><div class="version-state '+(plan.state==='APPROVED'?'state-ready':'state-waiting')+'">'+stateLabel+'</div><div class="version-meta">'+procStr+(activeCount>0?' · '+activeCount+' active':'')+'</div></div>';
+    });
+  } else { spG.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">Loading subscription plans...</div>'; }
+
+  // Subscription event bars
+  var seB=document.getElementById('sub-event-bars');
+  var subEvtTypes=subs.events_by_type||{};
+  var seE=Object.entries(subEvtTypes).sort(function(a,b){return b[1]-a[1]});
+  if(seE.length>0){
+    var mxSE=seE[0][1];
+    var seColors={'Subscribe':'linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)','Renew':'linear-gradient(135deg,#7dd3fc 0%,#a78bfa 100%)','Cancel':'linear-gradient(135deg,#f87171 0%,#fbbf24 100%)','Reactivate':'linear-gradient(135deg,#fbbf24 0%,#10b981 100%)'};
+    seE.forEach(function(e){
+      seB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:140px;font-size:0.78rem">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxSE*100)+'%;background:'+(seColors[e[0]]||'var(--gradient-primary)')+'"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+    });
+  } else { seB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No subscription events yet — revenue starts when your first user subscribes</div>'; }
+
+  // Subscription daily chart
+  var subByDate=subs.events_by_date||{};
+  var subDates=Object.keys(subByDate).sort();
+  var subDC=document.getElementById('sub-daily-chart'), subDL=document.getElementById('sub-daily-labels');
+  if(subDates.length>0){
+    var mxSD=Math.max.apply(null,subDates.map(function(d){return subByDate[d]}));
+    subDates.forEach(function(date){
+      var count=subByDate[date], pct=mxSD>0?(count/mxSD)*100:0;
+      var bar=document.createElement('div'); bar.className='spark-bar';
+      bar.style.height=Math.max(pct,5)+'%';
+      bar.style.background='linear-gradient(135deg, #fbbf24 0%, #f97316 100%)';
+      bar.innerHTML='<div class="tooltip">'+date+': '+count+'</div>';
+      subDC.appendChild(bar);
+      var lb=document.createElement('div'); lb.className='spark-label'; lb.textContent=date.slice(5); subDL.appendChild(lb);
+    });
+  } else { subDC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No events yet</div>'; }
+
   // ============ ACQUISITIONS RENDERING ============
   var acq=data.acquisitions||{};
   document.getElementById('stat-acq-total').textContent=(acq.total_unique_views||0).toLocaleString();

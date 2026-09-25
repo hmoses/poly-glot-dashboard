@@ -486,20 +486,133 @@ def main():
     output["installs"] = installs_data
 
     # =========================================================================
-    # SUBSCRIPTIONS
+    # SUBSCRIPTIONS (events + state from analytics reports)
     # =========================================================================
     print("Fetching subscription reports...")
-    sub_rows = merge_report_rows(req_ids, "App Store Subscription Event Report Standard")
-    if sub_rows:
-        output["raw_subscriptions"] = sub_rows
-        total_subs = sum(int(r.get('Counts', '0') or '0') for r in sub_rows)
-        output["summary"]["total_subscriptions"] = total_subs
-        print(f"  Subscription events: {total_subs}")
-    else:
-        output["summary"]["total_subscriptions"] = 0
+    sub_event_rows = merge_report_rows(req_ids, "App Store Subscription Event Report Standard")
+    sub_state_rows = merge_report_rows(req_ids, "App Store Subscription State Report Standard")
+
+    subscription_data = {
+        "plans": [],
+        "total_events": 0,
+        "total_active": 0,
+        "total_revenue_estimate": 0.0,
+        "events_by_type": {},
+        "events_by_date": {},
+        "events_by_country": {},
+        "active_by_plan": {},
+        "raw_events": [],
+        "raw_state": [],
+    }
+
+    # Fetch subscription product info from ASC
+    print("Fetching subscription product info...")
+    try:
+        sg_data = api_get(f"https://api.appstoreconnect.apple.com/v1/apps/{APP_ID}/subscriptionGroups")
+        for sg in sg_data.get('data', []):
+            sg_id = sg['id']
+            sg_name = sg['attributes'].get('referenceName', 'Unknown')
+            subs_data = api_get(
+                f"https://api.appstoreconnect.apple.com/v1/subscriptionGroups/{sg_id}/subscriptions",
+                {"fields[subscriptions]": "name,productId,state,subscriptionPeriod"}
+            )
+            for sub in subs_data.get('data', []):
+                a = sub['attributes']
+                plan = {
+                    "id": sub['id'],
+                    "name": a.get('name', ''),
+                    "product_id": a.get('productId', ''),
+                    "state": a.get('state', ''),
+                    "period": a.get('subscriptionPeriod', ''),
+                    "group": sg_name,
+                    "price": None,
+                    "proceeds": None,
+                }
+                # Get US price
+                try:
+                    price_data = api_get(
+                        f"https://api.appstoreconnect.apple.com/v1/subscriptions/{sub['id']}/prices",
+                        {"filter[territory]": "USA", "include": "subscriptionPricePoint", "limit": 1}
+                    )
+                    for inc in price_data.get('included', []):
+                        if inc['type'] == 'subscriptionPricePoints':
+                            plan['price'] = float(inc['attributes'].get('customerPrice', 0))
+                            plan['proceeds'] = float(inc['attributes'].get('proceeds', 0))
+                except Exception as e:
+                    print(f"    Price fetch error: {e}")
+                subscription_data["plans"].append(plan)
+                print(f"    {plan['name']}: ${plan['price']} / {plan['period']} (proceeds: ${plan['proceeds']})")
+    except Exception as e:
+        print(f"  Subscription group fetch error: {e}")
+
+    # Process subscription events
+    if sub_event_rows:
+        seen = set()
+        unique = []
+        for row in sub_event_rows:
+            key = (row.get('Date',''), row.get('Event',''), row.get('Subscription Name',''),
+                   row.get('Territory',''), row.get('Counts',''))
+            if key not in seen:
+                seen.add(key)
+                unique.append(row)
+
+        events_by_type = defaultdict(int)
+        events_by_date = defaultdict(int)
+        events_by_country = defaultdict(int)
+        total_events = 0
+
+        for row in unique:
+            counts = int(row.get('Counts', '0') or '0')
+            total_events += counts
+            events_by_type[row.get('Event', '')] += counts
+            events_by_date[row.get('Date', '')] += counts
+            events_by_country[row.get('Territory', '')] += counts
+
+        subscription_data["total_events"] = total_events
+        subscription_data["events_by_type"] = dict(sorted(events_by_type.items(), key=lambda x: -x[1]))
+        subscription_data["events_by_date"] = dict(sorted(events_by_date.items()))
+        subscription_data["events_by_country"] = dict(sorted(events_by_country.items(), key=lambda x: -x[1]))
+        subscription_data["raw_events"] = unique[:50]
+        print(f"  Events: {total_events} | Types: {dict(events_by_type)}")
+
+    # Process subscription state (active subscribers)
+    if sub_state_rows:
+        active_by_plan = defaultdict(int)
+        total_active = 0
+        for row in sub_state_rows:
+            state = row.get('State', '')
+            counts = int(row.get('Counts', '0') or '0')
+            if state in ('Active', 'active', 'ACTIVE'):
+                sub_name = row.get('Subscription Name', row.get('Product', 'Unknown'))
+                active_by_plan[sub_name] += counts
+                total_active += counts
+        subscription_data["total_active"] = total_active
+        subscription_data["active_by_plan"] = dict(active_by_plan)
+        subscription_data["raw_state"] = sub_state_rows[:50]
+        print(f"  Active subs: {total_active}")
+
+    # Estimate revenue from events (Subscribe events × price)
+    price_map = {}
+    for plan in subscription_data["plans"]:
+        if plan['price']:
+            price_map[plan['name']] = plan['price']
+
+    total_revenue = 0.0
+    total_proceeds = 0.0
+    for row in subscription_data.get("raw_events", []):
+        evt = row.get('Event', '')
+        if 'subscribe' in evt.lower() or 'renew' in evt.lower() or 'reactivat' in evt.lower():
+            sub_name = row.get('Subscription Name', '')
+            counts = int(row.get('Counts', '0') or '0')
+            price = price_map.get(sub_name, 0)
+            total_revenue += price * counts
+    subscription_data["total_revenue_estimate"] = round(total_revenue, 2)
+
+    output["subscriptions"] = subscription_data
+    output["summary"]["total_subscriptions"] = subscription_data["total_events"]
 
     # =========================================================================
-    # PURCHASES
+    # PURCHASES (in-app purchases)
     # =========================================================================
     print("Fetching purchase reports...")
     purch_rows = merge_report_rows(req_ids, "App Store Purchases Standard")

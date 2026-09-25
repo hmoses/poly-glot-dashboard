@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-25T17:03:36.582254+00:00",
+  "updated_at": "2026-09-25T17:17:11.901865+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 3980,
@@ -4441,6 +4441,39 @@
         "_date": "2026-09-25"
       }
     ]
+  },
+  "subscriptions": {
+    "plans": [
+      {
+        "id": "6804502193",
+        "name": "Pro Annual",
+        "product_id": "ai.polyglot.workspace.pro.annual",
+        "state": "APPROVED",
+        "period": "ONE_YEAR",
+        "group": "Pro",
+        "price": 79.99,
+        "proceeds": 56.0
+      },
+      {
+        "id": "6804502205",
+        "name": "Pro Monthly",
+        "product_id": "ai.polyglot.workspace.pro.monthly",
+        "state": "APPROVED",
+        "period": "ONE_MONTH",
+        "group": "Pro",
+        "price": 9.99,
+        "proceeds": 7.0
+      }
+    ],
+    "total_events": 0,
+    "total_active": 0,
+    "total_revenue_estimate": 0.0,
+    "events_by_type": {},
+    "events_by_date": {},
+    "events_by_country": {},
+    "active_by_plan": {},
+    "raw_events": [],
+    "raw_state": []
   },
   "app_versions": [
     {
