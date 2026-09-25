@@ -531,7 +531,7 @@ function render(data){
   var mxS=srcE[0]?srcE[0][1]:1;
   var srcColors={'Web referrer':'linear-gradient(135deg,#a78bfa 0%,#c084fc 100%)','App referrer':'linear-gradient(135deg,#7dd3fc 0%,#a78bfa 100%)','App Store search':'linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)','App Store browse':'linear-gradient(135deg,#fbbf24 0%,#f97316 100%)','Unavailable':'linear-gradient(135deg,#525e78 0%,#8892b0 100%)'};
   srcE.forEach(function(e){
-    var lbl=e[0]==='Web referrer'?'🔗 Web Referrer (TikTok/Ads)':e[0]==='App referrer'?'📱 App Referrer':e[0]==='App Store search'?'🔍 App Store Search':e[0]==='App Store browse'?'📂 App Store Browse':'❓ '+e[0];
+    var lbl=e[0]==='Web referrer'?'🔗 Web Referrer (TikTok/Ads)':e[0]==='App referrer'?'📱 App Referrer':e[0]==='App Store search'?'🔍 App Store Search':e[0]==='App Store browse'?'📂 App Store Browse':e[0]==='Unavailable'?'🔒 Direct / Unattributed (Spotlight, Siri, URL, Privacy)':'❓ '+e[0];
     srcB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:200px;font-size:0.78rem">'+lbl+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxS*100)+'%;background:'+(srcColors[e[0]]||srcColors['Unavailable'])+'"><span class="bar-count">'+e[1].toLocaleString()+'</span></div></div></div>';
   });
 
@@ -671,9 +671,10 @@ function render(data){
   if(isE.length>0){
     var mxIS=isE[0][1];
     var isColors={'App Store search':'linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)','App referrer':'linear-gradient(135deg,#a78bfa 0%,#c084fc 100%)','Web referrer':'linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)','Unavailable':'linear-gradient(135deg,#525e78 0%,#8892b0 100%)','App Store browse':'linear-gradient(135deg,#fbbf24 0%,#f97316 100%)'};
-    var isIcons={'App Store search':'🔍','App referrer':'📱','Web referrer':'🔗','Unavailable':'❓','App Store browse':'📂'};
+    var isIcons={'App Store search':'🔍','App referrer':'📱','Web referrer':'🔗','Unavailable':'🔒','App Store browse':'📂'};
+    var isLabels={'Unavailable':'Direct / Unattributed'};
     isE.forEach(function(e){
-      isB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:160px;font-size:0.78rem">'+(isIcons[e[0]]||'📦')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxIS*100)+'%;background:'+(isColors[e[0]]||'var(--gradient-primary)')+'"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+      isB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:200px;font-size:0.78rem">'+(isIcons[e[0]]||'📦')+' '+(isLabels[e[0]]||e[0])+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxIS*100)+'%;background:'+(isColors[e[0]]||'var(--gradient-primary)')+'"><span class="bar-count">'+e[1]+'</span></div></div></div>';
     });
   } else { isB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No install source data yet</div>'; }
 
