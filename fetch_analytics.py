@@ -3,6 +3,7 @@
 Fetch Poly-Glot AI analytics from App Store Connect API.
 Outputs data/analytics.json for the GitHub Pages dashboard.
 Uses TWO report requests: historical (one-time) + ongoing (rolling current).
+Includes: Engagement, Downloads, Install+Delete, Acquisitions (Source Info + Campaign).
 """
 
 import jwt, time, requests, gzip, io, csv, json, os, sys
@@ -112,6 +113,38 @@ def merge_report_rows(req_ids, report_name):
     return all_rows
 
 
+# Well-known app bundle IDs → friendly names
+APP_NAMES = {
+    "com.zhiliaoapp.musically": "TikTok",
+    "com.ss.iphone.ugc.Ame": "TikTok (US)",
+    "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
+    "com.apple.mobilesafari": "Safari",
+    "com.google.chrome.ios": "Chrome",
+    "com.apple.AppStore": "App Store",
+    "com.facebook.Facebook": "Facebook",
+    "com.facebook.Messenger": "Messenger",
+    "com.burbn.instagram": "Instagram",
+    "com.atebits.Tweetie2": "X (Twitter)",
+    "com.twitter.twitter": "X (Twitter)",
+    "com.reddit.Reddit": "Reddit",
+    "com.linkedin.LinkedIn": "LinkedIn",
+    "com.google.Gmail": "Gmail",
+    "com.apple.mobilemail": "Apple Mail",
+    "com.snapchat.snapchat": "Snapchat",
+    "com.whatsapp.WhatsApp": "WhatsApp",
+    "com.skype.skype": "Skype",
+    "org.telegram.Telegram": "Telegram",
+    "jp.naver.line": "LINE",
+    "com.viber.app": "Viber",
+    "com.discord": "Discord",
+    "com.slack.Slack": "Slack",
+    "net.whatsapp.WhatsApp": "WhatsApp",
+    "com.google.GoogleMobile": "Google",
+    "com.google.youtube": "YouTube",
+    "com.pinterest": "Pinterest",
+}
+
+
 def main():
     os.makedirs("data", exist_ok=True)
     req_ids = [REQ_HISTORICAL, REQ_ONGOING]
@@ -135,7 +168,9 @@ def main():
         "raw_purchases": [],
     }
 
-    # --- Engagement (merge historical + ongoing) ---
+    # =========================================================================
+    # ENGAGEMENT STANDARD (merge historical + ongoing)
+    # =========================================================================
     print("Fetching engagement reports (historical + ongoing)...")
     eng_rows = merge_report_rows(req_ids, "App Store Discovery and Engagement Standard")
     if not eng_rows:
@@ -205,7 +240,9 @@ def main():
         print(f"  Range: {dates[0] if dates else '?'} → {dates[-1] if dates else '?'} ({len(dates)} days)")
         print(f"  Impressions: {total_impressions}, Page Views: {total_page_views}, Taps: {total_taps}")
 
-    # --- Web preview (merge) ---
+    # =========================================================================
+    # WEB PREVIEW (merge)
+    # =========================================================================
     print("Fetching web preview reports...")
     web_rows = merge_report_rows(req_ids, "Web Preview Engagement")
     if web_rows:
@@ -214,7 +251,9 @@ def main():
             output["summary"]["total_web_preview_views"] = total_web_extra
         print(f"  Web preview total: {total_web_extra}")
 
-    # --- Downloads (merge) ---
+    # =========================================================================
+    # DOWNLOADS STANDARD (merge)
+    # =========================================================================
     print("Fetching download reports...")
     dl_rows = merge_report_rows(req_ids, "App Downloads Standard")
     if not dl_rows:
@@ -252,7 +291,203 @@ def main():
     else:
         output["summary"]["total_downloads"] = 0
 
-    # --- Subscriptions ---
+    # =========================================================================
+    # ENGAGEMENT DETAILED — ACQUISITIONS + CAMPAIGNS (Source Info, Campaign)
+    # =========================================================================
+    print("Fetching Engagement Detailed (acquisitions + campaigns)...")
+    eng_detail_rows = merge_report_rows(req_ids, "App Store Discovery and Engagement Detailed")
+    acquisitions = {
+        "total_page_views_detailed": 0,
+        "total_unique_views": 0,
+        "source_info": {},        # bundle ID / referrer → count
+        "source_info_names": {},  # bundle ID → friendly name
+        "campaigns": {},          # campaign token → count
+        "source_info_by_date": {},  # date → {source: count}
+        "acquisitions_by_date": {},  # date → total unique page views (= "acquisitions")
+        "acquisitions_by_country": {},  # territory → total unique views
+        "top_referrers": [],      # [{name, bundle_id, count, pct}]
+        "campaign_list": [],      # [{name, count, pct}]
+    }
+
+    if eng_detail_rows:
+        # Deduplicate
+        seen = set()
+        unique_detail = []
+        for row in eng_detail_rows:
+            key = (row.get('Date',''), row.get('Territory',''), row.get('Event',''),
+                   row.get('Source Type',''), row.get('Source Info',''),
+                   row.get('Campaign',''), row.get('Device',''),
+                   row.get('Platform Version',''), row.get('Counts',''))
+            if key not in seen:
+                seen.add(key)
+                unique_detail.append(row)
+        print(f"  Unique detailed rows: {len(unique_detail)}")
+
+        source_info_counts = defaultdict(int)
+        source_info_unique = defaultdict(int)
+        campaign_counts = defaultdict(int)
+        acq_by_date = defaultdict(int)
+        acq_by_country = defaultdict(int)
+        si_by_date = defaultdict(lambda: defaultdict(int))
+        total_pv = 0
+        total_unique = 0
+
+        for row in unique_detail:
+            event = row.get('Event', '')
+            counts = int(row.get('Counts', '0') or '0')
+            unique_c = int(row.get('Unique Counts', '0') or '0')
+            si = row.get('Source Info', '') or ''
+            camp = row.get('Campaign', '') or ''
+            date = row.get('Date', '')
+            territory = row.get('Territory', '')
+
+            # "Acquisitions" in ASC = page views from sources (the user actually visited your page)
+            if 'page view' in event.lower():
+                total_pv += counts
+                total_unique += unique_c
+                if si:
+                    source_info_counts[si] += counts
+                    source_info_unique[si] += unique_c
+                    si_by_date[date][si] += counts
+                if camp:
+                    campaign_counts[camp] += counts
+                acq_by_date[date] += unique_c
+                acq_by_country[territory] += unique_c
+
+        # Build source_info with friendly names
+        si_sorted = sorted(source_info_counts.items(), key=lambda x: -x[1])
+        source_info_dict = {}
+        source_info_names = {}
+        top_referrers = []
+        for bundle_id, count in si_sorted:
+            friendly = APP_NAMES.get(bundle_id, bundle_id)
+            source_info_dict[bundle_id] = count
+            source_info_names[bundle_id] = friendly
+            pct = round(count / total_pv * 100, 1) if total_pv > 0 else 0
+            top_referrers.append({
+                "bundle_id": bundle_id,
+                "name": friendly,
+                "count": count,
+                "unique": source_info_unique.get(bundle_id, 0),
+                "pct": pct,
+            })
+
+        # Build campaign list
+        camp_sorted = sorted(campaign_counts.items(), key=lambda x: -x[1])
+        campaign_list = []
+        for camp_name, count in camp_sorted:
+            pct = round(count / total_pv * 100, 1) if total_pv > 0 else 0
+            campaign_list.append({"name": camp_name, "count": count, "pct": pct})
+
+        acquisitions = {
+            "total_page_views_detailed": total_pv,
+            "total_unique_views": total_unique,
+            "source_info": source_info_dict,
+            "source_info_names": source_info_names,
+            "campaigns": dict(campaign_counts),
+            "source_info_by_date": {d: dict(v) for d, v in sorted(si_by_date.items())},
+            "acquisitions_by_date": dict(sorted(acq_by_date.items())),
+            "acquisitions_by_country": dict(sorted(acq_by_country.items(), key=lambda x: -x[1])),
+            "top_referrers": top_referrers,
+            "campaign_list": campaign_list,
+        }
+        print(f"  Acquisitions: {total_pv} page views, {total_unique} unique")
+        print(f"  Top referrers: {[r['name'] for r in top_referrers[:5]]}")
+        print(f"  Campaigns: {len(campaign_list)}")
+
+    output["acquisitions"] = acquisitions
+
+    # =========================================================================
+    # INSTALL + DELETE (real-time installs/uninstalls)
+    # =========================================================================
+    print("Fetching Install+Delete reports...")
+    install_rows = merge_report_rows(req_ids, "App Store Installation and Deletion Standard")
+
+    installs_data = {
+        "total_installs": 0,
+        "total_first_time": 0,
+        "total_redownloads": 0,
+        "total_updates": 0,
+        "total_deletes": 0,
+        "net_installs": 0,
+        "installs_by_date": {},
+        "deletes_by_date": {},
+        "installs_by_country": {},
+        "installs_by_source": {},
+        "installs_by_type": {},
+        "raw_installs": [],
+    }
+
+    if install_rows:
+        # Deduplicate
+        seen = set()
+        unique_inst = []
+        for row in install_rows:
+            key = (row.get('Date',''), row.get('Event',''), row.get('Download Type',''),
+                   row.get('Territory',''), row.get('Source Type',''),
+                   row.get('Device',''), row.get('Platform Version',''), row.get('Counts',''))
+            if key not in seen:
+                seen.add(key)
+                unique_inst.append(row)
+        print(f"  Unique install+delete rows: {len(unique_inst)}")
+
+        inst_by_date = defaultdict(int)
+        del_by_date = defaultdict(int)
+        inst_by_country = defaultdict(int)
+        inst_by_source = defaultdict(int)
+        inst_by_type = defaultdict(int)
+        total_installs = 0
+        total_first = 0
+        total_redl = 0
+        total_upd = 0
+        total_deletes = 0
+
+        for row in unique_inst:
+            evt = row.get('Event', '')
+            counts = int(row.get('Counts', '0') or '0')
+            date = row.get('Date', '')
+            territory = row.get('Territory', '')
+            dl_type = row.get('Download Type', '')
+            source = row.get('Source Type', '')
+
+            if evt == 'Install':
+                inst_by_date[date] += counts
+                inst_by_country[territory] += counts
+                inst_by_source[source] += counts
+                inst_by_type[dl_type] += counts
+                total_installs += counts
+                if dl_type == 'First-time download':
+                    total_first += counts
+                elif dl_type == 'Redownload':
+                    total_redl += counts
+                elif dl_type == 'Manual update':
+                    total_upd += counts
+            elif evt == 'Delete':
+                del_by_date[date] += counts
+                total_deletes += counts
+
+        installs_data = {
+            "total_installs": total_installs,
+            "total_first_time": total_first,
+            "total_redownloads": total_redl,
+            "total_updates": total_upd,
+            "total_deletes": total_deletes,
+            "net_installs": total_installs - total_deletes,
+            "installs_by_date": dict(sorted(inst_by_date.items())),
+            "deletes_by_date": dict(sorted(del_by_date.items())),
+            "installs_by_country": dict(sorted(inst_by_country.items(), key=lambda x: -x[1])),
+            "installs_by_source": dict(sorted(inst_by_source.items(), key=lambda x: -x[1])),
+            "installs_by_type": dict(sorted(inst_by_type.items(), key=lambda x: -x[1])),
+            "raw_installs": unique_inst[:100],  # Keep last 100 for table
+        }
+        print(f"  Installs: {total_installs} (first: {total_first}, redl: {total_redl}, upd: {total_upd})")
+        print(f"  Deletes: {total_deletes} | Net: {total_installs - total_deletes}")
+
+    output["installs"] = installs_data
+
+    # =========================================================================
+    # SUBSCRIPTIONS
+    # =========================================================================
     print("Fetching subscription reports...")
     sub_rows = merge_report_rows(req_ids, "App Store Subscription Event Report Standard")
     if sub_rows:
@@ -263,7 +498,9 @@ def main():
     else:
         output["summary"]["total_subscriptions"] = 0
 
-    # --- Purchases ---
+    # =========================================================================
+    # PURCHASES
+    # =========================================================================
     print("Fetching purchase reports...")
     purch_rows = merge_report_rows(req_ids, "App Store Purchases Standard")
     if purch_rows:
@@ -274,11 +511,15 @@ def main():
     else:
         output["summary"]["total_purchases"] = 0
 
-    # --- App Store Versions ---
+    # =========================================================================
+    # APP STORE VERSIONS
+    # =========================================================================
     print("Fetching app store versions...")
     output["app_versions"] = fetch_app_versions()
 
-    # --- Pre-aggregate funnel ---
+    # =========================================================================
+    # PRE-AGGREGATE FUNNEL (existing TikTok funnel)
+    # =========================================================================
     web_ref = 0
     app_ref = 0
     web_ref_countries = defaultdict(int)
@@ -316,6 +557,10 @@ def main():
     s = output["summary"]
     print(f"Summary: {s.get('total_downloads',0)} downloads | {s.get('total_impressions',0)} impressions | {s.get('total_countries',0)} countries")
     print(f"Range: {s.get('date_range_start','')} → {s.get('date_range_end','')}")
+    a = output.get("acquisitions", {})
+    print(f"Acquisitions: {a.get('total_page_views_detailed',0)} detailed views | {len(a.get('top_referrers',[]))} referrers | {len(a.get('campaign_list',[]))} campaigns")
+    i = output.get("installs", {})
+    print(f"Installs: {i.get('total_installs',0)} installs | {i.get('total_deletes',0)} deletes | net {i.get('net_installs',0)}")
 
 
 if __name__ == "__main__":

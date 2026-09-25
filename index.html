@@ -288,6 +288,88 @@ footer a { color: var(--accent); }
   </div>
 </div></section>
 
+<!-- ============ ACQUISITIONS + CAMPAIGNS ============ -->
+<section class="section"><div class="container">
+  <span class="section-eyebrow">🎯 Acquisitions</span>
+  <h2 class="section-title">Where Users Come From</h2>
+  <p class="section-desc">Real acquisition data from App Store Connect — which apps, campaigns, and sources drive product page views and installs.</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
+    <div class="stat-card"><div class="stat-label">Total Acquisitions</div><div class="stat-value" id="stat-acq-total" style="color:#f472b6">—</div><div class="stat-detail">Unique product page views</div></div>
+    <div class="stat-card"><div class="stat-label">Top Referrer</div><div class="stat-value" id="stat-acq-top" style="color:#a78bfa;font-size:1.4rem">—</div><div class="stat-detail" id="stat-acq-top-count">—</div></div>
+    <div class="stat-card"><div class="stat-label">Referrer Apps</div><div class="stat-value" id="stat-acq-apps" style="color:#7dd3fc">—</div><div class="stat-detail">Distinct source apps</div></div>
+    <div class="stat-card"><div class="stat-label">Campaigns</div><div class="stat-value" id="stat-acq-campaigns" style="color:#fbbf24">—</div><div class="stat-detail" id="stat-acq-camp-detail">Campaign tokens tracked</div></div>
+  </div>
+  <div class="chart-grid" style="margin-top:20px">
+    <div class="chart-card full">
+      <div class="chart-title">🏷️ Top Referrer Apps (Source Info)</div>
+      <div id="acq-referrer-bars" class="bar-chart"></div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card">
+      <div class="chart-title">📅 Acquisitions by Day</div>
+      <div id="acq-daily-chart" class="sparkline-row" style="height:80px"></div>
+      <div id="acq-daily-labels" class="spark-labels"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🌍 Acquisitions by Country</div>
+      <div id="acq-country-bars" class="bar-chart"></div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card full">
+      <div class="chart-title">📢 Campaign Performance</div>
+      <div id="acq-campaign-bars" class="bar-chart"></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ REAL-TIME INSTALLS + DELETES ============ -->
+<section class="section"><div class="container">
+  <span class="section-eyebrow">📲 Real-Time Installs</span>
+  <h2 class="section-title">Installs &amp; Deletes</h2>
+  <p class="section-desc">Live install and delete tracking — first-time downloads, redownloads, manual updates, and uninstalls.</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
+    <div class="stat-card"><div class="stat-label">Total Installs</div><div class="stat-value" id="stat-inst-total" style="color:#10b981">—</div><div class="stat-detail" id="stat-inst-detail">—</div></div>
+    <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-inst-first" style="color:#7dd3fc">—</div><div class="stat-detail">Brand new users</div></div>
+    <div class="stat-card"><div class="stat-label">Deletes</div><div class="stat-value" id="stat-inst-deletes" style="color:#f87171">—</div><div class="stat-detail">App removals</div></div>
+    <div class="stat-card"><div class="stat-label">Net Installs</div><div class="stat-value" id="stat-inst-net" style="color:#fbbf24">—</div><div class="stat-detail">Installs − Deletes</div></div>
+  </div>
+  <div class="chart-grid" style="margin-top:20px">
+    <div class="chart-card">
+      <div class="chart-title">📊 Install Type Breakdown</div>
+      <div id="inst-type-bars" class="bar-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🔍 Install Sources</div>
+      <div id="inst-source-bars" class="bar-chart"></div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card full">
+      <div class="chart-title">📅 Installs vs Deletes by Day</div>
+      <div style="display:flex;gap:20px">
+        <div style="flex:1">
+          <div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:6px;font-family:'Fira Code',monospace">✅ INSTALLS</div>
+          <div id="inst-daily-chart" class="sparkline-row" style="height:60px"></div>
+          <div id="inst-daily-labels" class="spark-labels"></div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:6px;font-family:'Fira Code',monospace">❌ DELETES</div>
+          <div id="del-daily-chart" class="sparkline-row" style="height:60px"></div>
+          <div id="del-daily-labels" class="spark-labels"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-grid" style="margin-top:16px">
+    <div class="chart-card full">
+      <div class="chart-title">🌍 Installs by Country</div>
+      <div id="inst-country-bars" class="bar-chart"></div>
+    </div>
+  </div>
+</div></section>
+
 <section class="section"><div class="container">
   <span class="section-eyebrow">📊 Daily Trends</span>
   <h2 class="section-title">Impressions Over Time</h2>
@@ -463,26 +545,179 @@ function render(data){
     });
   } else { wrcB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:10px 0">No web referral data yet</div>'; }
 
-  // Version cards
+  // Version cards — show LIVE version + any pending/in-review version per platform
   const vg=document.getElementById('version-grid');
   const versions=data.app_versions||[];
   if(versions.length>0){
     vg.innerHTML='';
     const stateMap={'READY_FOR_SALE':['✅ Live','state-ready'],'WAITING_FOR_REVIEW':['⏳ Waiting for Review','state-waiting'],'IN_REVIEW':['🔍 In Review','state-review'],'PREPARE_FOR_SUBMISSION':['📝 Preparing','state-preparing'],'DEVELOPER_REJECTED':['↩️ Dev Rejected','state-rejected'],'REJECTED':['❌ Rejected','state-rejected'],'PENDING_DEVELOPER_RELEASE':['🚀 Pending Release','state-waiting'],'PROCESSING_FOR_APP_STORE':['⚙️ Processing','state-waiting'],'DEVELOPER_REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REMOVED_FROM_SALE':['🚫 Removed','state-rejected'],'REPLACED_WITH_NEW_VERSION':['🔄 Replaced','state-preparing']};
     const platName={'IOS':'📱 iPhone & iPad','MAC_OS':'💻 macOS','VISION_OS':'🥽 visionOS'};
-    // Only show the CURRENT (latest) version per platform
-    var latest={};
-    versions.forEach(v=>{
-      if(!latest[v.platform]||new Date(v.createdDate)>new Date(latest[v.platform].createdDate)){latest[v.platform]=v;}
-    });
+    const liveStates=['READY_FOR_SALE'];
+    const pendingStates=['WAITING_FOR_REVIEW','IN_REVIEW','PREPARE_FOR_SUBMISSION','PENDING_DEVELOPER_RELEASE','PROCESSING_FOR_APP_STORE'];
+    // For each platform: find the latest LIVE version + the latest PENDING version (if any)
     ['IOS','MAC_OS'].forEach(p=>{
-      const v=latest[p]; if(!v) return;
-      const cls=v.platform==='IOS'?'ios':'macos';
-      const [label,stCls]=stateMap[v.appStoreState]||[v.appStoreState,'state-preparing'];
-      const created=v.createdDate?new Date(v.createdDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-      vg.innerHTML+=`<div class="version-card ${cls}"><div class="version-platform">${platName[v.platform]||v.platform}</div><div class="version-number">v${v.versionString}</div><div class="version-state ${stCls}">${label}</div><div class="version-meta">${created}${v.releaseType?' · '+v.releaseType:''}</div></div>`;
+      var platVersions=versions.filter(v=>v.platform===p);
+      // Find latest live
+      var liveV=null;
+      platVersions.filter(v=>liveStates.includes(v.appStoreState)).forEach(v=>{
+        if(!liveV||new Date(v.createdDate)>new Date(liveV.createdDate)) liveV=v;
+      });
+      // Find latest pending/in-review
+      var pendV=null;
+      platVersions.filter(v=>pendingStates.includes(v.appStoreState)).forEach(v=>{
+        if(!pendV||new Date(v.createdDate)>new Date(pendV.createdDate)) pendV=v;
+      });
+      // Render: pending first (if exists), then live
+      var toShow=[];
+      if(pendV) toShow.push(pendV);
+      if(liveV) toShow.push(liveV);
+      if(toShow.length===0 && platVersions.length>0){
+        // Fallback: just show the latest version regardless of state
+        platVersions.sort((a,b)=>new Date(b.createdDate)-new Date(a.createdDate));
+        toShow.push(platVersions[0]);
+      }
+      toShow.forEach(v=>{
+        const cls=v.platform==='IOS'?'ios':'macos';
+        const [label,stCls]=stateMap[v.appStoreState]||[v.appStoreState,'state-preparing'];
+        const created=v.createdDate?new Date(v.createdDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+        vg.innerHTML+=`<div class="version-card ${cls}"><div class="version-platform">${platName[v.platform]||v.platform}</div><div class="version-number">v${v.versionString}</div><div class="version-state ${stCls}">${label}</div><div class="version-meta">${created}${v.releaseType?' · '+v.releaseType:''}</div></div>`;
+      });
     });
   } else { vg.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No version data available</div>'; }
+  // ============ ACQUISITIONS RENDERING ============
+  var acq=data.acquisitions||{};
+  document.getElementById('stat-acq-total').textContent=(acq.total_unique_views||0).toLocaleString();
+  var topRefs=acq.top_referrers||[];
+  document.getElementById('stat-acq-top').textContent=topRefs.length>0?topRefs[0].name:'—';
+  document.getElementById('stat-acq-top-count').textContent=topRefs.length>0?topRefs[0].count.toLocaleString()+' views ('+topRefs[0].pct+'%)':'No data';
+  document.getElementById('stat-acq-apps').textContent=topRefs.length.toString();
+  var campList=acq.campaign_list||[];
+  document.getElementById('stat-acq-campaigns').textContent=campList.length.toString();
+  document.getElementById('stat-acq-camp-detail').textContent=campList.length>0?campList[0].name+' ('+campList[0].count+')':'No campaigns yet';
+
+  // Referrer bars
+  var arB=document.getElementById('acq-referrer-bars');
+  if(topRefs.length>0){
+    var mxR=topRefs[0].count;
+    topRefs.forEach(function(ref){
+      var icon=ref.name.includes('TikTok')?'🎵':ref.name.includes('Safari')?'🧭':ref.name.includes('Chrome')?'🌐':ref.name.includes('Instagram')?'📸':ref.name.includes('Facebook')?'👤':'📱';
+      arB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:180px;font-size:0.78rem">'+icon+' '+ref.name+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(ref.count/mxR*100)+'%;background:linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)"><span class="bar-count">'+ref.count.toLocaleString()+' ('+ref.unique+' unique)</span></div></div></div>';
+    });
+  } else { arB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No referrer data yet</div>'; }
+
+  // Acquisitions daily chart
+  var acqByDate=acq.acquisitions_by_date||{};
+  var acqDates=Object.keys(acqByDate).sort();
+  var acqC=document.getElementById('acq-daily-chart'), acqL=document.getElementById('acq-daily-labels');
+  if(acqDates.length>0){
+    var mxA=Math.max.apply(null,acqDates.map(function(d){return acqByDate[d]}));
+    acqDates.forEach(function(date){
+      var count=acqByDate[date], pct=mxA>0?(count/mxA)*100:0;
+      var bar=document.createElement('div'); bar.className='spark-bar';
+      bar.style.height=Math.max(pct,5)+'%';
+      bar.style.background='linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)';
+      bar.innerHTML='<div class="tooltip">'+date+': '+count+'</div>';
+      acqC.appendChild(bar);
+      var lb=document.createElement('div'); lb.className='spark-label'; lb.textContent=date.slice(5); acqL.appendChild(lb);
+    });
+  } else { acqC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No daily acquisition data yet</div>'; }
+
+  // Acquisitions by country
+  var acqCountry=acq.acquisitions_by_country||{};
+  var acqCB=document.getElementById('acq-country-bars');
+  var acqCE=Object.entries(acqCountry).sort(function(a,b){return b[1]-a[1]});
+  if(acqCE.length>0){
+    var mxAC=acqCE[0][1];
+    acqCE.slice(0,12).forEach(function(e){
+      acqCB.innerHTML+='<div class="bar-row"><div class="bar-label">'+(CF[e[0]]||'🏳️')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxAC*100)+'%;background:linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+    });
+  } else { acqCB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:10px 0">No country data yet</div>'; }
+
+  // Campaign bars
+  var campB=document.getElementById('acq-campaign-bars');
+  if(campList.length>0){
+    var mxCamp=campList[0].count;
+    campList.forEach(function(c){
+      campB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:200px;font-size:0.78rem">📢 '+c.name+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(c.count/mxCamp*100)+'%;background:linear-gradient(135deg,#fbbf24 0%,#f97316 100%)"><span class="bar-count">'+c.count.toLocaleString()+' ('+c.pct+'%)</span></div></div></div>';
+    });
+  } else { campB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No campaigns tracked yet — add <code style="background:rgba(125,211,252,0.1);padding:2px 6px;border-radius:3px">ct=your-campaign</code> to your App Store link to start tracking</div>'; }
+
+  // ============ INSTALLS RENDERING ============
+  var inst=data.installs||{};
+  document.getElementById('stat-inst-total').textContent=(inst.total_installs||0).toLocaleString();
+  document.getElementById('stat-inst-detail').textContent=(inst.total_first_time||0)+' first-time · '+(inst.total_redownloads||0)+' redownloads · '+(inst.total_updates||0)+' updates';
+  document.getElementById('stat-inst-first').textContent=(inst.total_first_time||0).toLocaleString();
+  document.getElementById('stat-inst-deletes').textContent=(inst.total_deletes||0).toLocaleString();
+  var netVal=inst.net_installs||0;
+  document.getElementById('stat-inst-net').textContent=(netVal>=0?'+':'')+netVal.toLocaleString();
+
+  // Install type bars
+  var itB=document.getElementById('inst-type-bars');
+  var instTypes=inst.installs_by_type||{};
+  var itE=Object.entries(instTypes).sort(function(a,b){return b[1]-a[1]});
+  if(itE.length>0){
+    var mxIT=itE[0][1];
+    var itColors={'First-time download':'linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)','Redownload':'linear-gradient(135deg,#a78bfa 0%,#c084fc 100%)','Manual update':'linear-gradient(135deg,#fbbf24 0%,#f97316 100%)'};
+    var itIcons={'First-time download':'🆕','Redownload':'🔄','Manual update':'⬆️'};
+    itE.forEach(function(e){
+      itB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:160px;font-size:0.78rem">'+(itIcons[e[0]]||'📦')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxIT*100)+'%;background:'+(itColors[e[0]]||'var(--gradient-primary)')+'"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+    });
+  } else { itB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No install type data yet</div>'; }
+
+  // Install source bars
+  var isB=document.getElementById('inst-source-bars');
+  var instSources=inst.installs_by_source||{};
+  var isE=Object.entries(instSources).sort(function(a,b){return b[1]-a[1]});
+  if(isE.length>0){
+    var mxIS=isE[0][1];
+    var isColors={'App Store search':'linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)','App referrer':'linear-gradient(135deg,#a78bfa 0%,#c084fc 100%)','Web referrer':'linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)','Unavailable':'linear-gradient(135deg,#525e78 0%,#8892b0 100%)','App Store browse':'linear-gradient(135deg,#fbbf24 0%,#f97316 100%)'};
+    var isIcons={'App Store search':'🔍','App referrer':'📱','Web referrer':'🔗','Unavailable':'❓','App Store browse':'📂'};
+    isE.forEach(function(e){
+      isB.innerHTML+='<div class="bar-row"><div class="bar-label" style="width:160px;font-size:0.78rem">'+(isIcons[e[0]]||'📦')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxIS*100)+'%;background:'+(isColors[e[0]]||'var(--gradient-primary)')+'"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+    });
+  } else { isB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No install source data yet</div>'; }
+
+  // Install daily chart
+  var instByDate=inst.installs_by_date||{};
+  var delByDate=inst.deletes_by_date||{};
+  var allInstDates=Object.keys(Object.assign({},instByDate,delByDate)).sort();
+  var instC=document.getElementById('inst-daily-chart'), instL=document.getElementById('inst-daily-labels');
+  var delC=document.getElementById('del-daily-chart'), delL=document.getElementById('del-daily-labels');
+  if(allInstDates.length>0){
+    var mxInst=Math.max.apply(null,allInstDates.map(function(d){return instByDate[d]||0}));
+    var mxDel=Math.max.apply(null,allInstDates.map(function(d){return delByDate[d]||0}));
+    if(mxInst<1) mxInst=1; if(mxDel<1) mxDel=1;
+    allInstDates.forEach(function(date){
+      var ic=instByDate[date]||0, dc2=delByDate[date]||0;
+      var ibar=document.createElement('div'); ibar.className='spark-bar';
+      ibar.style.height=Math.max((ic/mxInst)*100,5)+'%';
+      ibar.style.background='linear-gradient(135deg, #10b981 0%, #7dd3fc 100%)';
+      ibar.innerHTML='<div class="tooltip">'+date+': '+ic+' installs</div>';
+      instC.appendChild(ibar);
+      var ilb=document.createElement('div'); ilb.className='spark-label'; ilb.textContent=date.slice(5); instL.appendChild(ilb);
+      var dbar=document.createElement('div'); dbar.className='spark-bar';
+      dbar.style.height=Math.max((dc2/mxDel)*100,5)+'%';
+      dbar.style.background='linear-gradient(135deg, #f87171 0%, #fbbf24 100%)';
+      dbar.innerHTML='<div class="tooltip">'+date+': '+dc2+' deletes</div>';
+      delC.appendChild(dbar);
+      var dlb=document.createElement('div'); dlb.className='spark-label'; dlb.textContent=date.slice(5); delL.appendChild(dlb);
+    });
+  } else {
+    instC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No data yet</div>';
+    delC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No data yet</div>';
+  }
+
+  // Install by country bars
+  var icB=document.getElementById('inst-country-bars');
+  var instCountry=inst.installs_by_country||{};
+  var icE=Object.entries(instCountry).sort(function(a,b){return b[1]-a[1]});
+  if(icE.length>0){
+    var mxIC=icE[0][1];
+    icE.slice(0,15).forEach(function(e){
+      icB.innerHTML+='<div class="bar-row"><div class="bar-label">'+(CF[e[0]]||'🏳️')+' '+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/mxIC*100)+'%;background:linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)"><span class="bar-count">'+e[1]+'</span></div></div></div>';
+    });
+  } else { icB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:10px 0">No country data yet</div>'; }
+
   // Engagement table (batch DOM insert)
   const eB=document.querySelector('#engagement-table tbody');
   var rows='';

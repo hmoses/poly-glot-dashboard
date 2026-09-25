@@ -1,10 +1,9 @@
-name: Refresh Analytics Daily
+name: Refresh Analytics Hourly
 
 on:
   schedule:
-    # 8 AM Pacific = 3 PM UTC (PDT) / 4 PM UTC (PST)
-    # Using 16:00 UTC to cover PST year-round (runs 8 AM PST / 9 AM PDT)
-    - cron: '0 16 * * *'
+    # Every hour on the hour
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -40,6 +39,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to analytics data"
           else
-            git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%d)"
+            git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push
           fi
