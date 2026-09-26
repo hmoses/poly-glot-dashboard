@@ -301,15 +301,22 @@ footer a { color: var(--accent); }
 <section class="section"><div class="container">
   <span class="section-eyebrow">📱 TikTok Ad → App Store Funnel</span>
   <h2 class="section-title">Ad Performance Tracker</h2>
-  <p class="section-desc">Web referrer traffic = people who clicked your TikTok/web ad link and landed on your App Store page. This is your CTA→Download funnel.</p>
+  <p class="section-desc">Separates TikTok-reported clicks from Apple-attributed visitors and verified App Store downloads. Apple attribution can be incomplete, so these stages should not be treated as a single exact user-level funnel.</p>
   <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
-    <div class="stat-card"><div class="stat-label">Web Referral Views</div><div class="stat-value" id="stat-webref" style="color:var(--purple)">0</div><div class="stat-detail">People who clicked an ad/link → App Store</div></div>
-    <div class="stat-card"><div class="stat-label">App Referral Taps</div><div class="stat-value" id="stat-appref" style="color:var(--accent)">0</div><div class="stat-detail">In-app referral views</div></div>
-    <div class="stat-card"><div class="stat-label">Downloads (non-update)</div><div class="stat-value" id="stat-realdl" style="color:#10b981">0</div><div class="stat-detail">Redownloads (new installs not tracked separately)</div></div>
-    <div class="stat-card"><div class="stat-label">Web Ref → Download Rate</div><div class="stat-value" id="stat-convrate" style="color:#fbbf24">—</div><div class="stat-detail">Conversion estimate</div></div>
+    <div class="stat-card"><div class="stat-label">TikTok CTA Clicks</div><div class="stat-value" id="stat-funnel-clicks" style="color:#f472b6">0</div><div class="stat-detail">TikTok Ads Manager clicks available to this dashboard</div></div>
+    <div class="stat-card"><div class="stat-label">Apple-Attributed TikTok Visitors</div><div class="stat-value" id="stat-tiktok-unique" style="color:var(--purple)">0</div><div class="stat-detail">Unique App Store page views Apple attributes to TikTok apps</div></div>
+    <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-firstdl" style="color:#10b981">0</div><div class="stat-detail">Brand-new downloads reported by Apple</div></div>
+    <div class="stat-card"><div class="stat-label">Paid Subscriptions</div><div class="stat-value" id="stat-funnel-subs" style="color:#fbbf24">0</div><div class="stat-detail">Subscription events currently reported</div></div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
+    <div class="stat-card"><div class="stat-label">Web Referral Visitors</div><div class="stat-value" id="stat-webref" style="color:var(--purple)">0</div><div class="stat-detail">Unique Apple page views from web referrers</div></div>
+    <div class="stat-card"><div class="stat-label">App Referral Visitors</div><div class="stat-value" id="stat-appref" style="color:var(--accent)">0</div><div class="stat-detail">Unique Apple page views from app referrers</div></div>
+    <div class="stat-card"><div class="stat-label">User Installs</div><div class="stat-value" id="stat-realdl" style="color:#10b981">0</div><div class="stat-detail">First-time downloads + redownloads; excludes updates</div></div>
+    <div class="stat-card"><div class="stat-label">TikTok Attribution Coverage</div><div class="stat-value" id="stat-convrate" style="color:#fbbf24">—</div><div class="stat-detail">Apple-attributed TikTok visitors ÷ TikTok clicks</div></div>
   </div>
   <div class="chart-card full" style="margin-top:20px">
-    <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px">📊 Traffic Sources Breakdown</h3>
+    <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:6px">📊 Unique App Store Visitors by Source</h3>
+    <p style="font-size:0.75rem;color:var(--text-faint);margin-bottom:12px">Uses Apple Unique Counts for page-view events only. It excludes impressions, taps, media-view repeats, and update events.</p>
     <div id="source-bars"></div>
   </div>
   <div class="chart-card full" style="margin-top:16px">
@@ -582,14 +589,22 @@ function render(data){
   });
   // TikTok Ad Funnel (uses pre-aggregated data)
   var funnel=data.funnel||{};
-  var webRef=funnel.web_referrer||0, appRef=funnel.app_referrer||0, realDl=funnel.real_downloads||0;
+  var webRef=funnel.web_referrer||0, appRef=funnel.app_referrer||0, realDl=funnel.user_installs||funnel.real_downloads||0;
+  var firstDl=funnel.first_time_downloads||0, ttUnique=funnel.tiktok_unique_views||0;
   var webRefCountries=funnel.web_ref_countries||{};
+  var ttClicks=((data.tiktok_ads||{}).totals||{}).clicks||0;
+  var paidSubs=(data.subscriptions||{}).total_events||0;
+  document.getElementById('stat-funnel-clicks').textContent=ttClicks.toLocaleString();
+  document.getElementById('stat-tiktok-unique').textContent=ttUnique.toLocaleString();
+  document.getElementById('stat-firstdl').textContent=firstDl.toLocaleString();
+  document.getElementById('stat-funnel-subs').textContent=paidSubs.toLocaleString();
   document.getElementById('stat-webref').textContent=webRef.toLocaleString();
   document.getElementById('stat-appref').textContent=appRef.toLocaleString();
   document.getElementById('stat-realdl').textContent=realDl.toLocaleString();
-  if(webRef>0&&realDl>0) document.getElementById('stat-convrate').textContent=((realDl/webRef)*100).toFixed(1)+'%';
+  if(ttClicks>0) document.getElementById('stat-convrate').textContent=((ttUnique/ttClicks)*100).toFixed(1)+'%';
+  else document.getElementById('stat-convrate').textContent='—';
 
-  // Source breakdown bars (pre-aggregated)
+  // Source breakdown bars: unique page-view visitors only
   var srcData=funnel.source_breakdown||{'App Store search':0,'Web referrer':0,'App referrer':0,'App Store browse':0,'Unavailable':0};
   var srcB=document.getElementById('source-bars');
   var srcE=Object.entries(srcData).sort(function(a,b){return b[1]-a[1]});
