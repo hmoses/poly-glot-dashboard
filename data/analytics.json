@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-26T13:27:51.768261+00:00",
+  "updated_at": "2026-09-26T17:27:55.646965+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 4882,
@@ -4630,20 +4630,20 @@
   },
   "app_versions": [
     {
+      "id": "0436eb68-1b1f-4167-b1ff-1d3dc5892316",
+      "versionString": "3.1",
+      "platform": "MAC_OS",
+      "appStoreState": "WAITING_FOR_REVIEW",
+      "createdDate": "2026-09-25T12:04:00-07:00",
+      "releaseType": "MANUAL"
+    },
+    {
       "id": "7299e378-1531-410b-85cc-86af12f02bfb",
       "versionString": "1.0.9",
       "platform": "IOS",
       "appStoreState": "WAITING_FOR_REVIEW",
       "createdDate": "2026-09-22T11:30:37-07:00",
       "releaseType": "AFTER_APPROVAL"
-    },
-    {
-      "id": "0436eb68-1b1f-4167-b1ff-1d3dc5892316",
-      "versionString": "3.1",
-      "platform": "MAC_OS",
-      "appStoreState": "IN_REVIEW",
-      "createdDate": "2026-09-25T12:04:00-07:00",
-      "releaseType": "MANUAL"
     },
     {
       "id": "0d1971cd-0d8a-4c05-96cf-7e96c30fc736",
@@ -4711,12 +4711,19 @@
     }
   ],
   "funnel": {
-    "web_referrer": 72,
-    "app_referrer": 2852,
-    "real_downloads": 34,
+    "web_referrer": 29,
+    "app_referrer": 1060,
+    "first_time_downloads": 25,
+    "redownloads": 8,
+    "user_installs": 33,
+    "manual_updates": 1,
+    "auto_updates": 12,
+    "real_downloads": 33,
+    "tiktok_page_views": 398,
+    "tiktok_unique_views": 337,
     "web_ref_countries": {
-      "US": 52,
-      "DE": 9,
+      "US": 13,
+      "DE": 5,
       "JP": 3,
       "TW": 2,
       "AU": 2,
@@ -4726,11 +4733,11 @@
       "KH": 1
     },
     "source_breakdown": {
-      "App Store search": 4938,
-      "Unavailable": 4720,
-      "App referrer": 2852,
-      "App Store browse": 369,
-      "Web referrer": 72
+      "App referrer": 1060,
+      "Unavailable": 707,
+      "App Store browse": 97,
+      "Web referrer": 29,
+      "App Store search": 27
     }
   }
 }
