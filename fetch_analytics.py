@@ -766,27 +766,64 @@ def main():
     # =========================================================================
     # PRE-AGGREGATE FUNNEL (existing TikTok funnel)
     # =========================================================================
+    # Use UNIQUE PAGE VIEWS for source traffic. Do not mix impressions, taps,
+    # media views, or repeated counts into the traffic-source funnel.
     web_ref = 0
     app_ref = 0
     web_ref_countries = defaultdict(int)
     src_data = defaultdict(int)
     for r in output.get("raw_engagement", []):
-        c = int(r.get("Counts", "0") or "0")
-        st = r.get("Source Type", "Unavailable")
+        if "page view" not in (r.get("Event", "") or "").lower():
+            continue
+        c = int(r.get("Unique Counts", "0") or "0")
+        st = r.get("Source Type", "Unavailable") or "Unavailable"
         src_data[st] += c
         if st == "Web referrer":
             web_ref += c
             web_ref_countries[r.get("Territory", "??")] += c
         elif st == "App referrer":
             app_ref += c
-    real_dl = 0
+
+    # User-initiated installs: first-time downloads + redownloads only.
+    # Updates are kept separate because they are not new installs.
+    first_time_dl = 0
+    redownloads = 0
+    manual_updates = 0
+    auto_updates = 0
     for r in output.get("raw_downloads", []):
-        if r.get("Download Type") != "Auto-update":
-            real_dl += int(r.get("Counts", "0") or "0")
+        c = int(r.get("Counts", "0") or "0")
+        dl_type = r.get("Download Type", "")
+        if dl_type == "First-time download":
+            first_time_dl += c
+        elif dl_type == "Redownload":
+            redownloads += c
+        elif dl_type == "Manual update":
+            manual_updates += c
+        elif dl_type == "Auto-update":
+            auto_updates += c
+
+    user_installs = first_time_dl + redownloads
+
+    # Apple-attributed TikTok page views from detailed Source Info.
+    # These are Apple-attributed visitors, not TikTok-reported CTA clicks.
+    tiktok_page_views = 0
+    tiktok_unique_views = 0
+    for ref in output.get("acquisitions", {}).get("top_referrers", []):
+        if (ref.get("name", "") or "").lower().startswith("tiktok"):
+            tiktok_page_views += int(ref.get("count", 0) or 0)
+            tiktok_unique_views += int(ref.get("unique", 0) or 0)
+
     output["funnel"] = {
         "web_referrer": web_ref,
         "app_referrer": app_ref,
-        "real_downloads": real_dl,
+        "first_time_downloads": first_time_dl,
+        "redownloads": redownloads,
+        "user_installs": user_installs,
+        "manual_updates": manual_updates,
+        "auto_updates": auto_updates,
+        "real_downloads": user_installs,
+        "tiktok_page_views": tiktok_page_views,
+        "tiktok_unique_views": tiktok_unique_views,
         "web_ref_countries": dict(sorted(web_ref_countries.items(), key=lambda x: -x[1])),
         "source_breakdown": dict(sorted(src_data.items(), key=lambda x: -x[1])),
     }
