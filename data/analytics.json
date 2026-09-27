@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-27T02:21:49.029963+00:00",
+  "updated_at": "2026-09-27T08:40:55.969481+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 5439,
@@ -3949,39 +3949,43 @@
     "campaign_list": []
   },
   "installs": {
-    "total_installs": 27,
-    "total_first_time": 15,
-    "total_redownloads": 9,
+    "total_installs": 32,
+    "total_first_time": 19,
+    "total_redownloads": 10,
     "total_updates": 3,
-    "total_deletes": 17,
-    "net_installs": 10,
+    "total_deletes": 19,
+    "net_installs": 13,
     "installs_by_date": {
       "2026-08-01": 16,
       "2026-09-24": 5,
-      "2026-09-25": 6
+      "2026-09-25": 6,
+      "2026-09-26": 5
     },
     "deletes_by_date": {
       "2026-08-01": 7,
       "2026-09-24": 2,
-      "2026-09-25": 8
+      "2026-09-25": 8,
+      "2026-09-26": 2
     },
     "installs_by_country": {
       "US": 19,
-      "BO": 3,
+      "BO": 4,
+      "EG": 3,
+      "LK": 2,
       "BE": 1,
-      "LK": 1,
       "AR": 1,
       "CA": 1,
-      "EG": 1
+      "TR": 1
     },
     "installs_by_source": {
-      "App referrer": 14,
+      "App referrer": 18,
       "App Store search": 7,
-      "Unavailable": 6
+      "Unavailable": 6,
+      "App Store browse": 1
     },
     "installs_by_type": {
-      "First-time download": 15,
-      "Redownload": 9,
+      "First-time download": 19,
+      "Redownload": 10,
       "Manual update": 3
     },
     "raw_installs": [
@@ -4528,6 +4532,108 @@
         "Counts": "2",
         "Unique Devices": "2",
         "_date": "2026-09-26"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Delete",
+        "Download Type": "",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 18.7",
+        "Source Type": "App referrer",
+        "Page Type": "Store sheet",
+        "App Download Date": "2026-09-26",
+        "Territory": "BO",
+        "Counts": "1",
+        "Unique Devices": "1",
+        "_date": "2026-09-27"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Delete",
+        "Download Type": "",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 26.6",
+        "Source Type": "App referrer",
+        "Page Type": "Store sheet",
+        "App Download Date": "2026-09-26",
+        "Territory": "EG",
+        "Counts": "1",
+        "Unique Devices": "1",
+        "_date": "2026-09-27"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Install",
+        "Download Type": "First-time download",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 18.6",
+        "Source Type": "App referrer",
+        "Page Type": "Store sheet",
+        "App Download Date": "2026-09-26",
+        "Territory": "LK",
+        "Counts": "1",
+        "Unique Devices": "1",
+        "_date": "2026-09-27"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Install",
+        "Download Type": "First-time download",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 26.6",
+        "Source Type": "App referrer",
+        "Page Type": "Store sheet",
+        "App Download Date": "2026-09-26",
+        "Territory": "EG",
+        "Counts": "2",
+        "Unique Devices": "2",
+        "_date": "2026-09-27"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Install",
+        "Download Type": "First-time download",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 27.0",
+        "Source Type": "App Store browse",
+        "Page Type": "Product page",
+        "App Download Date": "2026-09-26",
+        "Territory": "TR",
+        "Counts": "1",
+        "Unique Devices": "1",
+        "_date": "2026-09-27"
+      },
+      {
+        "Date": "2026-09-26",
+        "App Name": "Poly-Glot AI Workspace",
+        "App Apple Identifier": "6804499285",
+        "Event": "Install",
+        "Download Type": "Redownload",
+        "App Version": "1.0.8",
+        "Device": "iPhone",
+        "Platform Version": "iOS 18.7",
+        "Source Type": "App referrer",
+        "Page Type": "Store sheet",
+        "App Download Date": "2026-09-26",
+        "Territory": "BO",
+        "Counts": "1",
+        "Unique Devices": "1",
+        "_date": "2026-09-27"
       }
     ]
   },
