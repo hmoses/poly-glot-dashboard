@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-27T14:23:26.651217+00:00",
+  "updated_at": "2026-09-27T18:45:24.270612+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 5439,
@@ -3887,11 +3887,12 @@
   "raw_subscriptions": [],
   "raw_purchases": [],
   "acquisitions": {
-    "total_page_views_detailed": 2776,
-    "total_unique_views": 983,
+    "total_page_views_detailed": 3547,
+    "total_unique_views": 1180,
     "source_info": {
       "com.zhiliaoapp.musically": 255,
       "com.ss.iphone.ugc.Ame": 100,
+      "com.lenovo.anyshare": 43,
       "com.ss.iphone.ugc.tiktok.lite": 34,
       "com.brainiumstudios.spiderfree": 24,
       "com.ha.city.fighting.hero": 11,
@@ -3906,6 +3907,7 @@
     "source_info_names": {
       "com.zhiliaoapp.musically": "TikTok",
       "com.ss.iphone.ugc.Ame": "TikTok (US)",
+      "com.lenovo.anyshare": "com.lenovo.anyshare",
       "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
       "com.brainiumstudios.spiderfree": "com.brainiumstudios.spiderfree",
       "com.ha.city.fighting.hero": "com.ha.city.fighting.hero",
@@ -3955,6 +3957,9 @@
         "com.ecffri.arrows": 5,
         "com.gn.merge.puzzle.game": 9,
         "ai.socialapps.speakmaster": 6
+      },
+      "2026-09-26": {
+        "com.lenovo.anyshare": 43
       }
     },
     "acquisitions_by_date": {
@@ -3965,19 +3970,21 @@
       "2026-09-19": 44,
       "2026-09-20": 5,
       "2026-09-21": 14,
-      "2026-09-24": 137,
-      "2026-09-25": 178
+      "2026-09-24": 142,
+      "2026-09-25": 233,
+      "2026-09-26": 137
     },
     "acquisitions_by_country": {
-      "US": 457,
+      "US": 469,
+      "EG": 294,
       "JP": 173,
-      "EG": 147,
-      "LK": 81,
+      "LK": 113,
       "AR": 40,
       "SA": 29,
       "PH": 27,
       "MX": 13,
       "BO": 6,
+      "TR": 6,
       "IL": 5,
       "AE": 5
     },
@@ -3987,35 +3994,42 @@
         "name": "TikTok",
         "count": 255,
         "unique": 244,
-        "pct": 9.2
+        "pct": 7.2
       },
       {
         "bundle_id": "com.ss.iphone.ugc.Ame",
         "name": "TikTok (US)",
         "count": 100,
         "unique": 55,
-        "pct": 3.6
+        "pct": 2.8
+      },
+      {
+        "bundle_id": "com.lenovo.anyshare",
+        "name": "com.lenovo.anyshare",
+        "count": 43,
+        "unique": 10,
+        "pct": 1.2
       },
       {
         "bundle_id": "com.ss.iphone.ugc.tiktok.lite",
         "name": "TikTok Lite",
         "count": 34,
         "unique": 29,
-        "pct": 1.2
+        "pct": 1.0
       },
       {
         "bundle_id": "com.brainiumstudios.spiderfree",
         "name": "com.brainiumstudios.spiderfree",
         "count": 24,
         "unique": 7,
-        "pct": 0.9
+        "pct": 0.7
       },
       {
         "bundle_id": "com.ha.city.fighting.hero",
         "name": "com.ha.city.fighting.hero",
         "count": 11,
         "unique": 5,
-        "pct": 0.4
+        "pct": 0.3
       },
       {
         "bundle_id": "ai.mokio.kaonworld",
@@ -4050,21 +4064,21 @@
         "name": "com.Vezta.blood.tracker",
         "count": 5,
         "unique": 5,
-        "pct": 0.2
+        "pct": 0.1
       },
       {
         "bundle_id": "com.dubox.drive",
         "name": "com.dubox.drive",
         "count": 5,
         "unique": 5,
-        "pct": 0.2
+        "pct": 0.1
       },
       {
         "bundle_id": "com.ecffri.arrows",
         "name": "com.ecffri.arrows",
         "count": 5,
         "unique": 5,
-        "pct": 0.2
+        "pct": 0.1
       }
     ],
     "campaign_list": []
