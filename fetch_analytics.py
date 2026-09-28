@@ -272,12 +272,23 @@ def main():
         downloads_by_type = defaultdict(int)
         downloads_by_country = defaultdict(int)
         downloads_by_version = defaultdict(int)
+        updates_by_date = defaultdict(int)
+        updates_by_type = defaultdict(int)
         total_downloads = 0
+        total_updates = 0
+        update_types = {"Manual update", "Auto-update"}
         for row in unique_rows:
             counts = int(row.get('Counts', '0') or '0')
+            dl_type = row.get('Download Type', '')
+            date = row.get('Date', '')
+            if dl_type in update_types:
+                total_updates += counts
+                updates_by_date[date] += counts
+                updates_by_type[dl_type] += counts
+                continue
             total_downloads += counts
-            downloads_by_date[row.get('Date', '')] += counts
-            downloads_by_type[row.get('Download Type', '')] += counts
+            downloads_by_date[date] += counts
+            downloads_by_type[dl_type] += counts
             downloads_by_country[row.get('Territory', '')] += counts
             downloads_by_version[row.get('App Version', '')] += counts
 
@@ -285,9 +296,12 @@ def main():
         output["downloads_by_type"] = dict(sorted(downloads_by_type.items(), key=lambda x: -x[1]))
         output["downloads_by_country"] = dict(sorted(downloads_by_country.items(), key=lambda x: -x[1]))
         output["downloads_by_version"] = dict(sorted(downloads_by_version.items(), key=lambda x: -x[1]))
+        output["updates_by_date"] = dict(sorted(updates_by_date.items()))
+        output["updates_by_type"] = dict(sorted(updates_by_type.items(), key=lambda x: -x[1]))
         output["raw_downloads"] = unique_rows
         output["summary"]["total_downloads"] = total_downloads
-        print(f"  Downloads: {total_downloads} | By type: {dict(downloads_by_type)}")
+        output["summary"]["total_updates"] = total_updates
+        print(f"  Downloads (excluding updates): {total_downloads} | Updates: {total_updates} | By type: {dict(downloads_by_type)}")
     else:
         output["summary"]["total_downloads"] = 0
 
@@ -451,17 +465,18 @@ def main():
             source = row.get('Source Type', '')
 
             if evt == 'Install':
-                inst_by_date[date] += counts
-                inst_by_country[territory] += counts
-                inst_by_source[source] += counts
-                inst_by_type[dl_type] += counts
-                total_installs += counts
-                if dl_type == 'First-time download':
-                    total_first += counts
-                elif dl_type == 'Redownload':
-                    total_redl += counts
-                elif dl_type == 'Manual update':
+                if dl_type == 'Manual update':
                     total_upd += counts
+                else:
+                    inst_by_date[date] += counts
+                    inst_by_country[territory] += counts
+                    inst_by_source[source] += counts
+                    inst_by_type[dl_type] += counts
+                    total_installs += counts
+                    if dl_type == 'First-time download':
+                        total_first += counts
+                    elif dl_type == 'Redownload':
+                        total_redl += counts
             elif evt == 'Delete':
                 del_by_date[date] += counts
                 total_deletes += counts
@@ -480,7 +495,7 @@ def main():
             "installs_by_type": dict(sorted(inst_by_type.items(), key=lambda x: -x[1])),
             "raw_installs": unique_inst[:100],  # Keep last 100 for table
         }
-        print(f"  Installs: {total_installs} (first: {total_first}, redl: {total_redl}, upd: {total_upd})")
+        print(f"  Installs (excluding updates): {total_installs} (first: {total_first}, redl: {total_redl}) | Updates: {total_upd}")
         print(f"  Deletes: {total_deletes} | Net: {total_installs - total_deletes}")
 
     output["installs"] = installs_data
