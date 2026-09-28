@@ -212,6 +212,7 @@ footer a { color: var(--accent); }
   <h1>App Store <span class="gradient-text">Analytics</span></h1>
   <p class="hero-sub">Real-time App Store performance data for Poly-Glot AI: Prompt Studio — downloads, impressions, and engagement across 52 countries.</p>
   <p class="hero-meta">Last updated: <span id="last-updated">loading...</span></p>
+  <p class="hero-meta" style="margin-top:6px">Next analytics refresh: <span id="next-refresh-label">calculating...</span> · <span id="refresh-countdown" style="color:var(--green);font-weight:700">--:--</span></p>
 </div></section>
 <section class="section"><div class="container">
   <span class="section-eyebrow">📱 App Status</span>
@@ -562,6 +563,48 @@ async function loadData(){
     try{ render(data); ls.style.display='none'; }catch(e2){ ls.textContent='❌ Render error: '+e2.message; ls.style.background='#f00'; ls.style.color='#fff'; console.error('Render error:',e2); }
   }catch(e){ ls.textContent='❌ Fetch error: '+e.message; ls.style.background='#f00'; ls.style.color='#fff'; console.error('Fetch error:',e); }
 }
+
+function getNextRefreshTime(){
+  const now=new Date();
+  const next=new Date(now);
+  const minute=now.getMinutes();
+  const second=now.getSeconds();
+
+  if(minute<10 || (minute===10 && second===0)){
+    next.setMinutes(10,0,0);
+    return {time:next,label:'fallback :10'};
+  }
+
+  next.setHours(now.getHours()+1,0,0,0);
+  return {time:next,label:'primary :00'};
+}
+
+function updateRefreshTimer(){
+  const target=getNextRefreshTime();
+  const now=new Date();
+  let diff=Math.max(0,target.time-now);
+  const totalSeconds=Math.floor(diff/1000);
+  const minutes=Math.floor(totalSeconds/60);
+  const seconds=totalSeconds%60;
+
+  const countdown=document.getElementById('refresh-countdown');
+  const label=document.getElementById('next-refresh-label');
+
+  if(countdown){
+    countdown.textContent=String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');
+  }
+
+  if(label){
+    label.textContent=target.time.toLocaleTimeString('en-US',{
+      hour:'numeric',
+      minute:'2-digit'
+    })+' ('+target.label+')';
+  }
+}
+
+setInterval(updateRefreshTimer,1000);
+updateRefreshTimer();
+
 function render(data){
   const updated=new Date(data.updated_at);
   document.getElementById('last-updated').textContent=updated.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
