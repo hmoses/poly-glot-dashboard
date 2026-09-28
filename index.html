@@ -255,10 +255,27 @@ footer a { color: var(--accent); }
 <section class="section"><div class="container">
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-label">Total Downloads</div>
-      <div class="stat-value" id="stat-downloads">—</div>
-      <div class="stat-detail" id="stat-downloads-detail">—</div>
+      <div class="stat-label">First-Time Downloads</div>
+      <div class="stat-value" id="stat-summary-first" style="color:#10b981">—</div>
+      <div class="stat-detail">Brand-new user downloads only</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">Redownloads</div>
+      <div class="stat-value" id="stat-summary-redownloads" style="color:#7dd3fc">—</div>
+      <div class="stat-detail">Returning-user downloads only</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total User Downloads</div>
+      <div class="stat-value" id="stat-downloads">—</div>
+      <div class="stat-detail" id="stat-downloads-detail">First-time + redownloads; updates excluded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">App Updates</div>
+      <div class="stat-value" id="stat-summary-updates" style="color:#fbbf24">—</div>
+      <div class="stat-detail">Separate metric — never counted as downloads</div>
+    </div>
+  </div>
+  <div class="stats-grid" style="margin-top:16px">
     <div class="stat-card">
       <div class="stat-label">Total Impressions</div>
       <div class="stat-value" id="stat-impressions">—</div>
@@ -294,7 +311,7 @@ footer a { color: var(--accent); }
     <div class="stat-card">
       <div class="stat-label">Conversion Rate</div>
       <div class="stat-value" id="stat-conversion">—</div>
-      <div class="stat-detail">Downloads / Impressions</div>
+      <div class="stat-detail">User Downloads / Impressions · updates excluded</div>
     </div>
   </div>
 </div></section>
@@ -402,10 +419,14 @@ footer a { color: var(--accent); }
   <h2 class="section-title">Installs &amp; Deletes</h2>
   <p class="section-desc">Live user-install tracking — first-time downloads and redownloads only. App updates are reported separately below.</p>
   <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
-    <div class="stat-card"><div class="stat-label">Total Installs</div><div class="stat-value" id="stat-inst-total" style="color:#10b981">—</div><div class="stat-detail" id="stat-inst-detail">—</div></div>
-    <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-inst-first" style="color:#7dd3fc">—</div><div class="stat-detail">Brand new users</div></div>
+    <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-inst-first" style="color:#10b981">—</div><div class="stat-detail">Brand-new users</div></div>
+    <div class="stat-card"><div class="stat-label">Redownloads</div><div class="stat-value" id="stat-inst-redownloads" style="color:#7dd3fc">—</div><div class="stat-detail">Returning-user downloads</div></div>
+    <div class="stat-card"><div class="stat-label">Total User Downloads</div><div class="stat-value" id="stat-inst-total" style="color:#10b981">—</div><div class="stat-detail" id="stat-inst-detail">First-time + redownloads only</div></div>
+    <div class="stat-card"><div class="stat-label">App Updates</div><div class="stat-value" id="stat-inst-updates" style="color:#fbbf24">—</div><div class="stat-detail">Separate — excluded from downloads</div></div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
     <div class="stat-card"><div class="stat-label">Deletes</div><div class="stat-value" id="stat-inst-deletes" style="color:#f87171">—</div><div class="stat-detail">App removals</div></div>
-    <div class="stat-card"><div class="stat-label">Net Installs</div><div class="stat-value" id="stat-inst-net" style="color:#fbbf24">—</div><div class="stat-detail">Installs − Deletes</div></div>
+    <div class="stat-card"><div class="stat-label">Net Installs</div><div class="stat-value" id="stat-inst-net" style="color:#fbbf24">—</div><div class="stat-detail">User downloads − deletes; updates excluded</div></div>
   </div>
   <div class="chart-grid" style="margin-top:20px">
     <div class="chart-card">
@@ -546,9 +567,19 @@ function render(data){
   document.getElementById('last-updated').textContent=updated.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
   const s=data.summary;
   const totalDl=s.total_downloads||0, totalSubs=s.total_subscriptions||0, totalPurch=s.total_purchases||0, totalImpr=s.total_impressions||0;
-  document.getElementById('stat-downloads').textContent=totalDl.toLocaleString();
   const dlTypes=data.downloads_by_type||{};
-  document.getElementById('stat-downloads-detail').textContent=Object.entries(dlTypes).map(([k,v])=>`${v} ${k}`).join(' · ')||'No data yet';
+  const funnelSummary=data.funnel||{};
+  const firstSummary=funnelSummary.first_time_downloads ?? dlTypes['First-time download'] ?? 0;
+  const redlSummary=funnelSummary.redownloads ?? dlTypes['Redownload'] ?? 0;
+  const userDlSummary=firstSummary+redlSummary;
+  const updateTypesSummary=data.updates_by_type||{};
+  const updatesSummary=(s.total_updates ?? ((funnelSummary.manual_updates||0)+(funnelSummary.auto_updates||0)) ?? 0);
+  document.getElementById('stat-summary-first').textContent=firstSummary.toLocaleString();
+  document.getElementById('stat-summary-redownloads').textContent=redlSummary.toLocaleString();
+  document.getElementById('stat-summary-updates').textContent=updatesSummary.toLocaleString();
+  document.getElementById('stat-downloads').textContent=userDlSummary.toLocaleString();
+  document.getElementById('stat-downloads-detail').textContent=firstSummary+' first-time · '+redlSummary+' redownloads · updates excluded';
+  const totalUserDl=userDlSummary;
   document.getElementById('stat-impressions').textContent=totalImpr.toLocaleString();
   document.getElementById('stat-countries').textContent=Object.keys(data.impressions_by_country||{}).length;
   document.getElementById('stat-pageviews').textContent=(s.total_page_views||0).toLocaleString();
@@ -556,7 +587,7 @@ function render(data){
   document.getElementById('stat-subs').textContent=totalSubs.toLocaleString();
   document.getElementById('stat-subs-detail').textContent=totalSubs>0?'Active subscriptions':'No subscribers yet';
   document.getElementById('stat-purchases').textContent=totalPurch.toLocaleString();
-  document.getElementById('stat-conversion').textContent=totalImpr>0?((totalDl/totalImpr)*100).toFixed(1)+'%':'—';
+  document.getElementById('stat-conversion').textContent=totalImpr>0?((totalUserDl/totalImpr)*100).toFixed(1)+'%':'—';
   document.getElementById('stat-days').textContent=s.days_tracked;
   const dates=Object.keys(data.impressions_by_date||{}).sort();
   if(dates.length) document.getElementById('stat-date-range').textContent=`${dates[0]} → ${dates[dates.length-1]}`;
@@ -601,7 +632,7 @@ function render(data){
   const updTypes=data.updates_by_type||{};
   const totalUpdates=(s.total_updates||Object.values(updTypes).reduce((a,b)=>a+b,0));
   document.getElementById('stat-updates').textContent=totalUpdates.toLocaleString();
-  document.getElementById('stat-user-downloads').textContent=totalDl.toLocaleString();
+  document.getElementById('stat-user-downloads').textContent=totalUserDl.toLocaleString();
   const updC=document.getElementById('upd-daily-chart'), updL=document.getElementById('upd-daily-labels');
   if(updDates.length>0){
     const mxUpd=Math.max(...Object.values(updByDate),1);
@@ -892,9 +923,11 @@ function render(data){
 
   // ============ INSTALLS RENDERING ============
   var inst=data.installs||{};
-  document.getElementById('stat-inst-total').textContent=(inst.total_installs||0).toLocaleString();
+  document.getElementById('stat-inst-total').textContent=((inst.total_first_time||0)+(inst.total_redownloads||0)).toLocaleString();
   document.getElementById('stat-inst-detail').textContent=(inst.total_first_time||0)+' first-time · '+(inst.total_redownloads||0)+' redownloads · updates excluded';
   document.getElementById('stat-inst-first').textContent=(inst.total_first_time||0).toLocaleString();
+  document.getElementById('stat-inst-redownloads').textContent=(inst.total_redownloads||0).toLocaleString();
+  document.getElementById('stat-inst-updates').textContent=(inst.total_updates||0).toLocaleString();
   document.getElementById('stat-inst-deletes').textContent=(inst.total_deletes||0).toLocaleString();
   var netVal=inst.net_installs||0;
   document.getElementById('stat-inst-net').textContent=(netVal>=0?'+':'')+netVal.toLocaleString();
