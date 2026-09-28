@@ -112,6 +112,36 @@ def merge_report_rows(req_ids, report_name):
             print(f"    Not found in {req_id[:12]}...")
     return all_rows
 
+def filter_app_rows(rows):
+    """Keep only rows for the configured app when a report includes an app identifier."""
+    filtered = []
+    dropped = 0
+    for row in rows:
+        row_app_id = str(row.get("App Apple Identifier", "") or "").strip()
+        if row_app_id and row_app_id != str(APP_ID):
+            dropped += 1
+            continue
+        filtered.append(row)
+    if dropped:
+        print(f"    Dropped {dropped} rows belonging to other app IDs")
+    return filtered
+
+
+def dedupe_latest(rows):
+    """
+    Deduplicate overlapping historical/ongoing report rows without collapsing
+    distinct device/source/platform rows. The newest processing-date copy wins.
+    """
+    metric_fields = {"Counts", "Unique Counts", "_date"}
+    latest = {}
+    for row in rows:
+        key = tuple(sorted((k, str(v)) for k, v in row.items() if k not in metric_fields))
+        proc_date = str(row.get("_date", "") or "")
+        current = latest.get(key)
+        if current is None or proc_date >= str(current.get("_date", "") or ""):
+            latest[key] = row
+    return list(latest.values())
+
 
 # Well-known app bundle IDs → friendly names
 APP_NAMES = {
@@ -177,15 +207,7 @@ def main():
         eng_rows = merge_report_rows(req_ids, "App Store Discovery and Engagement Detailed")
 
     if eng_rows:
-        # Deduplicate by (Date, Territory, Event, Source Type, Counts)
-        seen = set()
-        unique = []
-        for row in eng_rows:
-            key = (row.get('Date',''), row.get('Territory',''), row.get('Event',''), row.get('Source Type',''), row.get('Counts',''))
-            if key not in seen:
-                seen.add(key)
-                unique.append(row)
-        eng_rows = unique
+        eng_rows = dedupe_latest(filter_app_rows(eng_rows))
         print(f"  Total unique engagement rows: {len(eng_rows)}")
 
         impressions_by_date = defaultdict(int)
@@ -260,13 +282,7 @@ def main():
         dl_rows = merge_report_rows(req_ids, "App Downloads Detailed")
 
     if dl_rows:
-        seen = set()
-        unique_rows = []
-        for row in dl_rows:
-            key = (row.get('Date',''), row.get('Territory',''), row.get('Download Type',''), row.get('App Version',''), row.get('Counts',''))
-            if key not in seen:
-                seen.add(key)
-                unique_rows.append(row)
+        unique_rows = dedupe_latest(filter_app_rows(dl_rows))
 
         downloads_by_date = defaultdict(int)
         downloads_by_type = defaultdict(int)
@@ -324,17 +340,7 @@ def main():
     }
 
     if eng_detail_rows:
-        # Deduplicate
-        seen = set()
-        unique_detail = []
-        for row in eng_detail_rows:
-            key = (row.get('Date',''), row.get('Territory',''), row.get('Event',''),
-                   row.get('Source Type',''), row.get('Source Info',''),
-                   row.get('Campaign',''), row.get('Device',''),
-                   row.get('Platform Version',''), row.get('Counts',''))
-            if key not in seen:
-                seen.add(key)
-                unique_detail.append(row)
+        unique_detail = dedupe_latest(filter_app_rows(eng_detail_rows))
         print(f"  Unique detailed rows: {len(unique_detail)}")
 
         source_info_counts = defaultdict(int)
@@ -433,16 +439,7 @@ def main():
     }
 
     if install_rows:
-        # Deduplicate
-        seen = set()
-        unique_inst = []
-        for row in install_rows:
-            key = (row.get('Date',''), row.get('Event',''), row.get('Download Type',''),
-                   row.get('Territory',''), row.get('Source Type',''),
-                   row.get('Device',''), row.get('Platform Version',''), row.get('Counts',''))
-            if key not in seen:
-                seen.add(key)
-                unique_inst.append(row)
+        unique_inst = dedupe_latest(filter_app_rows(install_rows))
         print(f"  Unique install+delete rows: {len(unique_inst)}")
 
         inst_by_date = defaultdict(int)
@@ -562,14 +559,7 @@ def main():
 
     # Process subscription events
     if sub_event_rows:
-        seen = set()
-        unique = []
-        for row in sub_event_rows:
-            key = (row.get('Date',''), row.get('Event',''), row.get('Subscription Name',''),
-                   row.get('Territory',''), row.get('Counts',''))
-            if key not in seen:
-                seen.add(key)
-                unique.append(row)
+        unique = dedupe_latest(filter_app_rows(sub_event_rows))
 
         events_by_type = defaultdict(int)
         events_by_date = defaultdict(int)
