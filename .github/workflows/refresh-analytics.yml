@@ -1,12 +1,25 @@
 name: Refresh Analytics Hourly
 
 on:
+  # Redundant schedule attempts. The freshness guard ensures ASC is fetched
+  # only when the committed dashboard data is at least 45 minutes old.
   schedule:
-    # Primary run on the hour, plus a +10 minute fallback.
-    # The freshness guard below prevents duplicate refreshes when :00 succeeds.
     - cron: '0 * * * *'
-    - cron: '10 * * * *'
+    - cron: '15 * * * *'
+    - cron: '30 * * * *'
+    - cron: '45 * * * *'
+
+  # Manual recovery remains available.
   workflow_dispatch:
+
+  # Any change to the fetcher or this workflow immediately validates the
+  # refresh path instead of waiting for the next cron event.
+  push:
+    branches:
+      - main
+    paths:
+      - 'fetch_analytics.py'
+      - '.github/workflows/refresh-analytics.yml'
 
 permissions:
   contents: write
@@ -22,6 +35,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - uses: actions/setup-python@v5
         with:
@@ -31,31 +46,32 @@ jobs:
         id: freshness
         shell: bash
         run: |
+          # Pushes and manual dispatches always run so code changes self-test.
           if [ "${{ github.event_name }}" != "schedule" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          python - <<'PY' >> "$GITHUB_OUTPUT"
+          SHOULD_RUN=$(python - <<'PY'
           import json
+          import sys
           from datetime import datetime, timezone
           from pathlib import Path
 
           path = Path("data/analytics.json")
-          should_run = True
-
           try:
               data = json.loads(path.read_text())
               updated = datetime.fromisoformat(data["updated_at"].replace("Z", "+00:00"))
               age_minutes = (datetime.now(timezone.utc) - updated).total_seconds() / 60
-              # If the :00 run already refreshed successfully, the :10 fallback skips.
-              should_run = age_minutes >= 45
-              print(f"# analytics age: {age_minutes:.1f} minutes")
+              print(f"analytics age: {age_minutes:.1f} minutes", file=sys.stderr)
+              print("true" if age_minutes >= 45 else "false")
           except Exception as exc:
-              print(f"# freshness check failed: {exc}")
-
-          print(f"should_run={'true' if should_run else 'false'}")
+              print(f"freshness check failed: {exc}", file=sys.stderr)
+              print("true")
           PY
+          )
+
+          echo "should_run=$SHOULD_RUN" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         if: steps.freshness.outputs.should_run == 'true'
@@ -82,6 +98,32 @@ jobs:
           done
           exit 1
 
+      - name: Validate generated analytics
+        if: steps.freshness.outputs.should_run == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          APP_ID = "6804499285"
+          path = Path("data/analytics.json")
+          data = json.loads(path.read_text())
+
+          if not data.get("updated_at"):
+              raise SystemExit("analytics.json missing updated_at")
+
+          wrong_ids = sorted({
+              str(r.get("App Apple Identifier"))
+              for r in data.get("raw_downloads", [])
+              if r.get("App Apple Identifier") and str(r.get("App Apple Identifier")) != APP_ID
+          })
+          if wrong_ids:
+              raise SystemExit(f"analytics.json contains rows for wrong app IDs: {wrong_ids}")
+
+          print("analytics.json validation passed")
+          PY
+
       - name: Commit and push if changed
         if: steps.freshness.outputs.should_run == 'true'
         shell: bash
@@ -97,6 +139,7 @@ jobs:
 
           git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          # Rebase once if another commit landed while the refresh was running.
-          git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          # Another dashboard commit may land while ASC is being fetched.
+          # Rebase onto the latest main before pushing.
+          git pull --rebase origin main
+          git push origin HEAD:main
