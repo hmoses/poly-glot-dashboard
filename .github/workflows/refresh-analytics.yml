@@ -2,16 +2,24 @@ name: Refresh Analytics Hourly
 
 on:
   schedule:
-    # Every hour on the hour
+    # Primary run on the hour, plus a +10 minute fallback.
+    # The freshness guard below prevents duplicate refreshes when :00 succeeds.
     - cron: '0 * * * *'
+    - cron: '10 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: refresh-analytics
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,26 +27,76 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Decide whether refresh is needed
+        id: freshness
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          path = Path("data/analytics.json")
+          should_run = True
+
+          try:
+              data = json.loads(path.read_text())
+              updated = datetime.fromisoformat(data["updated_at"].replace("Z", "+00:00"))
+              age_minutes = (datetime.now(timezone.utc) - updated).total_seconds() / 60
+              # If the :00 run already refreshed successfully, the :10 fallback skips.
+              should_run = age_minutes >= 45
+              print(f"# analytics age: {age_minutes:.1f} minutes")
+          except Exception as exc:
+              print(f"# freshness check failed: {exc}")
+
+          print(f"should_run={'true' if should_run else 'false'}")
+          PY
+
       - name: Install dependencies
+        if: steps.freshness.outputs.should_run == 'true'
         run: pip install -r requirements.txt
 
       - name: Fetch analytics from ASC
+        if: steps.freshness.outputs.should_run == 'true'
         env:
           ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
           ASC_REPORT_REQUEST_ID: ${{ secrets.ASC_REPORT_REQUEST_ID }}
-        run: python fetch_analytics.py
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            echo "ASC refresh attempt $attempt of 3"
+            if python fetch_analytics.py; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 20))
+            fi
+          done
+          exit 1
 
       - name: Commit and push if changed
+        if: steps.freshness.outputs.should_run == 'true'
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/analytics.json
+
           if git diff --cached --quiet; then
             echo "No changes to analytics data"
-          else
-            git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            exit 0
           fi
+
+          git commit -m "Auto-refresh analytics $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Rebase once if another commit landed while the refresh was running.
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
