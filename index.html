@@ -1009,7 +1009,7 @@ function render(data){
   eB.innerHTML=rows;
 }
 loadData();
-setInterval(loadData,300000);
+setInterval(function(){ window.location.reload(); },300000);
 </script>
 </body>
 </html><!-- deploy Mon Aug 17 12:13:35 PDT 2026 -->
