@@ -1,0 +1,13 @@
+{
+  "events": {
+    "trial_started": 0,
+    "first_send": 0,
+    "provider_opened": 0,
+    "app_returned": 0,
+    "compare_used": 0,
+    "daily_free_send_used": 0
+  },
+  "providers": {},
+  "platform_split": {"ios": 0, "macos": 0},
+  "updated": "2025-01-01T00:00:00Z"
+}

@@ -851,5 +851,96 @@ def main():
     print(f"Installs: {i.get('total_installs',0)} installs | {i.get('total_deletes',0)} deletes | net {i.get('net_installs',0)}")
 
 
+def fetch_posthog_data():
+    """Fetch PostHog event counts and write to data/posthog.json"""
+    api_key = os.environ.get("POSTHOG_API_KEY", "")
+    project_id = os.environ.get("POSTHOG_PROJECT_ID", "400020")
+    if not api_key:
+        print("POSTHOG_API_KEY not set — skipping PostHog fetch")
+        # Write empty placeholder so dashboard doesn't error
+        with open("data/posthog.json", "w") as f:
+            json.dump({"events": {}, "providers": {}, "platform_split": {"ios": 0, "macos": 0}, "updated": datetime.now(timezone.utc).isoformat()}, f, indent=2)
+        return
+
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    base = "https://us.i.posthog.com"
+
+    event_names = ["trial_started", "first_send", "provider_opened", "app_returned", "compare_used", "daily_free_send_used"]
+    event_counts = {}
+    providers = {}
+    platform_split = {"ios": 0, "macos": 0}
+
+    for event in event_names:
+        try:
+            r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
+                "query": {
+                    "kind": "EventsQuery",
+                    "select": ["count()"],
+                    "event": event,
+                    "after": "-30d"
+                }
+            }, timeout=15)
+            if r.ok:
+                data = r.json()
+                results = data.get("results", [[0]])
+                event_counts[event] = results[0][0] if results and results[0] else 0
+            else:
+                print(f"PostHog query failed for {event}: {r.status_code}")
+                event_counts[event] = 0
+        except Exception as e:
+            print(f"PostHog error for {event}: {e}")
+            event_counts[event] = 0
+
+    # Provider breakdown from provider_opened events
+    try:
+        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
+            "query": {
+                "kind": "EventsQuery",
+                "select": ["properties.provider", "count()"],
+                "event": "provider_opened",
+                "after": "-30d",
+                "groupBy": ["properties.provider"]
+            }
+        }, timeout=15)
+        if r.ok:
+            data = r.json()
+            for row in data.get("results", []):
+                if row and len(row) >= 2 and row[0]:
+                    providers[row[0]] = row[1]
+    except Exception as e:
+        print(f"PostHog provider breakdown error: {e}")
+
+    # Platform split
+    try:
+        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
+            "query": {
+                "kind": "EventsQuery",
+                "select": ["properties.platform", "count()"],
+                "event": "provider_opened",
+                "after": "-30d",
+                "groupBy": ["properties.platform"]
+            }
+        }, timeout=15)
+        if r.ok:
+            data = r.json()
+            for row in data.get("results", []):
+                if row and len(row) >= 2 and row[0]:
+                    platform_split[row[0]] = row[1]
+    except Exception as e:
+        print(f"PostHog platform split error: {e}")
+
+    output = {
+        "events": event_counts,
+        "providers": providers,
+        "platform_split": platform_split,
+        "updated": datetime.now(timezone.utc).isoformat()
+    }
+
+    with open("data/posthog.json", "w") as f:
+        json.dump(output, f, indent=2)
+    print(f"PostHog data written: {event_counts}")
+
+
 if __name__ == "__main__":
     main()
+    fetch_posthog_data()

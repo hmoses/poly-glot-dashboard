@@ -545,8 +545,45 @@ footer a { color: var(--accent); }
     </div>
   </div>
 </div></section>
+
+<!-- ═══════════ POSTHOG FUNNEL & ENGAGEMENT SECTION ═══════════ -->
+<section class="section"><div class="container">
+  <h2 class="section-title">📊 User Funnel & In-App Analytics</h2>
+  <p class="section-desc">PostHog event data — tracking the user journey from trial to subscription.</p>
+
+  <!-- Funnel Metrics Cards -->
+  <div class="grid grid-3" id="ph-funnel-cards">
+    <div class="chart-card"><div class="card-label">🚀 Trial Started</div><div class="card-value" id="ph-trial-started">—</div><div class="card-sub" id="ph-trial-started-sub">Unique users who started 3-day trial</div></div>
+    <div class="chart-card"><div class="card-label">📤 First Send</div><div class="card-value" id="ph-first-send">—</div><div class="card-sub" id="ph-first-send-sub">Users who sent their first prompt</div></div>
+    <div class="chart-card"><div class="card-label">🤖 Provider Opened</div><div class="card-value" id="ph-provider-opened">—</div><div class="card-sub" id="ph-provider-opened-sub">Total AI provider handoffs</div></div>
+    <div class="chart-card"><div class="card-label">↩️ App Returned</div><div class="card-value" id="ph-app-returned">—</div><div class="card-sub" id="ph-app-returned-sub">Users returned after AI handoff</div></div>
+    <div class="chart-card"><div class="card-label">🔀 Compare Used</div><div class="card-value" id="ph-compare-used">—</div><div class="card-sub" id="ph-compare-used-sub">Compare Mode activations</div></div>
+    <div class="chart-card"><div class="card-label">🎁 Daily Free Send</div><div class="card-value" id="ph-daily-free">—</div><div class="card-sub" id="ph-daily-free-sub">Post-trial free sends used</div></div>
+  </div>
+
+  <!-- Funnel Visualization -->
+  <div class="chart-card full" style="margin-top:16px">
+    <div class="card-label" style="margin-bottom:12px">User Journey Funnel</div>
+    <div id="ph-funnel-bars" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="ph-funnel-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">PostHog data will appear here once events start flowing. Events are tracked in-app via the PostHog JS SDK.</div>
+  </div>
+
+  <!-- Provider Breakdown -->
+  <div class="chart-card full" style="margin-top:16px">
+    <div class="card-label" style="margin-bottom:12px">AI Provider Breakdown</div>
+    <div id="ph-provider-bars"></div>
+    <div id="ph-provider-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">No provider data yet</div>
+  </div>
+
+  <!-- Platform Split -->
+  <div class="grid grid-2" style="margin-top:16px">
+    <div class="chart-card"><div class="card-label">📱 iOS Events</div><div class="card-value" id="ph-ios-events">—</div></div>
+    <div class="chart-card"><div class="card-label">💻 macOS Events</div><div class="card-value" id="ph-mac-events">—</div></div>
+  </div>
+</div></section>
+
 <footer><div class="container">
-  <p>Poly-Glot AI: Prompt Studio — <a href="https://hmoses.github.io/poly-glot-site/">poly-glot.ai</a> · Data from App Store Connect API · Updated via GitHub Actions</p>
+  <p>Poly-Glot AI: Prompt Studio — <a href="https://hmoses.github.io/poly-glot-site/">poly-glot.ai</a> · Data from App Store Connect API + PostHog · Updated via GitHub Actions</p>
 </div></footer>
 <div id="load-status" style="position:fixed;top:0;left:0;right:0;padding:12px;background:#ff0;color:#000;font-size:16px;font-weight:bold;z-index:99999;text-align:center;font-family:sans-serif">⏳ Loading dashboard data...</div>
 <script>
@@ -1054,6 +1091,64 @@ function render(data){
 }
 loadData();
 setInterval(function(){ window.location.reload(); },300000);
+
+// ═══════════ POSTHOG FUNNEL DATA ═══════════
+async function loadPostHogData(){
+  try{
+    var r=await fetch('data/posthog.json?t='+Date.now());
+    if(!r.ok){showPostHogEmpty();return;}
+    var ph=await r.json();
+    if(!ph||!ph.events){showPostHogEmpty();return;}
+    var e=ph.events;
+    // Populate cards
+    setVal('ph-trial-started',e.trial_started||0);
+    setVal('ph-first-send',e.first_send||0);
+    setVal('ph-provider-opened',e.provider_opened||0);
+    setVal('ph-app-returned',e.app_returned||0);
+    setVal('ph-compare-used',e.compare_used||0);
+    setVal('ph-daily-free',e.daily_free_send_used||0);
+    // Conversion rates
+    if(e.trial_started>0)document.getElementById('ph-first-send-sub').textContent=(Math.round(e.first_send/e.trial_started*100))+'% of trial starters';
+    if(e.provider_opened>0)document.getElementById('ph-app-returned-sub').textContent=(Math.round(e.app_returned/e.provider_opened*100))+'% return rate';
+    // Platform split
+    setVal('ph-ios-events',ph.platform_split?ph.platform_split.ios||0:0);
+    setVal('ph-mac-events',ph.platform_split?ph.platform_split.macos||0:0);
+    // Funnel bars
+    var funnel=[
+      {label:'Trial Started',val:e.trial_started||0,color:'#7c3aed'},
+      {label:'First Send',val:e.first_send||0,color:'#6366f1'},
+      {label:'Provider Opened',val:e.provider_opened||0,color:'#3b82f6'},
+      {label:'App Returned',val:e.app_returned||0,color:'#10b981'},
+      {label:'Compare Used',val:e.compare_used||0,color:'#f59e0b'},
+    ];
+    var maxF=Math.max.apply(null,funnel.map(function(f){return f.val}))||1;
+    var fb=document.getElementById('ph-funnel-bars');
+    fb.innerHTML='';
+    funnel.forEach(function(f){
+      var pct=Math.round(f.val/maxF*100);
+      fb.innerHTML+='<div class="bar-row"><div class="bar-label" style="min-width:130px">'+f.label+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+f.color+'"><span class="bar-count">'+f.val+'</span></div></div></div>';
+    });
+    // Provider breakdown
+    var pb=document.getElementById('ph-provider-bars');
+    if(ph.providers&&Object.keys(ph.providers).length>0){
+      var pEntries=Object.entries(ph.providers).sort(function(a,b){return b[1]-a[1]});
+      var maxP=pEntries[0][1]||1;
+      pb.innerHTML='';
+      pEntries.forEach(function(p){
+        pb.innerHTML+='<div class="bar-row"><div class="bar-label" style="min-width:120px">'+p[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(p[1]/maxP*100)+'%;background:linear-gradient(135deg,#6366f1,#3b82f6)"><span class="bar-count">'+p[1]+'</span></div></div></div>';
+      });
+    }else{document.getElementById('ph-provider-empty').style.display='block';}
+  }catch(err){
+    console.warn('PostHog data not available yet:',err);
+    showPostHogEmpty();
+  }
+}
+function showPostHogEmpty(){
+  document.getElementById('ph-funnel-empty').style.display='block';
+  document.getElementById('ph-provider-empty').style.display='block';
+}
+function setVal(id,v){var el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?v.toLocaleString():v;}
+loadPostHogData();
 </script>
 </body>
 </html><!-- deploy Mon Aug 17 12:13:35 PDT 2026 -->
