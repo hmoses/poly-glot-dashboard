@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-29T07:16:55.975218+00:00",
+  "updated_at": "2026-09-29T13:31:59.783524+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 6347,
@@ -10,8 +10,8 @@
     "date_range_start": "2026-09-14",
     "date_range_end": "2026-09-27",
     "total_countries": 139,
-    "total_downloads": 52,
-    "total_updates": 8,
+    "total_downloads": 55,
+    "total_updates": 10,
     "total_subscriptions": 0,
     "total_purchases": 0
   },
@@ -203,29 +203,31 @@
     "2026-09-24": 19,
     "2026-09-25": 10,
     "2026-09-26": 10,
-    "2026-09-27": 5
+    "2026-09-27": 5,
+    "2026-09-28": 3
   },
   "downloads_by_type": {
-    "First-time download": 43,
+    "First-time download": 46,
     "Redownload": 9
   },
   "downloads_by_country": {
     "EG": 11,
     "LK": 9,
-    "US": 7,
+    "US": 8,
     "CA": 7,
+    "AR": 4,
     "BO": 4,
     "DK": 3,
     "TR": 3,
-    "AR": 3,
     "MY": 1,
     "KG": 1,
     "IT": 1,
     "EE": 1,
-    "AE": 1
+    "AE": 1,
+    "NL": 1
   },
   "downloads_by_version": {
-    "1.0.8": 46,
+    "1.0.8": 49,
     "1.0.7": 5,
     "2.9": 1
   },
@@ -3950,7 +3952,7 @@
       "Pre-Order": "",
       "Territory": "EE",
       "Counts": "1",
-      "_date": "2026-09-28"
+      "_date": "2026-09-29"
     },
     {
       "Date": "2026-09-27",
@@ -3965,7 +3967,7 @@
       "Pre-Order": "",
       "Territory": "AE",
       "Counts": "1",
-      "_date": "2026-09-28"
+      "_date": "2026-09-29"
     },
     {
       "Date": "2026-09-27",
@@ -3980,7 +3982,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-09-28"
+      "_date": "2026-09-29"
     },
     {
       "Date": "2026-09-27",
@@ -3995,7 +3997,7 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-09-28"
+      "_date": "2026-09-29"
     },
     {
       "Date": "2026-09-27",
@@ -4010,7 +4012,82 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-09-28"
+      "_date": "2026-09-29"
+    },
+    {
+      "Date": "2026-09-28",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.0.8",
+      "Device": "iPad",
+      "Platform Version": "iOS 17.7",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-09-29"
+    },
+    {
+      "Date": "2026-09-28",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "First-time download",
+      "App Version": "1.0.8",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "AR",
+      "Counts": "1",
+      "_date": "2026-09-29"
+    },
+    {
+      "Date": "2026-09-28",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "First-time download",
+      "App Version": "1.0.8",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "NL",
+      "Counts": "1",
+      "_date": "2026-09-29"
+    },
+    {
+      "Date": "2026-09-28",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "First-time download",
+      "App Version": "1.0.8",
+      "Device": "iPhone",
+      "Platform Version": "iOS 16.7",
+      "Source Type": "Unavailable",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-09-29"
+    },
+    {
+      "Date": "2026-09-28",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "3.1",
+      "Device": "Desktop",
+      "Platform Version": "macOS 26.7",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "MY",
+      "Counts": "1",
+      "_date": "2026-09-29"
     }
   ],
   "raw_subscriptions": [],
@@ -4021,10 +4098,11 @@
     "2026-09-23": 1,
     "2026-09-24": 1,
     "2026-09-25": 2,
-    "2026-09-26": 1
+    "2026-09-26": 1,
+    "2026-09-28": 2
   },
   "updates_by_type": {
-    "Auto-update": 7,
+    "Auto-update": 9,
     "Manual update": 1
   },
   "acquisitions": {
@@ -4767,7 +4845,7 @@
       "id": "7299e378-1531-410b-85cc-86af12f02bfb",
       "versionString": "1.0.9",
       "platform": "IOS",
-      "appStoreState": "WAITING_FOR_REVIEW",
+      "appStoreState": "REJECTED",
       "createdDate": "2026-09-22T11:30:37-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -4847,12 +4925,12 @@
   "funnel": {
     "web_referrer": 8,
     "app_referrer": 2407,
-    "first_time_downloads": 43,
+    "first_time_downloads": 46,
     "redownloads": 9,
-    "user_installs": 52,
+    "user_installs": 55,
     "manual_updates": 1,
-    "auto_updates": 7,
-    "real_downloads": 52,
+    "auto_updates": 9,
+    "real_downloads": 55,
     "tiktok_page_views": 87,
     "tiktok_unique_views": 59,
     "web_ref_countries": {
