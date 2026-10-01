@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-01T19:41:03.860710+00:00",
+  "updated_at": "2026-10-01T19:50:06.858588+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 8543,
@@ -5224,6 +5224,62 @@
     "last_fetched": "2026-09-25T17:24:27.774639+00:00"
   },
   "app_versions": [
+    {
+      "id": "91726e2f-cdcf-45c7-8179-82f9e8f965d5",
+      "versionString": "1.1.1",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-30T09:49:55-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "7299e378-1531-410b-85cc-86af12f02bfb",
+      "versionString": "1.1.0",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-22T11:30:37-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "45e29ac9-385d-4048-8a8d-61b34881b563",
+      "versionString": "1.0.8",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-21T17:04:33-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "1a91c472-3e6a-41bd-b30d-72b966ba3c65",
+      "versionString": "1.0.7",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-18T13:01:15-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "9706ecb7-eb32-428b-9bf9-950c508a35bb",
+      "versionString": "1.0.6",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-18T09:43:58-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "4494fabf-5a8f-47d7-87e8-b79023817e60",
+      "versionString": "1.0.5",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-09-18T06:02:29-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    {
+      "id": "f41613f1-f40d-4716-9068-a268f1ce788e",
+      "versionString": "1.0.4",
+      "platform": "IOS",
+      "appStoreState": "READY_FOR_SALE",
+      "createdDate": "2026-08-23T14:40:13-07:00",
+      "releaseType": "AFTER_APPROVAL"
+    },
     {
       "id": "0f463507-9f12-4d20-9ada-7fefc9452e80",
       "versionString": "3.2",
