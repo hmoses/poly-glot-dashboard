@@ -119,7 +119,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # The fetcher writes both ASC analytics and PostHog output. Stage both
+          # so the rebase/push step is not blocked by an unstaged posthog.json.
           git add data/analytics.json
+          if [ -f data/posthog.json ]; then
+            git add data/posthog.json
+          fi
 
           if git diff --cached --quiet; then
             echo "No changes to analytics data"
