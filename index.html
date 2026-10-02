@@ -366,11 +366,11 @@ footer a { color: var(--accent); }
     <h3 style="font-size:1rem;font-weight:800;margin-bottom:6px">📱 App Referrer Attribution</h3>
     <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:14px">Shows whether Apple is attributing app-referrer traffic to taps and installs. These are source-attributed aggregates, not a same-user clickstream.</p>
     <div class="attribution-flow" style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:12px">
-      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Visitors</div><div class="stat-value" id="attr-appref-visitors" style="color:var(--accent)">—</div><div class="stat-detail">Unique page views</div></div>
+      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Visitors</div><div class="stat-value" id="attr-appref-visitors" style="color:var(--accent)">—</div><div class="stat-detail" id="attr-appref-visitors-range">Unique page views · —</div></div>
       <div class="attribution-arrow" style="align-self:center;color:var(--text-faint);font-size:1.3rem">→</div>
-      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Taps</div><div class="stat-value" id="attr-appref-taps" style="color:#38bdf8">—</div><div class="stat-detail" id="attr-appref-taps-detail">Apple-attributed taps</div></div>
+      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Taps</div><div class="stat-value" id="attr-appref-taps" style="color:#38bdf8">—</div><div class="stat-detail" id="attr-appref-taps-range">Apple-attributed taps · —</div></div>
       <div class="attribution-arrow" style="align-self:center;color:var(--text-faint);font-size:1.3rem">→</div>
-      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Downloads</div><div class="stat-value" id="attr-appref-downloads" style="color:#10b981">—</div><div class="stat-detail">Installs attributed to App referrer</div></div>
+      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Downloads</div><div class="stat-value" id="attr-appref-downloads" style="color:#10b981">—</div><div class="stat-detail" id="attr-appref-downloads-range">Installs attributed to App referrer · —</div></div>
     </div>
     <div id="attr-appref-note" style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(125,211,252,0.05);border:1px solid rgba(125,211,252,0.10);font-size:0.72rem;line-height:1.5;color:var(--text-faint)">Loading attribution coverage…</div>
   </div>
@@ -823,6 +823,11 @@ function render(data){
   var instDates=Object.keys(inst.installs_by_date||{}).sort();
   var instStart=inst.date_range_start||(instDates[0]||'');
   var instEnd=inst.date_range_end||(instDates.length?instDates[instDates.length-1]:'');
+  var engRange=(engStart&&engEnd)?engStart+' → '+engEnd:'range unavailable';
+  var instRange=(instStart&&instEnd)?instStart+' → '+instEnd:'range unavailable';
+  document.getElementById('attr-appref-visitors-range').textContent='Unique page views · '+engRange;
+  document.getElementById('attr-appref-taps-range').textContent='Apple-attributed taps · '+engRange;
+  document.getElementById('attr-appref-downloads-range').textContent='Installs attributed to App referrer · '+instRange;
   var note=document.getElementById('attr-appref-note');
   if(appRefTaps===null){
     note.textContent='App-referrer download attribution is available now. App-referrer tap attribution will populate after the next analytics refresh with the new source-level tap aggregation.';
