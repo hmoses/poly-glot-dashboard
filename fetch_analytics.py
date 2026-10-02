@@ -222,6 +222,10 @@ def main():
         web_by_date = defaultdict(int)
         page_views_by_date = defaultdict(int)
         taps_by_date = defaultdict(int)
+        page_views_by_source = defaultdict(int)
+        unique_page_views_by_source = defaultdict(int)
+        taps_by_source = defaultdict(int)
+        unique_taps_by_source = defaultdict(int)
         total_impressions = 0
         total_web = 0
         total_page_views = 0
@@ -232,6 +236,8 @@ def main():
             territory = row.get('Territory', row.get('Storefront', ''))
             event = row.get('Event', '')
             counts = int(row.get('Counts', '0') or '0')
+            unique_counts = int(row.get('Unique Counts', '0') or '0')
+            source = row.get('Source Type', 'Unavailable') or 'Unavailable'
 
             if 'impression' in event.lower():
                 impressions_by_date[date] += counts
@@ -239,9 +245,13 @@ def main():
                 total_impressions += counts
             elif 'page view' in event.lower():
                 page_views_by_date[date] += counts
+                page_views_by_source[source] += counts
+                unique_page_views_by_source[source] += unique_counts
                 total_page_views += counts
             elif 'tap' in event.lower():
                 taps_by_date[date] += counts
+                taps_by_source[source] += counts
+                unique_taps_by_source[source] += unique_counts
                 total_taps += counts
             elif 'web' in event.lower() or 'preview' in event.lower():
                 web_by_date[date] += counts
@@ -254,6 +264,10 @@ def main():
         output["web_preview_by_date"] = dict(sorted(web_by_date.items()))
         output["page_views_by_date"] = dict(sorted(page_views_by_date.items()))
         output["taps_by_date"] = dict(sorted(taps_by_date.items()))
+        output["page_views_by_source"] = dict(sorted(page_views_by_source.items(), key=lambda x: -x[1]))
+        output["unique_page_views_by_source"] = dict(sorted(unique_page_views_by_source.items(), key=lambda x: -x[1]))
+        output["taps_by_source"] = dict(sorted(taps_by_source.items(), key=lambda x: -x[1]))
+        output["unique_taps_by_source"] = dict(sorted(unique_taps_by_source.items(), key=lambda x: -x[1]))
 
         dates = sorted(impressions_by_date.keys())
         output["summary"] = {
@@ -497,6 +511,8 @@ def main():
             "installs_by_country": dict(sorted(inst_by_country.items(), key=lambda x: -x[1])),
             "installs_by_source": dict(sorted(inst_by_source.items(), key=lambda x: -x[1])),
             "installs_by_type": dict(sorted(inst_by_type.items(), key=lambda x: -x[1])),
+            "date_range_start": min(inst_by_date.keys()) if inst_by_date else "",
+            "date_range_end": max(inst_by_date.keys()) if inst_by_date else "",
             "raw_installs": unique_inst[:100],  # Keep last 100 for table
         }
         print(f"  Installs (excluding updates): {total_installs} (first: {total_first}, redl: {total_redl}) | Updates: {total_upd}")
