@@ -52,11 +52,16 @@ jobs:
             exit 0
           fi
 
-          # Scheduled refreshes proceed only when it is exactly 6 AM in
-          # America/Los_Angeles. This keeps the schedule correct across DST.
-          PACIFIC_HOUR=$(TZ=America/Los_Angeles date +%H)
-          echo "Pacific hour: $PACIFIC_HOUR"
-          if [ "$PACIFIC_HOUR" = "06" ]; then
+          # GitHub scheduled jobs may start well after their cron time. Do not
+          # compare the runner's actual wall-clock hour. Instead, match the
+          # scheduled cron slot to the current Pacific UTC offset so the 6 AM
+          # PT refresh still runs even when GitHub queues the job for hours.
+          OFFSET=$(TZ=America/Los_Angeles date +%z)
+          SLOT="${{ github.event.schedule }}"
+          echo "Pacific UTC offset: $OFFSET | scheduled slot: $SLOT"
+
+          if { [ "$OFFSET" = "-0700" ] && [ "$SLOT" = "0 13 * * *" ]; } || \
+             { [ "$OFFSET" = "-0800" ] && [ "$SLOT" = "0 14 * * *" ]; }; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
