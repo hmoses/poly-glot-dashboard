@@ -9,11 +9,15 @@ Includes: Engagement, Downloads, Install+Delete, Acquisitions (Source Info + Cam
 import jwt, time, requests, gzip, io, csv, json, os, sys
 from datetime import datetime, timezone
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 
 APP_ID = os.environ.get("ASC_APP_ID", "6804499285")
 KEY_ID = os.environ.get("ASC_KEY_ID", "3M53HUUZF3")
 ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "27273279-3df5-4fd7-b3f9-b6e882c1fc38")
 PRIVATE_KEY = os.environ.get("ASC_PRIVATE_KEY", "")
+REPORT_START = "2026-09-18"
+PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
+REPORT_END = datetime.now(PACIFIC_TZ).date().isoformat()
 # Two report request IDs:
 REQ_HISTORICAL = "f46b6fd5-272c-4b46-9a88-55b399ea11f0"  # one-time snapshot (older data)
 REQ_ONGOING = os.environ.get("ASC_REPORT_REQUEST_ID", "7d3c05d9-4ec7-46f3-a37d-0665ab7b9896")  # ongoing (current data)
@@ -127,6 +131,9 @@ def filter_app_rows(rows):
         row_app_id = str(row.get("App Apple Identifier", "") or "").strip()
         if row_app_id and row_app_id != str(APP_ID):
             dropped += 1
+            continue
+        row_date = str(row.get("Date", "") or "").strip()
+        if row_date and (row_date < REPORT_START or row_date > REPORT_END):
             continue
         filtered.append(row)
     if dropped:
@@ -276,8 +283,8 @@ def main():
             "total_taps": total_taps,
             "total_web_preview_views": total_web,
             "days_tracked": len(dates),
-            "date_range_start": dates[0] if dates else "",
-            "date_range_end": dates[-1] if dates else "",
+            "date_range_start": REPORT_START,
+            "date_range_end": REPORT_END,
             "total_countries": len(impressions_by_country),
         }
         print(f"  Range: {dates[0] if dates else '?'} → {dates[-1] if dates else '?'} ({len(dates)} days)")
@@ -511,8 +518,8 @@ def main():
             "installs_by_country": dict(sorted(inst_by_country.items(), key=lambda x: -x[1])),
             "installs_by_source": dict(sorted(inst_by_source.items(), key=lambda x: -x[1])),
             "installs_by_type": dict(sorted(inst_by_type.items(), key=lambda x: -x[1])),
-            "date_range_start": min(inst_by_date.keys()) if inst_by_date else "",
-            "date_range_end": max(inst_by_date.keys()) if inst_by_date else "",
+            "date_range_start": REPORT_START,
+            "date_range_end": REPORT_END,
             "raw_installs": unique_inst[:100],  # Keep last 100 for table
         }
         print(f"  Installs (excluding updates): {total_installs} (first: {total_first}, redl: {total_redl}) | Updates: {total_upd}")
