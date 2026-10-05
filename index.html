@@ -138,6 +138,12 @@ nav {
 .chart-heading .chart-title { margin-bottom:0; font-size:0.95rem; }
 .chart-help { color:var(--text-faint); font-size:0.76rem; line-height:1.5; margin:4px 0 16px; max-width:780px; }
 .empty-state { padding:18px; border:1px dashed rgba(125,211,252,0.12); border-radius:10px; color:var(--text-faint); font-size:0.82rem; line-height:1.5; background:rgba(125,211,252,0.025); }
+.source-more { margin-top:12px; border-top:1px solid rgba(125,211,252,0.08); padding-top:10px; }
+.source-more summary { cursor:pointer; color:var(--accent); font-size:0.78rem; font-weight:700; list-style:none; user-select:none; }
+.source-more summary::-webkit-details-marker { display:none; }
+.source-more summary::before { content:'＋'; display:inline-block; margin-right:7px; color:var(--purple); }
+.source-more[open] summary::before { content:'−'; }
+.source-more .source-list { margin-top:10px; }
 .country-table { width: 100%; border-collapse: collapse; }
 .country-table th {
   text-align: left; font-size: 0.68rem; text-transform: uppercase;
@@ -453,7 +459,7 @@ footer a { color: var(--accent); }
   <div class="chart-grid" style="margin-top:20px">
     <div class="chart-card full">
       <div class="chart-heading"><div class="chart-title">🏷️ Top Referrer Apps</div></div>
-      <p class="chart-help">Apps Apple identifies as the source of Poly-Glot product-page traffic. Each row shows total attributed views and Apple’s unique-visitor count.</p>
+      <p class="chart-help">Highest-volume apps Apple identifies as sources of Poly-Glot product-page traffic. The top 10 are shown first; expand the list to view the remaining referrers. Each row separates total attributed views from unique visitors.</p>
       <div id="acq-referrer-bars" class="source-list"></div>
     </div>
   </div>
@@ -1055,16 +1061,24 @@ function render(data){
   document.getElementById('stat-acq-campaigns').textContent=campList.length.toString();
   document.getElementById('stat-acq-camp-detail').textContent=campList.length>0?campList[0].name+' ('+campList[0].count+')':'No campaigns yet';
 
-  // Referrer apps — long labels use a dedicated list so names and metrics never collide.
+  // Referrer apps — show the strongest sources first and keep the long tail collapsible.
   var arB=document.getElementById('acq-referrer-bars');
   if(topRefs.length>0){
     var mxR=Math.max(topRefs[0].count,1);
-    topRefs.forEach(function(ref){
+    function referrerRow(ref){
       var icon=ref.name.includes('TikTok')?'🎵':ref.name.includes('Safari')?'🧭':ref.name.includes('Chrome')?'🌐':ref.name.includes('Instagram')?'📸':ref.name.includes('Facebook')?'👤':'📱';
       var pctWidth=Math.max((ref.count/mxR*100),2);
-      arB.innerHTML+='<div class="source-row"><div class="source-name">'+icon+' '+ref.name+'</div><div class="source-track"><div class="source-fill" style="width:'+pctWidth+'%;background:linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)"></div></div><div class="source-metric"><span class="source-primary">'+ref.count.toLocaleString()+' views</span><span class="source-secondary">'+ref.unique.toLocaleString()+' unique · '+ref.pct+'%</span></div></div>';
-    });
-  } else { arB.innerHTML='<div class="empty-state">No referrer-app data has been reported yet. This section will populate when App Store Connect provides source-app attribution.</div>'; }
+      return '<div class="source-row"><div class="source-name">'+icon+' '+ref.name+'</div><div class="source-track"><div class="source-fill" style="width:'+pctWidth+'%;background:linear-gradient(135deg,#f472b6 0%,#a78bfa 100%)"></div></div><div class="source-metric"><span class="source-primary">'+ref.count.toLocaleString()+' views</span><span class="source-secondary">'+ref.unique.toLocaleString()+' unique · '+ref.pct+'%</span></div></div>';
+    }
+    var visibleRefs=topRefs.slice(0,10);
+    arB.innerHTML=visibleRefs.map(referrerRow).join('');
+    if(topRefs.length>10){
+      var hiddenRefs=topRefs.slice(10);
+      arB.innerHTML+='<details class="source-more"><summary>Show '+hiddenRefs.length+' more referrer apps</summary><div class="source-list">'+hiddenRefs.map(referrerRow).join('')+'</div></details>';
+    }
+  } else {
+    arB.innerHTML='<div class="empty-state">No referrer-app data has been reported yet. This section will populate when App Store Connect provides source-app attribution.</div>';
+  }
 
   // Acquisitions daily chart
   var acqByDate=acq.acquisitions_by_date||{};
