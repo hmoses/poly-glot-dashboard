@@ -202,6 +202,8 @@ def main():
         "web_preview_by_date": {},
         "page_views_by_date": {},
         "taps_by_date": {},
+        "taps_by_engagement_type": {},
+        "taps_by_engagement_source": {},
         "downloads_by_date": {},
         "downloads_by_type": {},
         "downloads_by_country": {},
@@ -233,6 +235,8 @@ def main():
         unique_page_views_by_source = defaultdict(int)
         taps_by_source = defaultdict(int)
         unique_taps_by_source = defaultdict(int)
+        taps_by_engagement_type = defaultdict(int)
+        taps_by_engagement_source = defaultdict(lambda: defaultdict(int))
         total_impressions = 0
         total_web = 0
         total_page_views = 0
@@ -256,9 +260,14 @@ def main():
                 unique_page_views_by_source[source] += unique_counts
                 total_page_views += counts
             elif 'tap' in event.lower():
+                # Preserve engagement totals across ALL report rows before
+                # trimming raw_engagement to its 200-row recent sample.
+                engagement_type = (row.get('Engagement Type', '') or '').strip() or 'Unspecified'
                 taps_by_date[date] += counts
                 taps_by_source[source] += counts
                 unique_taps_by_source[source] += unique_counts
+                taps_by_engagement_type[engagement_type] += counts
+                taps_by_engagement_source[engagement_type][source] += counts
                 total_taps += counts
             elif 'web' in event.lower() or 'preview' in event.lower():
                 web_by_date[date] += counts
@@ -275,6 +284,11 @@ def main():
         output["unique_page_views_by_source"] = dict(sorted(unique_page_views_by_source.items(), key=lambda x: -x[1]))
         output["taps_by_source"] = dict(sorted(taps_by_source.items(), key=lambda x: -x[1]))
         output["unique_taps_by_source"] = dict(sorted(unique_taps_by_source.items(), key=lambda x: -x[1]))
+        output["taps_by_engagement_type"] = dict(sorted(taps_by_engagement_type.items(), key=lambda x: -x[1]))
+        output["taps_by_engagement_source"] = {
+            action: dict(sorted(sources.items(), key=lambda x: -x[1]))
+            for action, sources in taps_by_engagement_source.items()
+        }
 
         dates = sorted(impressions_by_date.keys())
         output["summary"] = {
