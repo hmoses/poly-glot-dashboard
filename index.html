@@ -562,6 +562,36 @@ footer a { color: var(--accent); }
     </div>
   </div>
 </div></section>
+
+<!-- Full-window App Store engagement breakdown; Get taps are not installs. -->
+<section class="section" id="app-store-tap-actions"><div class="container">
+  <span class="section-eyebrow">👆 App Store Button Actions</span>
+  <h2 class="section-title">What are people tapping?</h2>
+  <p class="section-desc">Apple reports Get, Open, Redownload, Update, and Share separately. A Get tap starts a download; only the Downloads report confirms downloads.</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));padding:0 0 20px">
+    <div class="stat-card"><div class="stat-label">Get taps</div><div class="stat-value" id="tap-action-get">—</div><div class="stat-detail">Get button presses, not verified installs</div></div>
+    <div class="stat-card"><div class="stat-label">Open taps</div><div class="stat-value" id="tap-action-open">—</div><div class="stat-detail">Opened the installed app via App Store</div></div>
+    <div class="stat-card"><div class="stat-label">Redownload taps</div><div class="stat-value" id="tap-action-redownload">—</div><div class="stat-detail">Tapped the cloud download button</div></div>
+    <div class="stat-card"><div class="stat-label">Update taps</div><div class="stat-value" id="tap-action-update">—</div><div class="stat-detail">Manually requested an update</div></div>
+    <div class="stat-card"><div class="stat-label">Share taps</div><div class="stat-value" id="tap-action-share">—</div><div class="stat-detail">Shared the App Store listing</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Tap actions · all reported dates</div>
+      <div class="bar-chart" id="tap-action-bars"><div class="empty-state">Waiting for a full-period engagement breakdown from Apple's reports.</div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Where each action came from</div>
+      <div style="max-height:340px;overflow:auto">
+        <table class="engagement-table" id="tap-action-source-table">
+          <thead><tr><th>Action</th><th>Source</th><th>Taps</th></tr></thead>
+          <tbody><tr><td colspan="3">Waiting for data</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <p class="chart-help" id="tap-actions-status" style="margin-top:14px" role="status">Breakdown pending analytics refresh. Existing taps and downloads are unchanged.</p>
+</div></section>
 <section class="section"><div class="container">
   <span class="section-eyebrow">⬆️ App Updates</span>
   <h2 class="section-title">Updates</h2>
@@ -609,7 +639,7 @@ footer a { color: var(--accent); }
   <div class="chart-card full">
     <div style="max-height: 500px; overflow-y: auto;">
       <table class="engagement-table" id="engagement-table">
-        <thead><tr><th>Date</th><th>Event</th><th>Source</th><th>Device</th><th>OS</th><th>Territory</th><th>Count</th></tr></thead>
+        <thead><tr><th>Date</th><th>Event</th><th>Engagement Type</th><th>Source</th><th>Device</th><th>OS</th><th>Territory</th><th>Count</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -777,6 +807,60 @@ function render(data){
       dtB.innerHTML+=`<div class="bar-row"><div class="bar-label" style="width:100px">${type}</div><div class="bar-track"><div class="bar-fill" style="width:${(count/mxT)*100}%;background:linear-gradient(135deg,#10b981 0%,#7dd3fc 100%)"><span class="bar-count">${count}</span></div></div></div>`;
     });
   } else { dtB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No download type data yet</div>'; }
+
+  // Pre-aggregated over ALL Apple report rows by fetch_analytics.py.
+  // Do NOT infer breakdowns from raw_engagement, which is a 200-row sample.
+  const tapTypes=data.taps_by_engagement_type;
+  const tapSources=data.taps_by_engagement_source||{};
+  const hasFullTapBreakdown=!!tapTypes && typeof tapTypes==='object' && !Array.isArray(tapTypes);
+  const tapBars=document.getElementById('tap-action-bars');
+  const tapSourceBody=document.querySelector('#tap-action-source-table tbody');
+  const tapStatus=document.getElementById('tap-actions-status');
+  for(const action of ['Get','Open','Redownload','Update','Share']){
+    document.getElementById('tap-action-'+action.toLowerCase()).textContent=
+      hasFullTapBreakdown?(tapTypes[action]||0).toLocaleString():'—';
+  }
+  tapBars.replaceChildren();
+  tapSourceBody.replaceChildren();
+  if(!hasFullTapBreakdown){
+    const pending=document.createElement('div');
+    pending.className='empty-state';
+    pending.textContent='Waiting for the next successful Apple analytics refresh to collect full-window button actions.';
+    tapBars.appendChild(pending);
+    const tr=document.createElement('tr'),td=document.createElement('td');
+    td.colSpan=3;td.textContent='Pending refresh';tr.appendChild(td);tapSourceBody.appendChild(tr);
+    tapStatus.textContent='Historical actions are unavailable in the saved data. The total taps and confirmed downloads remain available; the last 200 event rows are not a representative breakdown.';
+  }else{
+    const entries=Object.entries(tapTypes).sort((a,b)=>b[1]-a[1]);
+    const maxTap=Math.max(1,...entries.map(e=>e[1]));
+    for(const [action,count] of entries){
+      const row=document.createElement('div');row.className='bar-row';
+      const label=document.createElement('div');label.className='bar-label';
+      label.style.width='120px';label.style.textAlign='left';label.textContent=action;
+      const track=document.createElement('div');track.className='bar-track';
+      const fill=document.createElement('div');fill.className='bar-fill';
+      fill.style.width=(100*count/maxTap)+'%';
+      const val=document.createElement('span');val.className='bar-count';val.textContent=count.toLocaleString();
+      fill.appendChild(val);track.appendChild(fill);row.append(label,track);tapBars.appendChild(row);
+      for(const [source,sourceCount] of Object.entries(tapSources[action]||{}).sort((a,b)=>b[1]-a[1])){
+        const tr=document.createElement('tr');
+        for(const value of [action,source,sourceCount.toLocaleString()]){
+          const td=document.createElement('td');td.textContent=value;tr.appendChild(td);
+        }
+        tapSourceBody.appendChild(tr);
+      }
+    }
+    if(!entries.length)tapBars.textContent='No tap events reported in the available period.';
+    if(!tapSourceBody.children.length){
+      const tr=document.createElement('tr'),td=document.createElement('td');
+      td.colSpan=3;td.textContent='No source breakdown available';tr.appendChild(td);tapSourceBody.appendChild(tr);
+    }
+    const classified=entries.reduce((sum,e)=>sum+e[1],0);
+    const allTaps=s.total_taps||0;
+    tapStatus.textContent=classified===allTaps
+      ? classified.toLocaleString()+' of '+allTaps.toLocaleString()+' taps categorized across Apple reports. Get is a button tap, not a verified install. Downloads: '+totalUserDl.toLocaleString()+'.'
+      : classified.toLocaleString()+' of '+allTaps.toLocaleString()+' taps categorized; coverage differs. Downloads are reported separately.';
+  }
 
   // App updates — deliberately separate from user downloads/installs
   const updByDate=data.updates_by_date||{}, updDates=Object.keys(updByDate).sort();
@@ -1200,7 +1284,7 @@ function render(data){
   const eB=document.querySelector('#engagement-table tbody');
   var rows='';
   (data.raw_engagement||[]).forEach(row=>{
-    rows+=`<tr><td>${row['Date']||''}</td><td>${row['Event']||''}</td><td>${row['Source Type']||''}</td><td>${row['Device']||''}</td><td>${row['Platform Version']||''}</td><td>${CF[row['Territory']]||''} ${row['Territory']||''}</td><td style="font-family:'Fira Code',monospace;color:var(--accent)">${row['Counts']||''}</td></tr>`;
+    rows+=`<tr><td>${row['Date']||''}</td><td>${row['Event']||''}</td><td>${row['Engagement Type']||'—'}</td><td>${row['Source Type']||''}</td><td>${row['Device']||''}</td><td>${row['Platform Version']||''}</td><td>${CF[row['Territory']]||''} ${row['Territory']||''}</td><td style="font-family:'Fira Code',monospace;color:var(--accent)">${row['Counts']||''}</td></tr>`;
   });
   eB.innerHTML=rows;
 }
