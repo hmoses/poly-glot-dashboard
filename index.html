@@ -817,8 +817,10 @@ function render(data){
   const tapSourceBody=document.querySelector('#tap-action-source-table tbody');
   const tapStatus=document.getElementById('tap-actions-status');
   for(const action of ['Get','Open','Redownload','Update','Share']){
+    // Apple's Engagement Type report calls this action "Re-download".
+    const reportedAction=action==='Redownload'?'Re-download':action;
     document.getElementById('tap-action-'+action.toLowerCase()).textContent=
-      hasFullTapBreakdown?(tapTypes[action]||0).toLocaleString():'—';
+      hasFullTapBreakdown?(tapTypes[reportedAction]||0).toLocaleString():'—';
   }
   tapBars.replaceChildren();
   tapSourceBody.replaceChildren();
