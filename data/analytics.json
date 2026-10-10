@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-10-09T18:34:02.025423+00:00",
+  "updated_at": "2026-10-10T15:40:04.784651+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 20700,
     "total_page_views": 59830,
     "total_taps": 803,
-    "total_web_preview_views": 111962,
+    "total_web_preview_views": 111961,
     "days_tracked": 21,
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-09",
+    "date_range_end": "2026-10-10",
     "total_countries": 148,
-    "total_downloads": 80,
-    "total_updates": 115,
+    "total_downloads": 81,
+    "total_updates": 119,
     "total_subscriptions": 0,
     "total_purchases": 0
   },
@@ -235,6 +235,34 @@
     "2026-10-07": 3,
     "2026-10-08": 2
   },
+  "taps_by_engagement_type": {
+    "Get": 417,
+    "Share": 218,
+    "Open": 140,
+    "Re-download": 16,
+    "Update": 12
+  },
+  "taps_by_engagement_source": {
+    "Get": {
+      "App Store browse": 403,
+      "App Store search": 12,
+      "Unavailable": 2
+    },
+    "Share": {
+      "App Store browse": 218
+    },
+    "Open": {
+      "App Store browse": 139,
+      "App Store search": 1
+    },
+    "Re-download": {
+      "App Store browse": 16
+    },
+    "Update": {
+      "App Store browse": 8,
+      "Unavailable": 4
+    }
+  },
   "downloads_by_date": {
     "2026-09-19": 1,
     "2026-09-20": 4,
@@ -251,15 +279,16 @@
     "2026-10-04": 4,
     "2026-10-05": 1,
     "2026-10-06": 1,
-    "2026-10-07": 1
+    "2026-10-07": 1,
+    "2026-10-09": 1
   },
   "downloads_by_type": {
-    "First-time download": 71,
+    "First-time download": 72,
     "Redownload": 9
   },
   "downloads_by_country": {
     "EG": 18,
-    "US": 12,
+    "US": 13,
     "LK": 12,
     "CA": 9,
     "BO": 5,
@@ -284,7 +313,7 @@
     "1.1.0": 10,
     "1.1.1": 7,
     "1.0.7": 5,
-    "3.2": 3,
+    "3.2": 4,
     "1.1.2": 2,
     "2.9": 1
   },
@@ -5809,7 +5838,7 @@
       "Pre-Order": "",
       "Territory": "LK",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5824,7 +5853,7 @@
       "Pre-Order": "",
       "Territory": "EE",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5839,7 +5868,7 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "2",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5854,7 +5883,7 @@
       "Pre-Order": "",
       "Territory": "TR",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5869,7 +5898,7 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5884,7 +5913,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "2",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5899,7 +5928,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5914,7 +5943,7 @@
       "Pre-Order": "",
       "Territory": "SA",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5929,7 +5958,7 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5944,7 +5973,7 @@
       "Pre-Order": "",
       "Territory": "LK",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5959,7 +5988,7 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
     },
     {
       "Date": "2026-10-08",
@@ -5974,7 +6003,82 @@
       "Pre-Order": "",
       "Territory": "AR",
       "Counts": "1",
-      "_date": "2026-10-09"
+      "_date": "2026-10-10"
+    },
+    {
+      "Date": "2026-10-09",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "3.4",
+      "Device": "Desktop",
+      "Platform Version": "macOS 27.0",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-10"
+    },
+    {
+      "Date": "2026-10-09",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "First-time download",
+      "App Version": "3.2",
+      "Device": "Desktop",
+      "Platform Version": "macOS 27.0",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-10"
+    },
+    {
+      "Date": "2026-10-09",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.4",
+      "Device": "iPhone",
+      "Platform Version": "iOS 18.7",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-10"
+    },
+    {
+      "Date": "2026-10-09",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.4",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.5",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-10"
+    },
+    {
+      "Date": "2026-10-09",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.4",
+      "Device": "iPad",
+      "Platform Version": "iOS 26.5",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-10"
     }
   ],
   "raw_subscriptions": [],
@@ -6019,10 +6123,11 @@
     "2026-10-05": 13,
     "2026-10-06": 6,
     "2026-10-07": 20,
-    "2026-10-08": 14
+    "2026-10-08": 14,
+    "2026-10-09": 4
   },
   "updates_by_type": {
-    "Auto-update": 107,
+    "Auto-update": 111,
     "Manual update": 8
   },
   "acquisitions": {
@@ -6891,7 +6996,7 @@
       "Auto-download": 2
     },
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-09",
+    "date_range_end": "2026-10-10",
     "raw_installs": [
       {
         "Date": "2026-09-24",
@@ -8149,7 +8254,7 @@
         "Territory": "LK",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-05",
@@ -8166,7 +8271,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-05",
@@ -8183,7 +8288,7 @@
         "Territory": "CA",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-05",
@@ -8200,7 +8305,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-05",
@@ -8217,7 +8322,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-05",
@@ -8234,7 +8339,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8251,7 +8356,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8268,7 +8373,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8285,7 +8390,7 @@
         "Territory": "LK",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8302,7 +8407,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8319,7 +8424,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-07",
@@ -8336,7 +8441,7 @@
         "Territory": "TR",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-08",
@@ -8353,7 +8458,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-08",
@@ -8370,7 +8475,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-08",
@@ -8387,7 +8492,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-08",
@@ -8404,7 +8509,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-10-08",
@@ -8421,7 +8526,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-09"
+        "_date": "2026-10-10"
       },
       {
         "Date": "2026-09-28",
@@ -8822,12 +8927,12 @@
   "funnel": {
     "web_referrer": 14,
     "app_referrer": 11512,
-    "first_time_downloads": 71,
+    "first_time_downloads": 72,
     "redownloads": 9,
-    "user_installs": 80,
+    "user_installs": 81,
     "manual_updates": 8,
-    "auto_updates": 107,
-    "real_downloads": 80,
+    "auto_updates": 111,
+    "real_downloads": 81,
     "tiktok_page_views": 125,
     "tiktok_unique_views": 81,
     "web_ref_countries": {
