@@ -1,26 +1,26 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-11",
-  "updated": "2026-10-11T18:41:16.079216+00:00",
+  "updated": "2026-10-11T22:49:35.120570+00:00",
   "connected": true,
   "events": {
     "trial_started": 16,
-    "first_send": 19,
-    "provider_opened": 94,
-    "app_returned": 71,
-    "compare_used": 35,
+    "first_send": 20,
+    "provider_opened": 98,
+    "app_returned": 75,
+    "compare_used": 37,
     "daily_free_send_used": 2
   },
   "providers": {
     "gemini": 1,
-    "grok": 4,
-    "chatgpt": 72,
+    "grok": 5,
+    "chatgpt": 75,
     "claude": 3,
     "perplexity": 6,
     "duckduckgo": 8
   },
   "platform_split": {
-    "ios": 80,
+    "ios": 84,
     "macos": 14
   },
   "by_build": {
@@ -29,10 +29,10 @@
       "build": "Unattributed build",
       "events": {
         "trial_started": 16,
-        "first_send": 17,
-        "provider_opened": 80,
-        "app_returned": 60,
-        "compare_used": 32,
+        "first_send": 18,
+        "provider_opened": 84,
+        "app_returned": 64,
+        "compare_used": 34,
         "daily_free_send_used": 0
       }
     },
