@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-10-10T17:30:42.739974+00:00",
+  "updated_at": "2026-10-11T15:19:34.324385+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 21413,
     "total_page_views": 59860,
     "total_taps": 805,
-    "total_web_preview_views": 113205,
+    "total_web_preview_views": 113204,
     "days_tracked": 22,
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-10",
+    "date_range_end": "2026-10-11",
     "total_countries": 149,
     "total_downloads": 81,
-    "total_updates": 119,
+    "total_updates": 123,
     "total_subscriptions": 0,
     "total_purchases": 0
   },
@@ -6022,7 +6022,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-10-10"
+      "_date": "2026-10-11"
     },
     {
       "Date": "2026-10-09",
@@ -6037,7 +6037,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-10-10"
+      "_date": "2026-10-11"
     },
     {
       "Date": "2026-10-09",
@@ -6052,7 +6052,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-10-10"
+      "_date": "2026-10-11"
     },
     {
       "Date": "2026-10-09",
@@ -6067,7 +6067,7 @@
       "Pre-Order": "",
       "Territory": "US",
       "Counts": "1",
-      "_date": "2026-10-10"
+      "_date": "2026-10-11"
     },
     {
       "Date": "2026-10-09",
@@ -6082,7 +6082,67 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-10-10"
+      "_date": "2026-10-11"
+    },
+    {
+      "Date": "2026-10-10",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.4",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-11"
+    },
+    {
+      "Date": "2026-10-10",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "3.4",
+      "Device": "Desktop",
+      "Platform Version": "macOS 27.0",
+      "Source Type": "App Store search",
+      "Page Type": "No page",
+      "Pre-Order": "",
+      "Territory": "VE",
+      "Counts": "1",
+      "_date": "2026-10-11"
+    },
+    {
+      "Date": "2026-10-10",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "3.4",
+      "Device": "Desktop",
+      "Platform Version": "macOS 26.7",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "MY",
+      "Counts": "1",
+      "_date": "2026-10-11"
+    },
+    {
+      "Date": "2026-10-10",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.4",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "AE",
+      "Counts": "1",
+      "_date": "2026-10-11"
     }
   ],
   "raw_subscriptions": [],
@@ -6128,10 +6188,11 @@
     "2026-10-06": 6,
     "2026-10-07": 20,
     "2026-10-08": 14,
-    "2026-10-09": 4
+    "2026-10-09": 4,
+    "2026-10-10": 4
   },
   "updates_by_type": {
-    "Auto-update": 111,
+    "Auto-update": 115,
     "Manual update": 8
   },
   "acquisitions": {
@@ -7000,7 +7061,7 @@
       "Auto-download": 2
     },
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-10",
+    "date_range_end": "2026-10-11",
     "raw_installs": [
       {
         "Date": "2026-09-24",
@@ -8258,7 +8319,7 @@
         "Territory": "LK",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-05",
@@ -8275,7 +8336,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-05",
@@ -8292,7 +8353,7 @@
         "Territory": "CA",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-05",
@@ -8309,7 +8370,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-05",
@@ -8326,7 +8387,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-05",
@@ -8343,7 +8404,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8360,7 +8421,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8377,7 +8438,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8394,7 +8455,7 @@
         "Territory": "LK",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8411,7 +8472,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8428,7 +8489,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-07",
@@ -8445,7 +8506,7 @@
         "Territory": "TR",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-08",
@@ -8462,7 +8523,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-08",
@@ -8479,7 +8540,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-08",
@@ -8496,7 +8557,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-08",
@@ -8513,7 +8574,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-10-08",
@@ -8530,7 +8591,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-10"
+        "_date": "2026-10-11"
       },
       {
         "Date": "2026-09-28",
@@ -8771,7 +8832,7 @@
       "id": "60f1bc70-6226-4b1a-bef3-582b26b01925",
       "versionString": "1.1.5",
       "platform": "IOS",
-      "appStoreState": "PREPARE_FOR_SUBMISSION",
+      "appStoreState": "WAITING_FOR_REVIEW",
       "createdDate": "2026-10-10T09:33:35-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -8851,7 +8912,7 @@
       "id": "14eeb91e-d83d-473f-acec-7fc6588d2d51",
       "versionString": "3.5",
       "platform": "MAC_OS",
-      "appStoreState": "PREPARE_FOR_SUBMISSION",
+      "appStoreState": "WAITING_FOR_REVIEW",
       "createdDate": "2026-10-10T09:34:10-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -8934,8 +8995,10 @@
     "first_time_downloads": 72,
     "redownloads": 9,
     "user_installs": 81,
+    "download_events": 81,
+    "reported_opt_in_installs": 53,
     "manual_updates": 8,
-    "auto_updates": 111,
+    "auto_updates": 115,
     "real_downloads": 81,
     "tiktok_page_views": 125,
     "tiktok_unique_views": 81,
