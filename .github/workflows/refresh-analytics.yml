@@ -79,6 +79,9 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
           ASC_REPORT_REQUEST_ID: ${{ secrets.ASC_REPORT_REQUEST_ID }}
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_PROJECT_ID: ${{ vars.POSTHOG_PROJECT_ID }}
+          POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
         shell: bash
         run: |
           for attempt in 1 2 3; do
