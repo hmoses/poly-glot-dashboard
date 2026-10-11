@@ -71,6 +71,16 @@ jobs:
         if: steps.freshness.outputs.should_run == 'true'
         run: pip install -r requirements.txt
 
+      - name: Confirm PostHog key is supplied to refresh runner
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+        run: |
+          if [ -n "$POSTHOG_PERSONAL_API_KEY" ]; then
+            echo "PostHog analytics API credential: configured (value not printed)"
+          else
+            echo "::warning::PostHog analytics API credential is missing; ASC metrics will still refresh."
+          fi
+
       - name: Fetch analytics from ASC
         if: steps.freshness.outputs.should_run == 'true'
         env:
