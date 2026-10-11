@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-11T15:37:54.279651+00:00",
+  "updated_at": "2026-10-11T15:45:48.346885+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 13493,
@@ -287,6 +287,12 @@
     "2026-10-06": 1,
     "2026-10-07": 1,
     "2026-10-09": 1
+  },
+  "downloads_by_source": {
+    "App referrer": 63,
+    "App Store browse": 9,
+    "App Store search": 8,
+    "Unavailable": 1
   },
   "downloads_by_type": {
     "First-time download": 72,
