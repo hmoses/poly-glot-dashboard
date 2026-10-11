@@ -22,6 +22,17 @@ def tally(d):
 
 assert tally(taps) == summary["total_taps"], "Apple engagement-action subtotal mismatch"
 assert tally(downloads) == summary["total_downloads"], "Apple download subtotal mismatch"
+# Download attribution must count only first-time and redownload rows, not updates.
+expected_download_sources = {}
+for row in data.get("raw_downloads", []):
+    if row.get("Download Type") not in ("First-time download", "Redownload"):
+        continue
+    source = row.get("Source Type") or "Unavailable"
+    expected_download_sources[source] = expected_download_sources.get(source, 0) + int(row.get("Counts", "0") or 0)
+assert sum(expected_download_sources.values()) == summary["total_downloads"], "Raw download attribution must reconcile with App Downloads totals"
+if data.get("downloads_by_source"):
+    assert data["downloads_by_source"] == expected_download_sources, "Download source aggregation differs from Apple raw download events"
+
 assert tally(install_types) == installs["total_installs"], "Opt-in install subtotal mismatch"
 assert tally(data.get("taps_by_source", {})) == summary["total_taps"], "Tap source totals mismatch"
 for event, count in taps.items():
@@ -35,6 +46,12 @@ for name in ["reconcile-get", "reconcile-downloads", "reconcile-installs",
 assert "reportedInstalls=(data.installs||{}).total_installs;" in html
 assert "Number.isFinite(inst.total_installs)?inst.total_installs.toLocaleString()" in html
 assert "var realDl=funnel.user_installs" not in html, "Legacy downloads erroneously presented as installs"
+assert "var appRefDownloads=reportedDownloadsBySource?.['App referrer'];" in html, "App Referrer Downloads card must use Apple Downloads report"
+assert "var appRefOptInInstalls=" in html, "Opt-in install attribution should be a separate metric"
+assert "App-referrer tap attribution will populate after the next analytics refresh" not in html, "Do not promise nonexistent source attribution"
+assert 'id="inst-event-timeline"' in html and "fullDates.forEach" in html, "Install chart must render through report cutoff"
+assert "No reported event row" in html and "this does not establish later daily coverage" in html, "Missing install rows must not be depicted as confirmed zeros"
+
 assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analytics.py").read_text()
 fetcher = (ROOT / "fetch_analytics.py").read_text()
 assert '"filter[granularity]": "DAILY"' in fetcher, "Do not mix weekly/monthly and daily report instances"
