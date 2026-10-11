@@ -1,7 +1,7 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-11",
-  "updated": "2026-10-11T16:38:46.493925+00:00",
+  "updated": "2026-10-11T17:50:55.725198+00:00",
   "connected": false,
   "reason": "POSTHOG_PERSONAL_API_KEY not configured",
   "events": {},
