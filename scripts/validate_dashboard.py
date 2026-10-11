@@ -62,7 +62,12 @@ assert "Apple publishes data with a delay" in html, "Caution about partial same-
 assert "date as calendar_date" in fetcher and "calendar_date.fromisoformat" in fetcher, "Avoid collision with local date variable in report loops"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
-assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
+posthog = (ROOT / "scripts/posthog_report.py").read_text()
+assert "HogQLQuery" in posthog and "uniqExact(distinct_id)" in posthog
+assert "not_configured" in posthog and "unavailable" in posthog
+assert "POSTHOG_API_KEY" in posthog and "POSTHOG_PROJECT_ID" in posthog
+assert "ph.status!=='connected'" in html
+assert "from scripts.posthog_report import refresh" in fetcher
 assert 'start_date = REPORT_START' in fetcher and 'end_date = REPORT_END' in fetcher, "TikTok API must match the range"
 assert "hero-reporting-period" in html and "hero-data-coverage" in html, "Display as-of reporting range and coverage caveat"
 assert summary["date_range_start"] == "2026-09-18", "Unexpected reporting start"
