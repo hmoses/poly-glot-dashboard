@@ -948,102 +948,81 @@ def main():
 
 
 def fetch_posthog_data():
-    """Fetch PostHog event counts and write to data/posthog.json"""
-    api_key = os.environ.get("POSTHOG_API_KEY", "")
-    project_id = os.environ.get("POSTHOG_PROJECT_ID", "400020")
-    if not api_key:
-        print("POSTHOG_API_KEY not set — skipping PostHog fetch")
-        # Write empty placeholder so dashboard doesn't error
-        with open("data/posthog.json", "w") as f:
-            json.dump({"events": {}, "providers": {}, "platform_split": {"ios": 0, "macos": 0}, "updated": datetime.now(timezone.utc).isoformat()}, f, indent=2)
-        return
+    """Refresh privacy-consented native usage events without inventing zeroes.
 
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    base = "https://us.i.posthog.com"
-
-    # PostHog is independent of ASC but must use the same Pacific-calendar
-    # reporting boundaries for an apples-to-apples dashboard date label.
-    period_after = datetime.combine(calendar_date.fromisoformat(REPORT_START), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
-    period_before = datetime.combine(calendar_date.fromisoformat(REPORT_END) + timedelta(days=1), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
-    event_names = ["trial_started", "first_send", "provider_opened", "app_returned", "compare_used", "daily_free_send_used"]
-    event_counts = {}
-    providers = {}
-    platform_split = {"ios": 0, "macos": 0}
-
-    for event in event_names:
-        try:
-            r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-                "query": {
-                    "kind": "EventsQuery",
-                    "select": ["count()"],
-                    "event": event,
-                    "after": period_after,
-                    "before": period_before
-                }
-            }, timeout=15)
-            if r.ok:
-                data = r.json()
-                results = data.get("results", [[0]])
-                event_counts[event] = results[0][0] if results and results[0] else 0
-            else:
-                print(f"PostHog query failed for {event}: {r.status_code}")
-                event_counts[event] = 0
-        except Exception as e:
-            print(f"PostHog error for {event}: {e}")
-            event_counts[event] = 0
-
-    # Provider breakdown from provider_opened events
-    try:
-        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-            "query": {
-                "kind": "EventsQuery",
-                "select": ["properties.provider", "count()"],
-                "event": "provider_opened",
-                "after": period_after,
-                    "before": period_before,
-                "groupBy": ["properties.provider"]
-            }
-        }, timeout=15)
-        if r.ok:
-            data = r.json()
-            for row in data.get("results", []):
-                if row and len(row) >= 2 and row[0]:
-                    providers[row[0]] = row[1]
-    except Exception as e:
-        print(f"PostHog provider breakdown error: {e}")
-
-    # Platform split
-    try:
-        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-            "query": {
-                "kind": "EventsQuery",
-                "select": ["properties.platform", "count()"],
-                "event": "provider_opened",
-                "after": period_after,
-                    "before": period_before,
-                "groupBy": ["properties.platform"]
-            }
-        }, timeout=15)
-        if r.ok:
-            data = r.json()
-            for row in data.get("results", []):
-                if row and len(row) >= 2 and row[0]:
-                    platform_split[row[0]] = row[1]
-    except Exception as e:
-        print(f"PostHog platform split error: {e}")
-
+    A PostHog personal API key is a server-side GitHub Actions secret.
+    The app embeds only the public project capture key; it never contains
+    the personal query API key. Do not log the key or per-user events here.
+    """
+    api_key = os.environ.get("POSTHOG_API_KEY", "").strip()
+    project_id = os.environ.get("POSTHOG_PROJECT_ID", "400020").strip()
+    host = os.environ.get("POSTHOG_HOST", "https://us.posthog.com").rstrip("/")
+    names = ("trial_started", "first_send", "provider_opened",
+             "app_returned", "compare_used", "daily_free_send_used")
     output = {
-        "events": event_counts,
-        "providers": providers,
-        "platform_split": platform_split,
+        "events": {}, "providers": {}, "platform_split": {},
+        "status": "unconfigured" if not api_key else "query_error",
         "updated": datetime.now(timezone.utc).isoformat(),
-        "date_range_start": REPORT_START,
-        "date_range_end": REPORT_END
+        "date_range_start": REPORT_START, "date_range_end": REPORT_END,
+        "source": "posthog"
     }
 
-    with open("data/posthog.json", "w") as f:
-        json.dump(output, f, indent=2)
-    print(f"PostHog data written: {event_counts}")
+    if api_key:
+        # The SQL timestamps are validated by REPORT_START/REPORT_END and
+        # computed using Pacific midnights, including daylight-saving changes.
+        start_utc = datetime.combine(calendar_date.fromisoformat(REPORT_START),
+                                     datetime.min.time(), tzinfo=PACIFIC_TZ).astimezone(timezone.utc)
+        end_utc = datetime.combine(calendar_date.fromisoformat(REPORT_END) + timedelta(days=1),
+                                   datetime.min.time(), tzinfo=PACIFIC_TZ).astimezone(timezone.utc)
+        start_sql = start_utc.strftime("%Y-%m-%d %H:%M:%S")
+        end_sql = end_utc.strftime("%Y-%m-%d %H:%M:%S")
+        where = (f"event IN ({', '.join(repr(n) for n in names)}) "
+                 f"AND timestamp >= toDateTime('{start_sql}') "
+                 f"AND timestamp < toDateTime('{end_sql}')")
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+        def query_hogql(sql):
+            response = requests.post(
+                f"{host}/api/projects/{project_id}/query/",
+                headers=headers, json={"query": {"kind": "HogQLQuery", "query": sql}},
+                timeout=30
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if payload.get("error"):
+                raise RuntimeError("PostHog query returned error")
+            return payload.get("results", [])
+
+        try:
+            rows = query_hogql(f"SELECT event, count() FROM events WHERE {where} GROUP BY event")
+            counts = {str(r[0]): int(r[1]) for r in rows if len(r) >= 2 and r[0] in names}
+            output["events"] = {n: counts.get(n, 0) for n in names}
+            provider_rows = query_hogql(
+                f"SELECT properties.provider, count() FROM events "
+                f"WHERE event = 'provider_opened' AND timestamp >= toDateTime('{start_sql}') "
+                f"AND timestamp < toDateTime('{end_sql}') GROUP BY properties.provider"
+            )
+            output["providers"] = {
+                str(r[0]): int(r[1]) for r in provider_rows if len(r) >= 2 and r[0]
+            }
+            platform_rows = query_hogql(
+                f"SELECT properties.platform, count() FROM events "
+                f"WHERE event = 'provider_opened' AND timestamp >= toDateTime('{start_sql}') "
+                f"AND timestamp < toDateTime('{end_sql}') GROUP BY properties.platform"
+            )
+            output["platform_split"] = {
+                str(r[0]): int(r[1]) for r in platform_rows if len(r) >= 2 and r[0] in ("ios", "macos")
+            }
+            output["status"] = "connected"
+        except (requests.RequestException, ValueError, KeyError, IndexError, RuntimeError) as exc:
+            print(f"PostHog analytics unavailable: {type(exc).__name__}; preserving unavailable state.")
+            output["events"] = {}
+            output["providers"] = {}
+            output["platform_split"] = {}
+
+    with open("data/posthog.json", "w", encoding="utf-8") as stream:
+        json.dump(output, stream, indent=2)
+    print(f"PostHog reporting status: {output['status']}")
 
 
 if __name__ == "__main__":
