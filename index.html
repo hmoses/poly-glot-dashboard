@@ -669,7 +669,8 @@ footer a { color: var(--accent); }
 <!-- ═══════════ POSTHOG FUNNEL & ENGAGEMENT SECTION ═══════════ -->
 <section class="section"><div class="container">
   <h2 class="section-title">📊 User Funnel & In-App Analytics</h2>
-  <p class="section-desc">PostHog event data — tracking the user journey from trial to subscription.</p>
+  <p class="section-desc">Opt-in PostHog product-usage events from iOS and macOS. Only events recorded after user consent are available; these are event counts, not unique people.</p>
+  <p class="chart-help" id="ph-connection-status" role="status">Checking analytics connection…</p>
 
   <!-- Funnel Metrics Cards -->
   <div class="grid grid-3" id="ph-funnel-cards">
@@ -685,7 +686,7 @@ footer a { color: var(--accent); }
   <div class="chart-card full" style="margin-top:16px">
     <div class="card-label" style="margin-bottom:12px">User Journey Funnel</div>
     <div id="ph-funnel-bars" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div id="ph-funnel-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">PostHog data will appear here once events start flowing. Events are tracked in-app via the PostHog JS SDK.</div>
+    <div id="ph-funnel-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">PostHog data is unavailable. Confirm the reporting connection and that users have opted in; missing data is not zero usage.</div>
   </div>
 
   <!-- Provider Breakdown -->
@@ -1382,7 +1383,15 @@ async function loadPostHogData(){
     var r=await fetch('data/posthog.json?t='+Date.now());
     if(!r.ok){showPostHogEmpty();return;}
     var ph=await r.json();
-    if(!ph||!ph.events){showPostHogEmpty();return;}
+    if(!ph || ph.status!=='connected' || !ph.events || !Object.keys(ph.events).length){
+      var label=ph?.status==='unconfigured'
+        ? 'PostHog reporting is not connected. Add the server-side POSTHOG_API_KEY secret; app events also require user opt-in.'
+        : 'PostHog reporting is unavailable or the query failed. Events cannot be represented as zero.';
+      document.getElementById('ph-connection-status').textContent=label;
+      showPostHogEmpty();
+      return;
+    }
+    document.getElementById('ph-connection-status').textContent='PostHog connected · '+(ph.date_range_start||'')+' – '+(ph.date_range_end||'')+' · last queried '+(ph.updated||'unknown')+'. Metrics include consenting users only.';
     var e=ph.events;
     // Populate cards
     setVal('ph-trial-started',e.trial_started||0);
