@@ -55,7 +55,10 @@ assert "No reported event row" in html and "this does not establish later daily 
 assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analytics.py").read_text()
 fetcher = (ROOT / "fetch_analytics.py").read_text()
 assert '"filter[granularity]": "DAILY"' in fetcher, "Do not mix weekly/monthly and daily report instances"
-assert "ASC_REPORT_END_DATE" in fetcher and "timedelta(days=1)" in fetcher, "Use last complete Pacific day"
+assert 'REPORT_END = os.environ.get("ASC_REPORT_END_DATE") or datetime.now(PACIFIC_TZ).date().isoformat()' in fetcher, "Include current Pacific calendar day by default"
+assert "datetime.now(PACIFIC_TZ).date() - timedelta(days=1)" not in fetcher, "Do not silently exclude today's events"
+assert "periodEnd===pacificToday" in html, "Label today's live reporting cutoff"
+assert "Apple publishes data with a delay" in html, "Caution about partial same-day coverage"
 assert "date as calendar_date" in fetcher and "calendar_date.fromisoformat" in fetcher, "Avoid collision with local date variable in report loops"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
