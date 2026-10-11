@@ -65,6 +65,13 @@ assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purc
 assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
 assert 'start_date = REPORT_START' in fetcher and 'end_date = REPORT_END' in fetcher, "TikTok API must match the range"
 assert "hero-reporting-period" in html and "hero-data-coverage" in html, "Display as-of reporting range and coverage caveat"
+assert 'ph.connected!==true' in html, "Unconnected PostHog data must not be labeled as zero"
+assert 'id="ph-connect-status"' in html, "Connection status must be visible"
+assert '"kind": "HogQLQuery"' in fetcher, "PostHog must use the documented HogQL query endpoint"
+assert 'POSTHOG_PERSONAL_API_KEY' in fetcher, "PostHog queries require a private server-side token"
+assert 'POSTHOG_PERSONAL_API_KEY:' in (ROOT / ".github/workflows/refresh-analytics.yml").read_text(), "Refresh must inject PostHog personal API key"
+assert "PostHog project token" not in html, "Never expose analytics credentials in public dashboard HTML"
+
 assert summary["date_range_start"] == "2026-09-18", "Unexpected reporting start"
 assert summary["date_range_end"] >= summary["date_range_start"], "Invalid as-of reporting range"
 assert '"limit": 200' in fetcher and 'next_url = instances.get' in fetcher, "Apple report pagination must be followed"
