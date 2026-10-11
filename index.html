@@ -672,6 +672,7 @@ footer a { color: var(--accent); }
   <p class="section-desc">PostHog event data — tracking the user journey from trial to subscription.</p>
 
   <!-- Funnel Metrics Cards -->
+  <p id="ph-connect-status" role="status" style="margin:0 0 16px;color:var(--text-muted);font-size:0.86rem">Checking secure analytics connection…</p>
   <div class="grid grid-3" id="ph-funnel-cards">
     <div class="chart-card"><div class="card-label">🚀 Trial Started</div><div class="card-value" id="ph-trial-started">—</div><div class="card-sub" id="ph-trial-started-sub">Unique users who started 3-day trial</div></div>
     <div class="chart-card"><div class="card-label">📤 First Send</div><div class="card-value" id="ph-first-send">—</div><div class="card-sub" id="ph-first-send-sub">Users who sent their first prompt</div></div>
@@ -685,7 +686,7 @@ footer a { color: var(--accent); }
   <div class="chart-card full" style="margin-top:16px">
     <div class="card-label" style="margin-bottom:12px">User Journey Funnel</div>
     <div id="ph-funnel-bars" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div id="ph-funnel-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">PostHog data will appear here once events start flowing. Events are tracked in-app via the PostHog JS SDK.</div>
+    <div id="ph-funnel-empty" style="color:var(--text-faint,#666);font-size:0.85rem;padding:20px 0;text-align:center;display:none">Product analytics is not yet connected or users have not opted in. No events are fabricated.</div>
   </div>
 
   <!-- Provider Breakdown -->
@@ -1382,7 +1383,12 @@ async function loadPostHogData(){
     var r=await fetch('data/posthog.json?t='+Date.now());
     if(!r.ok){showPostHogEmpty();return;}
     var ph=await r.json();
-    if(!ph||!ph.events){showPostHogEmpty();return;}
+    if(!ph||ph.connected!==true||!ph.events){
+      showPostHogEmpty();
+      document.getElementById('ph-connect-status').textContent='Not connected — '+(ph&&ph.reason?ph.reason:'PostHog report unavailable')+'. Displaying unavailable metrics rather than misleading zeros.';
+      return;
+    }
+    document.getElementById('ph-connect-status').textContent='Connected · consented feature events · period '+(ph.date_range_start||'unknown')+' → '+(ph.date_range_end||'unknown')+' · as of '+(ph.updated||'unknown')+'.';
     var e=ph.events;
     // Populate cards
     setVal('ph-trial-started',e.trial_started||0);
