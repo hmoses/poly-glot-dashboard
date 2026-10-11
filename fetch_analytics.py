@@ -948,102 +948,81 @@ def main():
 
 
 def fetch_posthog_data():
-    """Fetch PostHog event counts and write to data/posthog.json"""
-    api_key = os.environ.get("POSTHOG_API_KEY", "")
-    project_id = os.environ.get("POSTHOG_PROJECT_ID", "400020")
-    if not api_key:
-        print("POSTHOG_API_KEY not set — skipping PostHog fetch")
-        # Write empty placeholder so dashboard doesn't error
-        with open("data/posthog.json", "w") as f:
-            json.dump({"events": {}, "providers": {}, "platform_split": {"ios": 0, "macos": 0}, "updated": datetime.now(timezone.utc).isoformat()}, f, indent=2)
+    """Fetch six consented, personless product events from the PostHog HogQL API.
+
+    Only authorized personal API keys are used server-side; never the public
+    project write token. Absent credentials/data must never be shown as zero.
+    """
+    import datetime as dt
+    key = os.environ.get("POSTHOG_PERSONAL_API_KEY") or os.environ.get("POSTHOG_API_KEY")
+    project_id = os.environ.get("POSTHOG_PROJECT_ID") or "400020"
+    host = (os.environ.get("POSTHOG_HOST") or "https://us.posthog.com").rstrip("/")
+    path = "data/posthog.json"
+    events = ["trial_started", "first_send", "provider_opened",
+              "app_returned", "compare_used", "daily_free_send_used"]
+    common = {"date_range_start": REPORT_START, "date_range_end": REPORT_END,
+              "updated": datetime.now(timezone.utc).isoformat()}
+    if not key:
+        print("PostHog personal API key absent: metrics unavailable (not zero).")
+        with open(path, "w", encoding="utf8") as file:
+            json.dump({**common, "connected": False,
+                       "reason": "POSTHOG_PERSONAL_API_KEY not configured",
+                       "events": {}, "providers": {}, "platform_split": {}}, file, indent=2)
         return
-
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    base = "https://us.i.posthog.com"
-
-    # PostHog is independent of ASC but must use the same Pacific-calendar
-    # reporting boundaries for an apples-to-apples dashboard date label.
-    period_after = datetime.combine(calendar_date.fromisoformat(REPORT_START), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
-    period_before = datetime.combine(calendar_date.fromisoformat(REPORT_END) + timedelta(days=1), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
-    event_names = ["trial_started", "first_send", "provider_opened", "app_returned", "compare_used", "daily_free_send_used"]
-    event_counts = {}
-    providers = {}
-    platform_split = {"ios": 0, "macos": 0}
-
-    for event in event_names:
-        try:
-            r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-                "query": {
-                    "kind": "EventsQuery",
-                    "select": ["count()"],
-                    "event": event,
-                    "after": period_after,
-                    "before": period_before
-                }
-            }, timeout=15)
-            if r.ok:
-                data = r.json()
-                results = data.get("results", [[0]])
-                event_counts[event] = results[0][0] if results and results[0] else 0
-            else:
-                print(f"PostHog query failed for {event}: {r.status_code}")
-                event_counts[event] = 0
-        except Exception as e:
-            print(f"PostHog error for {event}: {e}")
-            event_counts[event] = 0
-
-    # Provider breakdown from provider_opened events
-    try:
-        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-            "query": {
-                "kind": "EventsQuery",
-                "select": ["properties.provider", "count()"],
-                "event": "provider_opened",
-                "after": period_after,
-                    "before": period_before,
-                "groupBy": ["properties.provider"]
-            }
-        }, timeout=15)
-        if r.ok:
-            data = r.json()
-            for row in data.get("results", []):
-                if row and len(row) >= 2 and row[0]:
-                    providers[row[0]] = row[1]
-    except Exception as e:
-        print(f"PostHog provider breakdown error: {e}")
-
-    # Platform split
-    try:
-        r = requests.post(f"{base}/api/projects/{project_id}/query/", headers=headers, json={
-            "query": {
-                "kind": "EventsQuery",
-                "select": ["properties.platform", "count()"],
-                "event": "provider_opened",
-                "after": period_after,
-                    "before": period_before,
-                "groupBy": ["properties.platform"]
-            }
-        }, timeout=15)
-        if r.ok:
-            data = r.json()
-            for row in data.get("results", []):
-                if row and len(row) >= 2 and row[0]:
-                    platform_split[row[0]] = row[1]
-    except Exception as e:
-        print(f"PostHog platform split error: {e}")
-
-    output = {
-        "events": event_counts,
-        "providers": providers,
-        "platform_split": platform_split,
-        "updated": datetime.now(timezone.utc).isoformat(),
-        "date_range_start": REPORT_START,
-        "date_range_end": REPORT_END
+    period_after = datetime.combine(calendar_date.fromisoformat(REPORT_START),
+                                    datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
+    period_before = datetime.combine(calendar_date.fromisoformat(REPORT_END) + timedelta(days=1),
+                                     datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
+    # ISO values come only from validated dates/ZoneInfo, not untrusted users.
+    filter_clause = (
+        "timestamp >= parseDateTimeBestEffort('" + period_after + "') AND "
+        "timestamp < parseDateTimeBestEffort('" + period_before + "')"
+    )
+    rows = {}
+    queries = {
+        "events": "SELECT event, count() FROM events WHERE " + filter_clause +
+                  " AND event IN (" + ",".join("'" + name + "'" for name in events) + ") GROUP BY event",
+        "providers": "SELECT properties.provider, count() FROM events WHERE " +
+                     filter_clause + " AND event = 'provider_opened' GROUP BY properties.provider",
+        "platforms": "SELECT properties.platform, count() FROM events WHERE " +
+                     filter_clause + " AND event = 'provider_opened' GROUP BY properties.platform",
     }
-
-    with open("data/posthog.json", "w") as f:
-        json.dump(output, f, indent=2)
-    print(f"PostHog data written: {event_counts}")
+    try:
+        for name, sql in queries.items():
+            reply = requests.post(host + "/api/projects/" + str(project_id) + "/query/",
+                headers={"Authorization": "Bearer " + key,
+                         "Content-Type": "application/json"},
+                json={"query": {"kind": "HogQLQuery", "query": sql},
+                      "name": "Poly-Glot " + name + " product funnel"}, timeout=35)
+            reply.raise_for_status()
+            payload = reply.json()
+            if payload.get("error"):
+                raise RuntimeError("PostHog query error for " + name)
+            if not isinstance(payload.get("results"), list):
+                raise RuntimeError("PostHog query missing results for " + name)
+            rows[name] = payload["results"]
+        event_counts = {name: 0 for name in events}
+        for row in rows["events"]:
+            if len(row) >= 2 and row[0] in event_counts:
+                event_counts[row[0]] = int(row[1])
+        providers = {str(row[0]): int(row[1]) for row in rows["providers"]
+                     if len(row) >= 2 and row[0]}
+        platforms = {"ios": 0, "macos": 0}
+        for row in rows["platforms"]:
+            if len(row) >= 2 and row[0] in platforms:
+                platforms[row[0]] = int(row[1])
+        result = {**common, "connected": True, "events": event_counts,
+                  "providers": providers, "platform_split": platforms,
+                  "measurement": "Consented app events only; historical users are not backfilled."}
+        with open(path, "w", encoding="utf8") as file:
+            json.dump(result, file, indent=2)
+        print("PostHog analytics fetched:", event_counts)
+    except Exception as exc:
+        # API errors do not silently turn real usage into zeros.
+        print("PostHog report unavailable:", type(exc).__name__, str(exc)[:160])
+        with open(path, "w", encoding="utf8") as file:
+            json.dump({**common, "connected": False, "reason": "PostHog query unavailable",
+                       "events": {}, "providers": {}, "platform_split": {}}, file, indent=2)
 
 
 if __name__ == "__main__":
