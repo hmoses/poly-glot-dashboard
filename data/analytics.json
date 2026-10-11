@@ -1,14 +1,16 @@
 {
-  "updated_at": "2026-10-11T15:24:14.099506+00:00",
+  "updated_at": "2026-10-11T15:37:54.279651+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 13493,
     "total_page_views": 30911,
     "total_taps": 428,
-    "total_web_preview_views": 113204,
-    "days_tracked": 22,
+    "total_web_preview_views": 39023,
+    "days_tracked": 23,
+    "days_with_impressions": 22,
+    "latest_impression_event_date": "2026-10-09",
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-11",
+    "date_range_end": "2026-10-10",
     "total_countries": 149,
     "total_downloads": 81,
     "total_updates": 123,
@@ -6638,7 +6640,7 @@
       "Redownload": 4
     },
     "date_range_start": "2026-09-18",
-    "date_range_end": "2026-10-11",
+    "date_range_end": "2026-10-10",
     "raw_installs": [
       {
         "Date": "2026-09-24",
@@ -7722,7 +7724,10 @@
     },
     "daily": {},
     "source": "cached",
-    "last_fetched": "2026-09-25T17:24:27.774639+00:00"
+    "last_fetched": "2026-09-25T17:24:27.774639+00:00",
+    "report_start": "2026-09-18",
+    "report_end": "2026-10-10",
+    "matches_reporting_window": false
   },
   "app_versions": [
     {
