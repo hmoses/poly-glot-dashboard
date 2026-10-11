@@ -265,7 +265,9 @@ footer a { color: var(--accent); }
 </div></nav>
 <section class="hero"><div class="container">
   <h1>App Store <span class="gradient-text">Analytics</span></h1>
-  <p class="hero-sub">Real-time App Store performance data for Poly-Glot AI: Prompt Studio — downloads, impressions, and engagement across 52 countries.</p>
+  <p class="hero-sub">Apple App Store analytics for Poly-Glot AI Workspace: downloads, engagement, and acquisition since September 18, 2026 across <span id="hero-countries">—</span> reported territories.</p>
+  <p class="hero-meta" style="margin-top:6px;font-weight:700;color:var(--green)">Reporting period: <span id="hero-reporting-period">September 18 – October 10, 2026</span> · Daily Apple reports</p>
+  <p class="hero-meta" id="hero-data-coverage" style="margin-top:6px">Some report types may have a later publishing delay.</p>
   <p class="hero-meta">Last updated: <span id="last-updated">loading...</span></p>
   <p class="hero-meta" style="margin-top:6px">Next scheduled check: <span id="next-refresh-label">calculating...</span> · <span id="refresh-countdown" style="color:var(--green);font-weight:700">--:--</span></p>
 </div></section>
@@ -758,6 +760,14 @@ function render(data){
   const updated=new Date(data.updated_at);
   document.getElementById('last-updated').textContent=updated.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
   const s=data.summary;
+  const periodStart=s.date_range_start||'2026-09-18';
+  const periodEnd=s.date_range_end||'unavailable';
+  const asShortDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}):d;
+  document.getElementById('hero-reporting-period').textContent=asShortDate(periodStart)+' – '+asShortDate(periodEnd);
+  document.getElementById('hero-countries').textContent=Object.keys(data.impressions_by_country||{}).length.toLocaleString();
+  const latestAppleDates=[...Object.keys(data.taps_by_date||{}),...Object.keys(data.downloads_by_date||{}),...Object.keys(data.impressions_by_date||{})].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+  const latestAppleEvent=latestAppleDates.at(-1)||'none reported';
+  document.getElementById('hero-data-coverage').textContent='Last recorded Apple engagement/download/impression event: '+latestAppleEvent+'. Report end is a cutoff, not proof that data for each day is complete.';
   const totalDl=s.total_downloads||0, totalSubs=s.total_subscriptions||0, totalPurch=s.total_purchases||0, totalImpr=s.total_impressions||0;
   const dlTypes=data.downloads_by_type||{};
   const funnelSummary=data.funnel||{};
@@ -782,7 +792,7 @@ function render(data){
   document.getElementById('stat-conversion').textContent=totalImpr>0?((totalUserDl/totalImpr)*100).toFixed(1)+'%':'—';
   document.getElementById('stat-days').textContent=s.days_tracked;
   const dates=Object.keys(data.impressions_by_date||{}).sort();
-  if(dates.length) document.getElementById('stat-date-range').textContent=`${dates[0]} → ${dates[dates.length-1]}`;
+  document.getElementById('stat-date-range').textContent=periodStart+' → '+periodEnd+' · '+(s.days_with_impressions||dates.length)+' days with impression events';
   // Daily impressions chart
   const dc=document.getElementById('daily-chart'), dl=document.getElementById('daily-labels');
   const maxD=Math.max(...Object.values(data.impressions_by_date||{1:1}));
@@ -1067,7 +1077,10 @@ function render(data){
 
   // Data source badge
   var srcLabel={'api':'🟢 Live from TikTok Marketing API','cached':'🟡 Cached (last API fetch: '+tt.last_fetched+')','manual':'🔵 Manual snapshot','snapshot_2026-09-23':'📸 Snapshot from Sep 23, 2026 TikTok Ads Manager'};
-  document.getElementById('tt-data-source').textContent='Data source: '+(srcLabel[tt.source]||tt.source||'unknown')+' · To enable auto-refresh: set TIKTOK_ACCESS_TOKEN + TIKTOK_ADVERTISER_ID secrets in GitHub repo';
+  document.getElementById('tt-data-source').textContent='Data source: '+(srcLabel[tt.source]||tt.source||'unknown')+
+    (tt.matches_reporting_window?' · Period '+(tt.report_start||periodStart)+' → '+(tt.report_end||periodEnd):
+    ' · Not a verified '+periodStart+' → '+periodEnd+' campaign total; retained as a dated/cached reference.')+
+    ' · To enable auto-refresh: set TIKTOK_ACCESS_TOKEN + TIKTOK_ADVERTISER_ID secrets in GitHub repo';
 
   // Version cards — show LIVE version + any pending/in-review version per platform
   const vg=document.getElementById('version-grid');

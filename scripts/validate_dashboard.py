@@ -38,6 +38,14 @@ assert "var realDl=funnel.user_installs" not in html, "Legacy downloads erroneou
 assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analytics.py").read_text()
 fetcher = (ROOT / "fetch_analytics.py").read_text()
 assert '"filter[granularity]": "DAILY"' in fetcher, "Do not mix weekly/monthly and daily report instances"
+assert "ASC_REPORT_END_DATE" in fetcher and "timedelta(days=1)" in fetcher, "Use last complete Pacific day"
+assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
+assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
+assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
+assert 'start_date = REPORT_START' in fetcher and 'end_date = REPORT_END' in fetcher, "TikTok API must match the range"
+assert "hero-reporting-period" in html and "hero-data-coverage" in html, "Display as-of reporting range and coverage caveat"
+assert summary["date_range_start"] == "2026-09-18", "Unexpected reporting start"
+assert summary["date_range_end"] >= summary["date_range_start"], "Invalid as-of reporting range"
 assert '"limit": 200' in fetcher and 'next_url = instances.get' in fetcher, "Apple report pagination must be followed"
 assert 'Unexpected Apple analytics granularity' in fetcher, "Reject non-daily aggregates"
 
