@@ -279,7 +279,7 @@ footer a { color: var(--accent); }
 <section class="hero"><div class="container">
   <h1>App Store <span class="gradient-text">Analytics</span></h1>
   <p class="hero-sub">Apple App Store analytics for Poly-Glot AI Workspace: downloads, engagement, and acquisition since September 18, 2026 across <span id="hero-countries">—</span> reported territories.</p>
-  <p class="hero-meta" style="margin-top:6px;font-weight:700;color:var(--green)">Reporting period: <span id="hero-reporting-period">September 18 – October 10, 2026</span> · Daily Apple reports</p>
+  <p class="hero-meta" style="margin-top:6px;font-weight:700;color:var(--green)">Reporting period: <span id="hero-reporting-period">September 18, 2026 – today (Pacific)</span> · Daily Apple reports</p>
   <p class="hero-meta" id="hero-data-coverage" style="margin-top:6px">Some report types may have a later publishing delay.</p>
   <p class="hero-meta">Last updated: <span id="last-updated">loading...</span></p>
   <p class="hero-meta" style="margin-top:6px">Next scheduled check: <span id="next-refresh-label">calculating...</span> · <span id="refresh-countdown" style="color:var(--green);font-weight:700">--:--</span></p>
@@ -770,11 +770,12 @@ function render(data){
   const periodStart=s.date_range_start||'2026-09-18';
   const periodEnd=s.date_range_end||'unavailable';
   const asShortDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}):d;
-  document.getElementById('hero-reporting-period').textContent=asShortDate(periodStart)+' – '+asShortDate(periodEnd);
+  const pacificToday=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  document.getElementById('hero-reporting-period').textContent=asShortDate(periodStart)+' – '+asShortDate(periodEnd)+(periodEnd===pacificToday?' (today, Pacific)':' (last refreshed cutoff)');
   document.getElementById('hero-countries').textContent=Object.keys(data.impressions_by_country||{}).length.toLocaleString();
   const latestAppleDates=[...Object.keys(data.taps_by_date||{}),...Object.keys(data.downloads_by_date||{}),...Object.keys(data.impressions_by_date||{})].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
   const latestAppleEvent=latestAppleDates.at(-1)||'none reported';
-  document.getElementById('hero-data-coverage').textContent='Last recorded Apple engagement/download/impression event: '+latestAppleEvent+'. Report end is a cutoff, not proof that data for each day is complete.';
+  document.getElementById('hero-data-coverage').textContent='Reporting includes today when available; last recorded Apple engagement/download/impression event: '+latestAppleEvent+'. Apple publishes data with a delay, so no same-day event row does not mean zero activity.';
   const totalDl=s.total_downloads||0, totalSubs=s.total_subscriptions||0, totalPurch=s.total_purchases||0, totalImpr=s.total_impressions||0;
   const dlTypes=data.downloads_by_type||{};
   const funnelSummary=data.funnel||{};
