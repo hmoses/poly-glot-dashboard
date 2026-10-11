@@ -37,7 +37,7 @@ assert "Number.isFinite(inst.total_installs)?inst.total_installs.toLocaleString(
 assert "var realDl=funnel.user_installs" not in html, "Legacy downloads erroneously presented as installs"
 assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analytics.py").read_text()
 
-scripts = re.findall(r"<script(?:\\s[^>]*)?>([\\s\\S]*?)</script>", html, re.IGNORECASE)
+scripts = re.findall(r"<script(?:\s[^>]*)?>([\s\S]*?)</script>", html, re.IGNORECASE)
 assert len(scripts) == 1, "Expected one inline application script"
 with tempfile.NamedTemporaryFile(mode="w", suffix=".js", encoding="utf-8") as source:
     source.write(scripts[0])
