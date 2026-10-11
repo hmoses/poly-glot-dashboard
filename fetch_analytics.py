@@ -954,7 +954,12 @@ def fetch_posthog_data():
     project write token. Absent credentials/data must never be shown as zero.
     """
     import datetime as dt
-    key = os.environ.get("POSTHOG_PERSONAL_API_KEY") or os.environ.get("POSTHOG_API_KEY")
+    key = (os.environ.get("POSTHOG_PERSONAL_API_KEY") or
+           os.environ.get("POSTHOG_API_KEY") or "").strip().strip('"').strip("'").strip()
+    # Reject malformed values locally; never print or publish credentials.
+    if key and (any(ch.isspace() for ch in key) or not key.startswith("phx_")):
+        print("PostHog credential format invalid; enter only the phx_ personal API key.")
+        key = ""
     project_id = os.environ.get("POSTHOG_PROJECT_ID") or "400020"
     host = (os.environ.get("POSTHOG_HOST") or "https://us.posthog.com").rstrip("/")
     path = "data/posthog.json"
