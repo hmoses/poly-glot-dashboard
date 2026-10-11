@@ -708,8 +708,8 @@ footer a { color: var(--accent); }
 
   <!-- Platform Split -->
   <div class="grid grid-2" style="margin-top:16px">
-    <div class="chart-card"><div class="card-label">📱 iOS Events</div><div class="card-value" id="ph-ios-events">—</div></div>
-    <div class="chart-card"><div class="card-label">💻 macOS Events</div><div class="card-value" id="ph-mac-events">—</div></div>
+    <div class="chart-card"><div class="card-label">📱 iOS Feature Events</div><div class="card-value" id="ph-ios-events">—</div></div>
+    <div class="chart-card"><div class="card-label">💻 macOS Feature Events</div><div class="card-value" id="ph-mac-events">—</div></div>
   </div>
 </div></section>
 
@@ -1437,11 +1437,13 @@ function renderBuildEventSelection(){
     // Conversion rates
     document.getElementById('ph-first-send-sub').textContent='First-send event occurrences';
     document.getElementById('ph-app-returned-sub').textContent='App-return event occurrences';
-    if(selection==='all'&&e.trial_started>0)document.getElementById('ph-first-send-sub').textContent=(Math.round(e.first_send/e.trial_started*100))+'% of trial starters';
-    if(selection==='all'&&e.provider_opened>0)document.getElementById('ph-app-returned-sub').textContent=(Math.round(e.app_returned/e.provider_opened*100))+'% return rate';
+
+
     // Platform split
-    setVal('ph-ios-events',selection==='all'?(ph.platform_split?ph.platform_split.ios||0:0):(record&&record.platform==='ios'?total:0));
-    setVal('ph-mac-events',selection==='all'?(ph.platform_split?ph.platform_split.macos||0:0):(record&&record.platform==='macos'?total:0));
+    var totalsByPlatform={ios:0,macos:0};
+    Object.values(groups).forEach(function(item){if(Object.prototype.hasOwnProperty.call(totalsByPlatform,item.platform)){totalsByPlatform[item.platform]+=Object.values(item.events).reduce(function(a,n){return a+(Number(n)||0);},0);}});
+    setVal('ph-ios-events',selection==='all'?(Object.keys(groups).length?totalsByPlatform.ios:'—'):(record&&record.platform==='ios'?total:0));
+    setVal('ph-mac-events',selection==='all'?(Object.keys(groups).length?totalsByPlatform.macos:'—'):(record&&record.platform==='macos'?total:0));
     // Funnel bars
     var funnel=[
       {label:'Trial Started',val:e.trial_started||0,color:'#7c3aed'},
