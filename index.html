@@ -1382,9 +1382,14 @@ async function loadPostHogData(){
     var r=await fetch('data/posthog.json?t='+Date.now());
     if(!r.ok){showPostHogEmpty();return;}
     var ph=await r.json();
-    if(!ph||!ph.events){showPostHogEmpty();return;}
+    if(!ph||ph.status==='not_configured'||ph.status==='error'||!Object.keys(ph.events||{}).length){
+      showPostHogEmpty(ph&&ph.status==='not_configured'?'Not connected — add POSTHOG_API_KEY to GitHub Actions secrets.':'PostHog data is unavailable; no usage totals have been verified.');
+      return;
+    }
+    if(ph.status==='stale')document.getElementById('ph-funnel-empty').textContent='Last verified snapshot only — live PostHog refresh failed.';
     var e=ph.events;
     // Populate cards
+    if(ph.status==='stale')document.getElementById('ph-funnel-empty').style.display='block';
     setVal('ph-trial-started',e.trial_started||0);
     setVal('ph-first-send',e.first_send||0);
     setVal('ph-provider-opened',e.provider_opened||0);
@@ -1427,8 +1432,8 @@ async function loadPostHogData(){
     showPostHogEmpty();
   }
 }
-function showPostHogEmpty(){
-  document.getElementById('ph-funnel-empty').style.display='block';
+function showPostHogEmpty(reason){
+  var warning=document.getElementById('ph-funnel-empty');warning.style.display='block';if(reason)warning.textContent=reason;
   document.getElementById('ph-provider-empty').style.display='block';
 }
 function setVal(id,v){var el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?v.toLocaleString():v;}
