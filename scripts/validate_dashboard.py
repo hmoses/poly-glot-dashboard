@@ -39,6 +39,7 @@ assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analyti
 fetcher = (ROOT / "fetch_analytics.py").read_text()
 assert '"filter[granularity]": "DAILY"' in fetcher, "Do not mix weekly/monthly and daily report instances"
 assert "ASC_REPORT_END_DATE" in fetcher and "timedelta(days=1)" in fetcher, "Use last complete Pacific day"
+assert "date as calendar_date" in fetcher and "calendar_date.fromisoformat" in fetcher, "Avoid collision with local date variable in report loops"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
 assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
