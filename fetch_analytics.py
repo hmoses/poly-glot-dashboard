@@ -7,7 +7,7 @@ Includes: Engagement, Downloads, Install+Delete, Acquisitions (Source Info + Cam
 """
 
 import jwt, time, requests, gzip, io, csv, json, os, sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta, date
 from collections import defaultdict
 from zoneinfo import ZoneInfo
 
@@ -17,7 +17,14 @@ ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "27273279-3df5-4fd7-b3f9-b6e882c1fc3
 PRIVATE_KEY = os.environ.get("ASC_PRIVATE_KEY", "")
 REPORT_START = "2026-09-18"
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
-REPORT_END = datetime.now(PACIFIC_TZ).date().isoformat()
+# Report only complete calendar dates. On Oct 11 this is Sep 18–Oct 10;
+# scheduled refreshes continue advancing daily rather than freezing forever.
+# ASC_REPORT_END_DATE allows a reproducible historical reporting cutoff.
+REPORT_END = os.environ.get("ASC_REPORT_END_DATE") or (
+    datetime.now(PACIFIC_TZ).date() - timedelta(days=1)
+).isoformat()
+if not REPORT_START <= REPORT_END <= datetime.now(PACIFIC_TZ).date().isoformat():
+    raise ValueError("Invalid ASC reporting range: " + REPORT_START + " to " + REPORT_END)
 # Two report request IDs:
 REQ_HISTORICAL = "f46b6fd5-272c-4b46-9a88-55b399ea11f0"  # one-time snapshot (older data)
 REQ_ONGOING = os.environ.get("ASC_REPORT_REQUEST_ID", "7d3c05d9-4ec7-46f3-a37d-0665ab7b9896")  # ongoing (current data)
@@ -312,7 +319,9 @@ def main():
             "total_page_views": total_page_views,
             "total_taps": total_taps,
             "total_web_preview_views": total_web,
-            "days_tracked": len(dates),
+            "days_tracked": (date.fromisoformat(REPORT_END) - date.fromisoformat(REPORT_START)).days + 1,
+            "days_with_impressions": len(dates),
+            "latest_impression_event_date": max(dates, default=None),
             "date_range_start": REPORT_START,
             "date_range_end": REPORT_END,
             "total_countries": len(impressions_by_country),
@@ -324,7 +333,7 @@ def main():
     # WEB PREVIEW (merge)
     # =========================================================================
     print("Fetching web preview reports...")
-    web_rows = merge_report_rows(req_ids, "Web Preview Engagement")
+    web_rows = dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))
     if web_rows:
         total_web_extra = sum(int(r.get('Counts', '0') or '0') for r in web_rows)
         if total_web_extra > output["summary"].get("total_web_preview_views", 0):
@@ -680,7 +689,7 @@ def main():
     # PURCHASES (in-app purchases)
     # =========================================================================
     print("Fetching purchase reports...")
-    purch_rows = merge_report_rows(req_ids, "App Store Purchases Standard")
+    purch_rows = dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))
     if purch_rows:
         output["raw_purchases"] = purch_rows
         total_purchases = sum(int(r.get('Counts', '0') or '0') for r in purch_rows)
@@ -725,8 +734,9 @@ def main():
             ).json()
             # Get ad group performance (last 30 days)
             from datetime import timedelta
-            end_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-            start_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
+            # Match the Apple reporting period, rather than a rolling past-30-day window.
+            start_date = REPORT_START
+            end_date = REPORT_END
             tt_report = requests.get(
                 "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/",
                 headers=tt_headers,
@@ -820,6 +830,11 @@ def main():
             tiktok_data["source"] = "snapshot_2026-09-23"
             print(f"  Using snapshot: 29,795 impressions, $139.98 cost")
 
+    # Cached/manual snapshots may cover other dates: never present them as
+    # verified 09/18-through-as-of-window TikTok totals.
+    tiktok_data["report_start"] = REPORT_START
+    tiktok_data["report_end"] = REPORT_END
+    tiktok_data["matches_reporting_window"] = tiktok_data.get("source") == "api"
     output["tiktok_ads"] = tiktok_data
 
     # =========================================================================
@@ -943,6 +958,10 @@ def fetch_posthog_data():
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     base = "https://us.i.posthog.com"
 
+    # PostHog is independent of ASC but must use the same Pacific-calendar
+    # reporting boundaries for an apples-to-apples dashboard date label.
+    period_after = datetime.combine(date.fromisoformat(REPORT_START), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
+    period_before = datetime.combine(date.fromisoformat(REPORT_END) + timedelta(days=1), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
     event_names = ["trial_started", "first_send", "provider_opened", "app_returned", "compare_used", "daily_free_send_used"]
     event_counts = {}
     providers = {}
@@ -955,7 +974,8 @@ def fetch_posthog_data():
                     "kind": "EventsQuery",
                     "select": ["count()"],
                     "event": event,
-                    "after": "-30d"
+                    "after": period_after,
+                    "before": period_before
                 }
             }, timeout=15)
             if r.ok:
@@ -976,7 +996,8 @@ def fetch_posthog_data():
                 "kind": "EventsQuery",
                 "select": ["properties.provider", "count()"],
                 "event": "provider_opened",
-                "after": "-30d",
+                "after": period_after,
+                    "before": period_before,
                 "groupBy": ["properties.provider"]
             }
         }, timeout=15)
@@ -995,7 +1016,8 @@ def fetch_posthog_data():
                 "kind": "EventsQuery",
                 "select": ["properties.platform", "count()"],
                 "event": "provider_opened",
-                "after": "-30d",
+                "after": period_after,
+                    "before": period_before,
                 "groupBy": ["properties.platform"]
             }
         }, timeout=15)
@@ -1011,7 +1033,9 @@ def fetch_posthog_data():
         "events": event_counts,
         "providers": providers,
         "platform_split": platform_split,
-        "updated": datetime.now(timezone.utc).isoformat()
+        "updated": datetime.now(timezone.utc).isoformat(),
+        "date_range_start": REPORT_START,
+        "date_range_end": REPORT_END
     }
 
     with open("data/posthog.json", "w") as f:
