@@ -54,22 +54,38 @@ def download_report(url):
 
 
 def get_report_rows(report_id):
+    """Read all DAILY instances. Mixing weekly/monthly with daily duplicates events.
+
+    Follow Apple's instance pagination so the initial 50-item page cannot silently
+    truncate a reporting window. Historical and ongoing requests are then merged
+    using the existing latest-processing-date deduplication.
+    """
     all_rows = []
-    instances = api_get(
-        f"https://api.appstoreconnect.apple.com/v1/analyticsReports/{report_id}/instances",
-        {"limit": 50}
-    )
-    for inst in instances.get('data', []):
-        proc_date = inst['attributes'].get('processingDate', '')
-        seg_url = inst['relationships']['segments']['links']['related']
-        segs = api_get(seg_url)
-        for seg in segs.get('data', []):
-            dl_url = seg['attributes'].get('url')
-            if dl_url:
-                rows = download_report(dl_url)
-                for row in rows:
-                    row['_date'] = proc_date
-                all_rows.extend(rows)
+    next_url = f"https://api.appstoreconnect.apple.com/v1/analyticsReports/{report_id}/instances"
+    params = {"limit": 200, "filter[granularity]": "DAILY"}
+    visited = set()
+    while next_url:
+        if next_url in visited:
+            raise RuntimeError("Apple analytics instances pagination repeated a URL")
+        visited.add(next_url)
+        instances = api_get(next_url, params)
+        for inst in instances.get('data', []):
+            attrs = inst.get('attributes', {})
+            granularity = attrs.get('granularity')
+            if granularity != "DAILY":
+                raise RuntimeError(f"Unexpected Apple analytics granularity: {granularity}")
+            proc_date = attrs.get('processingDate', '')
+            seg_url = inst['relationships']['segments']['links']['related']
+            segs = api_get(seg_url)
+            for seg in segs.get('data', []):
+                dl_url = seg['attributes'].get('url')
+                if dl_url:
+                    rows = download_report(dl_url)
+                    for row in rows:
+                        row['_date'] = proc_date
+                    all_rows.extend(rows)
+        next_url = instances.get('links', {}).get('next')
+        params = None  # Apple's next link carries all relevant pagination/filter params.
     return all_rows
 
 
