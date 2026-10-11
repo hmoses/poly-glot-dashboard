@@ -890,11 +890,11 @@ function render(data){
   document.getElementById('reconcile-report-dates').textContent=
     'Latest recorded event dates: Get/tap report '+datedTapEvents+' · Downloads '+datedDownloadEvents+
     ' · Opt-in installations '+datedInstalls+'. Data refreshed '+(data.updated_at||'unknown')+'. Dates are NOT proof that later days have no events.';
-  const totalDownloadBreakdown=(dlTypes['First-time download']||0)+(dlTypes.Redownload||0);
+  const totalDownloadBreakdown=Object.values(dlTypes).reduce((sum,v)=>sum+(Number(v)||0),0);
   const totalInstallBreakdown=Object.values(data.installs?.installs_by_type||{}).reduce((sum,v)=>sum+(Number(v)||0),0);
   const tapTypeTotal=hasFullTapBreakdown?Object.values(tapTypes).reduce((sum,v)=>sum+(Number(v)||0),0):null;
   const warnings=[];
-  if(totalDownloadBreakdown !== s.total_downloads)warnings.push('Download total does not match first-time + redownload events');
+  if(totalDownloadBreakdown !== s.total_downloads)warnings.push('Download total does not match its download-type events');
   if(Number.isFinite(reportedInstallsForReconcile)&&totalInstallBreakdown !== reportedInstallsForReconcile)warnings.push('Install total does not match install types');
   if(tapTypeTotal!==null&&tapTypeTotal!==(s.total_taps||0))warnings.push('Tap action types do not match total taps');
   document.getElementById('reconcile-report-health').textContent=warnings.length
@@ -970,24 +970,20 @@ function render(data){
   document.getElementById('attr-appref-taps').textContent=appRefTaps===null?'Pending':appRefTaps.toLocaleString();
   document.getElementById('attr-appref-downloads').textContent=appRefDownloads.toLocaleString();
 
-  var engStart=s.date_range_start||'', engEnd=s.date_range_end||'';
-  var instDates=Object.keys(inst.installs_by_date||{}).sort();
-  var instStart=inst.date_range_start||(instDates[0]||'');
-  var instEnd=inst.date_range_end||(instDates.length?instDates[instDates.length-1]:'');
-  var engRange=(engStart&&engEnd)?engStart+' → '+engEnd:'range unavailable';
-  var instRange=(instStart&&instEnd)?instStart+' → '+instEnd:'range unavailable';
-  document.getElementById('attr-appref-visitors-range').textContent='Unique page views · '+engRange;
-  document.getElementById('attr-appref-taps-range').textContent='Apple-attributed taps · '+engRange;
-  document.getElementById('attr-appref-downloads-range').textContent='Installs attributed to App referrer · '+instRange;
+  // Show observed event dates rather than the requested end of a reporting period;
+  // the latter can include days that have not yet appeared in Apple's reports.
+  var latestEventDate=byDate=>Object.keys(byDate||{}).sort().at(-1)||'none recorded';
+  var latestPageView=latestEventDate(data.page_views_by_date);
+  var latestTap=latestEventDate(data.taps_by_date);
+  var latestInstall=latestEventDate(inst.installs_by_date);
+  document.getElementById('attr-appref-visitors-range').textContent='Unique page views · last event '+latestPageView;
+  document.getElementById('attr-appref-taps-range').textContent='Apple-attributed taps · last event '+latestTap;
+  document.getElementById('attr-appref-downloads-range').textContent='Opt-in installs attributed to App referrer · last event '+latestInstall;
   var note=document.getElementById('attr-appref-note');
   if(appRefTaps===null){
     note.textContent='App-referrer download attribution is available now. App-referrer tap attribution will populate after the next analytics refresh with the new source-level tap aggregation.';
-  } else if(engStart && instStart && (engStart!==instStart || engEnd!==instEnd)){
-    note.textContent='Apple attributes '+appRefDownloads.toLocaleString()+' installs to App referrer. Engagement coverage is '+engStart+' → '+engEnd+'; install-attribution coverage is '+instStart+' → '+instEnd+'. Because those windows differ, the dashboard does not calculate a misleading visitor-to-download conversion rate.';
   } else {
-    var tapRate=appRefVisitors>0?((appRefTaps/appRefVisitors)*100).toFixed(1):'—';
-    var dlRate=appRefTaps>0?((appRefDownloads/appRefTaps)*100).toFixed(1):'—';
-    note.textContent='Matched coverage: visitor → tap '+tapRate+'% · tap → download '+dlRate+'%.';
+    note.textContent='Apple attributes '+appRefDownloads.toLocaleString()+' opt-in installs to App referrer. Latest recorded events: page views '+latestPageView+', taps '+latestTap+', installs '+latestInstall+'. Source-attributed aggregates are not matched to the same users; no visitor-to-install conversion rate is calculated.';
   }
 
   // Discovery-source breakdown: unique page-view visitors only.
