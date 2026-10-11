@@ -7,7 +7,7 @@ Includes: Engagement, Downloads, Install+Delete, Acquisitions (Source Info + Cam
 """
 
 import jwt, time, requests, gzip, io, csv, json, os, sys
-from datetime import datetime, timezone, timedelta, date
+from datetime import datetime, timezone, timedelta, date as calendar_date
 from collections import defaultdict
 from zoneinfo import ZoneInfo
 
@@ -319,7 +319,7 @@ def main():
             "total_page_views": total_page_views,
             "total_taps": total_taps,
             "total_web_preview_views": total_web,
-            "days_tracked": (date.fromisoformat(REPORT_END) - date.fromisoformat(REPORT_START)).days + 1,
+            "days_tracked": (calendar_date.fromisoformat(REPORT_END) - calendar_date.fromisoformat(REPORT_START)).days + 1,
             "days_with_impressions": len(dates),
             "latest_impression_event_date": max(dates, default=None),
             "date_range_start": REPORT_START,
@@ -960,8 +960,8 @@ def fetch_posthog_data():
 
     # PostHog is independent of ASC but must use the same Pacific-calendar
     # reporting boundaries for an apples-to-apples dashboard date label.
-    period_after = datetime.combine(date.fromisoformat(REPORT_START), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
-    period_before = datetime.combine(date.fromisoformat(REPORT_END) + timedelta(days=1), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
+    period_after = datetime.combine(calendar_date.fromisoformat(REPORT_START), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
+    period_before = datetime.combine(calendar_date.fromisoformat(REPORT_END) + timedelta(days=1), datetime.min.time(), tzinfo=PACIFIC_TZ).isoformat()
     event_names = ["trial_started", "first_send", "provider_opened", "app_returned", "compare_used", "daily_free_send_used"]
     event_counts = {}
     providers = {}
