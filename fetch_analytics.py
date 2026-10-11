@@ -228,6 +228,7 @@ def main():
         "taps_by_engagement_type": {},
         "taps_by_engagement_source": {},
         "downloads_by_date": {},
+        "downloads_by_source": {},
         "downloads_by_type": {},
         "downloads_by_country": {},
         "downloads_by_version": {},
@@ -354,6 +355,7 @@ def main():
         downloads_by_date = defaultdict(int)
         downloads_by_type = defaultdict(int)
         downloads_by_country = defaultdict(int)
+        downloads_by_source = defaultdict(int)  # Downloads report, not opt-in Install report
         downloads_by_version = defaultdict(int)
         updates_by_date = defaultdict(int)
         updates_by_type = defaultdict(int)
@@ -373,11 +375,13 @@ def main():
             downloads_by_date[date] += counts
             downloads_by_type[dl_type] += counts
             downloads_by_country[row.get('Territory', '')] += counts
+            downloads_by_source[row.get('Source Type', 'Unavailable') or 'Unavailable'] += counts
             downloads_by_version[row.get('App Version', '')] += counts
 
         output["downloads_by_date"] = dict(sorted(downloads_by_date.items()))
         output["downloads_by_type"] = dict(sorted(downloads_by_type.items(), key=lambda x: -x[1]))
         output["downloads_by_country"] = dict(sorted(downloads_by_country.items(), key=lambda x: -x[1]))
+        output["downloads_by_source"] = dict(sorted(downloads_by_source.items(), key=lambda x: -x[1]))
         output["downloads_by_version"] = dict(sorted(downloads_by_version.items(), key=lambda x: -x[1]))
         output["updates_by_date"] = dict(sorted(updates_by_date.items()))
         output["updates_by_type"] = dict(sorted(updates_by_type.items(), key=lambda x: -x[1]))
