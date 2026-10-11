@@ -1,10 +1,27 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-11",
-  "updated": "2026-10-11T18:32:38.168298+00:00",
-  "connected": false,
-  "reason": "PostHog query unavailable",
-  "events": {},
-  "providers": {},
-  "platform_split": {}
+  "updated": "2026-10-11T18:34:25.446067+00:00",
+  "connected": true,
+  "events": {
+    "trial_started": 16,
+    "first_send": 19,
+    "provider_opened": 94,
+    "app_returned": 71,
+    "compare_used": 35,
+    "daily_free_send_used": 2
+  },
+  "providers": {
+    "gemini": 1,
+    "grok": 4,
+    "chatgpt": 72,
+    "claude": 3,
+    "perplexity": 6,
+    "duckduckgo": 8
+  },
+  "platform_split": {
+    "ios": 80,
+    "macos": 14
+  },
+  "measurement": "Consented app events only; historical users are not backfilled."
 }
