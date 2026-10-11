@@ -851,7 +851,7 @@ def main():
         elif dl_type == "Auto-update":
             auto_updates += c
 
-    user_installs = first_time_dl + redownloads
+    download_events = first_time_dl + redownloads  # App Downloads report, not the opt-in Install report
 
     # Apple-attributed TikTok page views from detailed Source Info.
     # These are Apple-attributed visitors, not TikTok-reported CTA clicks.
@@ -867,10 +867,12 @@ def main():
         "app_referrer": app_ref,
         "first_time_downloads": first_time_dl,
         "redownloads": redownloads,
-        "user_installs": user_installs,
+        "user_installs": download_events,  # Deprecated compatibility alias: historically misnamed; DO NOT display as installs.
+        "download_events": download_events,
+        "reported_opt_in_installs": output.get("installs", {}).get("total_installs", 0),
         "manual_updates": manual_updates,
         "auto_updates": auto_updates,
-        "real_downloads": user_installs,
+        "real_downloads": download_events,
         "tiktok_page_views": tiktok_page_views,
         "tiktok_unique_views": tiktok_unique_views,
         "web_ref_countries": dict(sorted(web_ref_countries.items(), key=lambda x: -x[1])),
