@@ -384,7 +384,7 @@ footer a { color: var(--accent); }
   <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
     <div class="stat-card"><div class="stat-label">Web Referral Visitors</div><div class="stat-value" id="stat-webref" style="color:var(--purple)">0</div><div class="stat-detail">Unique Apple page views from web referrers</div></div>
     <div class="stat-card"><div class="stat-label">App Referral Visitors</div><div class="stat-value" id="stat-appref" style="color:var(--accent)">0</div><div class="stat-detail">Unique Apple page views from app referrers</div></div>
-    <div class="stat-card"><div class="stat-label">User Installs</div><div class="stat-value" id="stat-realdl" style="color:#10b981">0</div><div class="stat-detail">First-time downloads + redownloads; excludes updates</div></div>
+    <div class="stat-card"><div class="stat-label">Reported Installs</div><div class="stat-value" id="stat-realdl" style="color:#10b981">0</div><div class="stat-detail">Apple opt-in installs; not the Downloads report</div></div>
     <div class="stat-card"><div class="stat-label">TikTok Attribution Coverage</div><div class="stat-value" id="stat-convrate" style="color:#fbbf24">—</div><div class="stat-detail">Apple-attributed TikTok visitors ÷ TikTok clicks</div></div>
   </div>
   <div class="chart-card full" style="margin-top:20px">
@@ -487,11 +487,11 @@ footer a { color: var(--accent); }
 <section class="section"><div class="container">
   <span class="section-eyebrow">📲 Real-Time Installs</span>
   <h2 class="section-title">Installs &amp; Deletes</h2>
-  <p class="section-desc">Live user-install tracking — first-time downloads and redownloads only. App updates are reported separately below.</p>
+  <p class="section-desc">Apple-reported installations from devices sharing analytics. This opt-in population can be smaller than total App Store downloads; auto-downloads count as installs, updates do not.</p>
   <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
     <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-inst-first" style="color:#10b981">—</div><div class="stat-detail">Brand-new users</div></div>
     <div class="stat-card"><div class="stat-label">Redownloads</div><div class="stat-value" id="stat-inst-redownloads" style="color:#7dd3fc">—</div><div class="stat-detail">Returning-user downloads</div></div>
-    <div class="stat-card"><div class="stat-label">Total User Downloads</div><div class="stat-value" id="stat-inst-total" style="color:#10b981">—</div><div class="stat-detail" id="stat-inst-detail">First-time + redownloads only</div></div>
+    <div class="stat-card"><div class="stat-label">Reported Installs</div><div class="stat-value" id="stat-inst-total" style="color:#10b981">—</div><div class="stat-detail" id="stat-inst-detail">Apple opt-in installs; includes auto-downloads, excludes updates</div></div>
     <div class="stat-card"><div class="stat-label">App Updates</div><div class="stat-value" id="stat-inst-updates" style="color:#fbbf24">—</div><div class="stat-detail">Separate — excluded from downloads</div></div>
   </div>
   <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
@@ -589,6 +589,17 @@ footer a { color: var(--accent); }
         </table>
       </div>
     </div>
+  </div>
+  <div class="chart-card full" id="tap-download-reconciliation" style="margin-top:18px">
+    <h3 class="chart-title">Get taps vs. downloads vs. installs</h3>
+    <p class="chart-help">These are independent Apple reporting populations, not a verified same-user conversion funnel. A Get tap does not guarantee a completed download. Install events depend on devices sharing analytics.</p>
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:14px">
+      <div class="stat-card"><div class="stat-label">Get button taps</div><div class="stat-value" id="reconcile-get">—</div><div class="stat-detail">Actions, not unique people</div></div>
+      <div class="stat-card"><div class="stat-label">App Store downloads</div><div class="stat-value" id="reconcile-downloads">—</div><div class="stat-detail">First-time + redownload events</div></div>
+      <div class="stat-card"><div class="stat-label">Opt-in install events</div><div class="stat-value" id="reconcile-installs">—</div><div class="stat-detail">First-time + redownload + auto-download installs</div></div>
+    </div>
+    <p class="chart-help" id="reconcile-report-dates" style="margin-top:12px" role="status">Checking Apple report dates…</p>
+    <p class="chart-help" id="reconcile-report-health" style="margin-top:6px" role="status">Checking metric reconciliation…</p>
   </div>
   <p class="chart-help" id="tap-actions-status" style="margin-top:14px" role="status">Breakdown pending analytics refresh. Existing taps and downloads are unchanged.</p>
 </div></section>
@@ -864,6 +875,32 @@ function render(data){
       : classified.toLocaleString()+' of '+allTaps.toLocaleString()+' taps categorized; coverage differs. Downloads are reported separately.';
   }
 
+
+  // Reconcile the three independent Apple reports without treating their event counts
+  // as unique people or claiming Get taps convert directly into downloads.
+  const reportedInstallsForReconcile=data.installs?.total_installs;
+  const knownGetTaps=hasFullTapBreakdown ? (tapTypes.Get ?? null) : null;
+  document.getElementById('reconcile-get').textContent=knownGetTaps===null?'—':knownGetTaps.toLocaleString();
+  document.getElementById('reconcile-downloads').textContent=Number.isFinite(s.total_downloads)?s.total_downloads.toLocaleString():'—';
+  document.getElementById('reconcile-installs').textContent=Number.isFinite(reportedInstallsForReconcile)?reportedInstallsForReconcile.toLocaleString():'—';
+  const eventLastDate=group=>Object.keys(group||{}).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort().at(-1)||'none reported';
+  const datedTapEvents=eventLastDate(data.taps_by_date);
+  const datedDownloadEvents=eventLastDate(data.downloads_by_date);
+  const datedInstalls=eventLastDate(data.installs?.installs_by_date);
+  document.getElementById('reconcile-report-dates').textContent=
+    'Latest recorded event dates: Get/tap report '+datedTapEvents+' · Downloads '+datedDownloadEvents+
+    ' · Opt-in installations '+datedInstalls+'. Data refreshed '+(data.updated_at||'unknown')+'. Dates are NOT proof that later days have no events.';
+  const totalDownloadBreakdown=(dlTypes['First-time download']||0)+(dlTypes.Redownload||0);
+  const totalInstallBreakdown=Object.values(data.installs?.installs_by_type||{}).reduce((sum,v)=>sum+(Number(v)||0),0);
+  const tapTypeTotal=hasFullTapBreakdown?Object.values(tapTypes).reduce((sum,v)=>sum+(Number(v)||0),0):null;
+  const warnings=[];
+  if(totalDownloadBreakdown !== s.total_downloads)warnings.push('Download total does not match first-time + redownload events');
+  if(Number.isFinite(reportedInstallsForReconcile)&&totalInstallBreakdown !== reportedInstallsForReconcile)warnings.push('Install total does not match install types');
+  if(tapTypeTotal!==null&&tapTypeTotal!==(s.total_taps||0))warnings.push('Tap action types do not match total taps');
+  document.getElementById('reconcile-report-health').textContent=warnings.length
+    ? 'Report reconciliation warning: '+warnings.join('; ')+'.'
+    : 'Apple event-category totals reconcile. Get-to-download differences are not missing-install proof.';
+
   // App updates — deliberately separate from user downloads/installs
   const updByDate=data.updates_by_date||{}, updDates=Object.keys(updByDate).sort();
   const updTypes=data.updates_by_type||{};
@@ -906,7 +943,7 @@ function render(data){
   });
   // TikTok Ad Funnel (uses pre-aggregated data)
   var funnel=data.funnel||{};
-  var webRef=funnel.web_referrer||0, appRef=funnel.app_referrer||0, realDl=funnel.user_installs||funnel.real_downloads||0;
+  var webRef=funnel.web_referrer||0, appRef=funnel.app_referrer||0, reportedInstalls=(data.installs||{}).total_installs;
   var firstDl=funnel.first_time_downloads||0, ttUnique=funnel.tiktok_unique_views||0;
   var webRefCountries=funnel.web_ref_countries||{};
   var ttClicks=((data.tiktok_ads||{}).totals||{}).clicks||0;
@@ -917,7 +954,7 @@ function render(data){
   document.getElementById('stat-funnel-subs').textContent=paidSubs.toLocaleString();
   document.getElementById('stat-webref').textContent=webRef.toLocaleString();
   document.getElementById('stat-appref').textContent=appRef.toLocaleString();
-  document.getElementById('stat-realdl').textContent=realDl.toLocaleString();
+  document.getElementById('stat-realdl').textContent=Number.isFinite(reportedInstalls)?reportedInstalls.toLocaleString():'—';
   if(ttClicks>0) document.getElementById('stat-convrate').textContent=((ttUnique/ttClicks)*100).toFixed(1)+'%';
   else document.getElementById('stat-convrate').textContent='—';
 
@@ -1205,8 +1242,8 @@ function render(data){
 
   // ============ INSTALLS RENDERING ============
   var inst=data.installs||{};
-  document.getElementById('stat-inst-total').textContent=((inst.total_first_time||0)+(inst.total_redownloads||0)).toLocaleString();
-  document.getElementById('stat-inst-detail').textContent=(inst.total_first_time||0)+' first-time · '+(inst.total_redownloads||0)+' redownloads · updates excluded';
+  document.getElementById('stat-inst-total').textContent=Number.isFinite(inst.total_installs)?inst.total_installs.toLocaleString():'—';
+  document.getElementById('stat-inst-detail').textContent=(inst.total_first_time||0)+' first-time · '+(inst.total_redownloads||0)+' redownloads · '+((inst.installs_by_type||{})['Auto-download']||0)+' auto-downloads · updates excluded';
   document.getElementById('stat-inst-first').textContent=(inst.total_first_time||0).toLocaleString();
   document.getElementById('stat-inst-redownloads').textContent=(inst.total_redownloads||0).toLocaleString();
   document.getElementById('stat-inst-updates').textContent=(inst.total_updates||0).toLocaleString();
