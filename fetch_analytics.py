@@ -991,6 +991,12 @@ def fetch_posthog_data():
                      filter_clause + " AND event = 'provider_opened' GROUP BY properties.provider",
         "platforms": "SELECT properties.platform, count() FROM events WHERE " +
                      filter_clause + " AND event = 'provider_opened' GROUP BY properties.platform",
+        "builds": "SELECT event, coalesce(nullIf(toString(properties.platform), ''), 'unknown'), " +
+                  "coalesce(nullIf(toString(properties.build_number), ''), 'Unattributed build'), count() " +
+                  "FROM events WHERE " + filter_clause +
+                  " AND event IN (" + ",".join("'" + name + "'" for name in events) + ") " +
+                  "GROUP BY event, properties.platform, properties.build_number",
+
     }
     try:
         for name, sql in queries.items():
@@ -1016,8 +1022,22 @@ def fetch_posthog_data():
         for row in rows["platforms"]:
             if len(row) >= 2 and row[0] in platforms:
                 platforms[row[0]] = int(row[1])
+        by_build = {}
+        for row in rows["builds"]:
+            if len(row) < 4 or row[0] not in event_counts:
+                continue
+            platform = str(row[1] or "unknown")
+            build = str(row[2] or "Unattributed build")
+            if build.lower() in ("null", "none", "undefined", "0"):
+                build = "Unattributed build"
+            label = platform + " · " + build
+            if label not in by_build:
+                by_build[label] = {"platform": platform, "build": build,
+                                   "events": {name: 0 for name in events}}
+            by_build[label]["events"][row[0]] += int(row[3])
         result = {**common, "connected": True, "events": event_counts,
                   "providers": providers, "platform_split": platforms,
+                  "by_build": by_build,
                   "measurement": "Consented app events only; historical users are not backfilled."}
         with open(path, "w", encoding="utf8") as file:
             json.dump(result, file, indent=2)
