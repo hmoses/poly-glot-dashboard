@@ -669,14 +669,14 @@ footer a { color: var(--accent); }
 <!-- ═══════════ POSTHOG FUNNEL & ENGAGEMENT SECTION ═══════════ -->
 <section class="section"><div class="container">
   <h2 class="section-title">📊 User Funnel & In-App Analytics</h2>
-  <p class="section-desc">PostHog event data — tracking the user journey from trial to subscription.</p>
+  <p class="section-desc">Optional first-party product usage for consenting native users only.</p>
 
   <!-- Funnel Metrics Cards -->
   <div class="grid grid-3" id="ph-funnel-cards">
-    <div class="chart-card"><div class="card-label">🚀 Trial Started</div><div class="card-value" id="ph-trial-started">—</div><div class="card-sub" id="ph-trial-started-sub">Unique users who started 3-day trial</div></div>
-    <div class="chart-card"><div class="card-label">📤 First Send</div><div class="card-value" id="ph-first-send">—</div><div class="card-sub" id="ph-first-send-sub">Users who sent their first prompt</div></div>
+    <div class="chart-card"><div class="card-label">🚀 Trial Started</div><div class="card-value" id="ph-trial-started">—</div><div class="card-sub" id="ph-trial-started-sub">Unique consenting app installations starting trial</div></div>
+    <div class="chart-card"><div class="card-label">📤 First Send</div><div class="card-value" id="ph-first-send">—</div><div class="card-sub" id="ph-first-send-sub">Consenting app installations with first tracked send</div></div>
     <div class="chart-card"><div class="card-label">🤖 Provider Opened</div><div class="card-value" id="ph-provider-opened">—</div><div class="card-sub" id="ph-provider-opened-sub">Total AI provider handoffs</div></div>
-    <div class="chart-card"><div class="card-label">↩️ App Returned</div><div class="card-value" id="ph-app-returned">—</div><div class="card-sub" id="ph-app-returned-sub">Users returned after AI handoff</div></div>
+    <div class="chart-card"><div class="card-label">↩️ App Returned</div><div class="card-value" id="ph-app-returned">—</div><div class="card-sub" id="ph-app-returned-sub">Return events after AI handoff</div></div>
     <div class="chart-card"><div class="card-label">🔀 Compare Used</div><div class="card-value" id="ph-compare-used">—</div><div class="card-sub" id="ph-compare-used-sub">Compare Mode activations</div></div>
     <div class="chart-card"><div class="card-label">🎁 Daily Free Send</div><div class="card-value" id="ph-daily-free">—</div><div class="card-sub" id="ph-daily-free-sub">Post-trial free sends used</div></div>
   </div>
@@ -1382,18 +1382,23 @@ async function loadPostHogData(){
     var r=await fetch('data/posthog.json?t='+Date.now());
     if(!r.ok){showPostHogEmpty();return;}
     var ph=await r.json();
-    if(!ph||!ph.events){showPostHogEmpty();return;}
+    if(!ph||ph.status!=='connected'||!ph.events||!Object.keys(ph.events).length){
+      showPostHogEmpty(ph&&ph.status==='not_configured'
+        ? 'PostHog is not configured. Supply its personal read API key and project ID in GitHub Actions.'
+        : 'PostHog usage metrics are unavailable; missing data is not zero app activity.');
+      return;
+    }
     var e=ph.events;
     // Populate cards
-    setVal('ph-trial-started',e.trial_started||0);
-    setVal('ph-first-send',e.first_send||0);
+    setVal('ph-trial-started',(ph.unique_installs||{}).trial_started??e.trial_started??0);
+    setVal('ph-first-send',(ph.unique_installs||{}).first_send??e.first_send??0);
     setVal('ph-provider-opened',e.provider_opened||0);
     setVal('ph-app-returned',e.app_returned||0);
     setVal('ph-compare-used',e.compare_used||0);
     setVal('ph-daily-free',e.daily_free_send_used||0);
     // Conversion rates
-    if(e.trial_started>0)document.getElementById('ph-first-send-sub').textContent=(Math.round(e.first_send/e.trial_started*100))+'% of trial starters';
-    if(e.provider_opened>0)document.getElementById('ph-app-returned-sub').textContent=(Math.round(e.app_returned/e.provider_opened*100))+'% return rate';
+    // Unique totals are not cohort conversion rates.
+    // Provider opens and return events are not matched same-user rates.
     // Platform split
     setVal('ph-ios-events',ph.platform_split?ph.platform_split.ios||0:0);
     setVal('ph-mac-events',ph.platform_split?ph.platform_split.macos||0:0);
@@ -1427,8 +1432,10 @@ async function loadPostHogData(){
     showPostHogEmpty();
   }
 }
-function showPostHogEmpty(){
-  document.getElementById('ph-funnel-empty').style.display='block';
+function showPostHogEmpty(reason){
+  for(const id of ['ph-trial-started','ph-first-send','ph-provider-opened','ph-app-returned','ph-compare-used','ph-daily-free','ph-ios-events','ph-mac-events'])setVal(id,'—');
+  var el=document.getElementById('ph-funnel-empty');el.textContent=reason||'PostHog data unavailable';
+  el.style.display='block';
   document.getElementById('ph-provider-empty').style.display='block';
 }
 function setVal(id,v){var el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?v.toLocaleString():v;}
