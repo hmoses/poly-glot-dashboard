@@ -17,12 +17,11 @@ ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "27273279-3df5-4fd7-b3f9-b6e882c1fc3
 PRIVATE_KEY = os.environ.get("ASC_PRIVATE_KEY", "")
 REPORT_START = "2026-09-18"
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
-# Report only complete calendar dates. On Oct 11 this is Sep 18–Oct 10;
-# scheduled refreshes continue advancing daily rather than freezing forever.
+# Include the current Pacific calendar day in every daily refresh. Apple may not
+# have published that day's data yet: the cutoff is an inclusive query bound,
+# not a claim that Apple has complete same-day events.
 # ASC_REPORT_END_DATE allows a reproducible historical reporting cutoff.
-REPORT_END = os.environ.get("ASC_REPORT_END_DATE") or (
-    datetime.now(PACIFIC_TZ).date() - timedelta(days=1)
-).isoformat()
+REPORT_END = os.environ.get("ASC_REPORT_END_DATE") or datetime.now(PACIFIC_TZ).date().isoformat()
 if not REPORT_START <= REPORT_END <= datetime.now(PACIFIC_TZ).date().isoformat():
     raise ValueError("Invalid ASC reporting range: " + REPORT_START + " to " + REPORT_END)
 # Two report request IDs:
