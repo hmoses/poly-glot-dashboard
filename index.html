@@ -999,7 +999,7 @@ function render(data){
   var appRefDownloads=reportedDownloadsBySource?.['App referrer'];
 
   document.getElementById('attr-appref-visitors').textContent=appRefVisitors.toLocaleString();
-  document.getElementById('attr-appref-taps').textContent=Number.isFinite(appRefTaps)?appRefTaps.toLocaleString():'Not broken out';
+  document.getElementById('attr-appref-taps').textContent=Number.isFinite(appRefTaps)?appRefTaps.toLocaleString():'—';
   document.getElementById('attr-appref-downloads').textContent=Number.isFinite(appRefDownloads)?appRefDownloads.toLocaleString():'—';
 
   // The last observed event is not proof that Apple delivered every later date.
@@ -1009,14 +1009,14 @@ function render(data){
   var latestDownload=latestEventDate(data.downloads_by_date);
   var latestInstall=latestEventDate(inst.installs_by_date);
   document.getElementById('attr-appref-visitors-range').textContent='Unique page views · last event '+latestPageView;
-  document.getElementById('attr-appref-taps-range').textContent='Apple tap source breakdown · last event '+latestTap;
+  document.getElementById('attr-appref-taps-range').textContent=Number.isFinite(appRefTaps)?'Apple-attributed taps · last event '+latestTap:'App-referrer tap count unavailable';
   document.getElementById('attr-appref-downloads-range').textContent='Apple Downloads report · last event '+latestDownload;
   var note=document.getElementById('attr-appref-note');
   note.textContent='Apple reports '+(Number.isFinite(appRefDownloads)?appRefDownloads.toLocaleString():'unavailable')+
     ' App-referrer downloads in the '+s.date_range_start+'–'+s.date_range_end+' reporting window, versus '+
     appRefOptInInstalls.toLocaleString()+' opted-in App-referrer installation events (last recorded '+latestInstall+'). '+
     (Number.isFinite(appRefTaps)?'Reported App-referrer tap count: '+appRefTaps+'. ':
-     'Apple did not supply an App-referrer tap source category in the available engagement rows; those taps may be classified under other sources. ')+
+     'Apple does not report an App-referrer tap count in these engagement rows. Available tap sources: '+Object.entries(tapsBySource).sort(function(a,b){return b[1]-a[1]}).map(function(e){return e[0]+': '+Number(e[1]).toLocaleString()}).join(' · ')+'. Do not infer App-referrer taps from these other categories. ')+
     'These aggregates are not matched to individual users, and later opt-in installation coverage is unverified.';
 
   // Discovery-source breakdown: unique page-view visitors only.
