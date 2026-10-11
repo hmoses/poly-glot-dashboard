@@ -62,7 +62,7 @@ assert "Apple publishes data with a delay" in html, "Caution about partial same-
 assert "date as calendar_date" in fetcher and "calendar_date.fromisoformat" in fetcher, "Avoid collision with local date variable in report loops"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
-assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
+assert 'start_utc = datetime.combine(' in fetcher and 'end_utc = datetime.combine(' in fetcher, "PostHog must use Pacific reporting range"
 assert 'start_date = REPORT_START' in fetcher and 'end_date = REPORT_END' in fetcher, "TikTok API must match the range"
 assert "ph.status!=='connected'" in html, "Never render disconnected PostHog as zero usage"
 assert "POSTHOG_API_KEY" in (ROOT / ".github/workflows/refresh-analytics.yml").read_text(), "Pass PostHog secret only to backend"
