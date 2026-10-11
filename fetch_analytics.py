@@ -884,6 +884,22 @@ def main():
     raw_eng.sort(key=lambda x: x.get("Date", ""), reverse=True)
     output["raw_engagement"] = raw_eng[:200]
 
+    # Never overwrite a previously populated dashboard with blank or zeroed
+    # Apple results after authentication/report retrieval failures. A failed
+    # scheduled refresh is preferable to silently displaying missing downloads.
+    previous_path = "data/analytics.json"
+    try:
+        with open(previous_path, encoding="utf-8") as previous_file:
+            previous_summary = json.load(previous_file).get("summary", {})
+    except (OSError, ValueError, TypeError):
+        previous_summary = {}
+    if (previous_summary.get("total_taps", 0) > 0 and
+            (not eng_rows or output.get("summary", {}).get("total_taps", 0) == 0)):
+        raise RuntimeError("Apple engagement report missing/empty; preserving existing dashboard data.")
+    if (previous_summary.get("total_downloads", 0) > 0 and
+            (not dl_rows or output.get("summary", {}).get("total_downloads", 0) == 0)):
+        raise RuntimeError("Apple download report missing/empty; preserving existing dashboard data.")
+
     with open("data/analytics.json", "w") as f:
         json.dump(output, f, indent=2, default=str)
 
