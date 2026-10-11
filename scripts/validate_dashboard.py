@@ -36,6 +36,11 @@ assert "reportedInstalls=(data.installs||{}).total_installs;" in html
 assert "Number.isFinite(inst.total_installs)?inst.total_installs.toLocaleString()" in html
 assert "var realDl=funnel.user_installs" not in html, "Legacy downloads erroneously presented as installs"
 assert 'download_events = first_time_dl + redownloads' in (ROOT / "fetch_analytics.py").read_text()
+fetcher = (ROOT / "fetch_analytics.py").read_text()
+assert '"filter[granularity]": "DAILY"' in fetcher, "Do not mix weekly/monthly and daily report instances"
+assert '"limit": 200' in fetcher and 'next_url = instances.get' in fetcher, "Apple report pagination must be followed"
+assert 'Unexpected Apple analytics granularity' in fetcher, "Reject non-daily aggregates"
+
 
 scripts = re.findall(r"<script(?:\s[^>]*)?>([\s\S]*?)</script>", html, re.IGNORECASE)
 assert len(scripts) == 1, "Expected one inline application script"
