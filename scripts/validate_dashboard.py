@@ -62,7 +62,7 @@ assert "Apple publishes data with a delay" in html, "Caution about partial same-
 assert "date as calendar_date" in fetcher and "calendar_date.fromisoformat" in fetcher, "Avoid collision with local date variable in report loops"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "Web Preview Engagement")))' in fetcher, "Filter all Web Preview rows"
 assert 'dedupe_latest(filter_app_rows(merge_report_rows(req_ids, "App Store Purchases Standard")))' in fetcher, "Filter all Purchase rows"
-assert 'period_after' in fetcher and '"before": period_before' in fetcher, "PostHog must use the reporting range"
+assert 'period_after' in fetcher and 'period_before' in fetcher and 'parseDateTimeBestEffort' in fetcher, "PostHog HogQL must use the reporting range"
 assert 'start_date = REPORT_START' in fetcher and 'end_date = REPORT_END' in fetcher, "TikTok API must match the range"
 assert "hero-reporting-period" in html and "hero-data-coverage" in html, "Display as-of reporting range and coverage caveat"
 assert 'ph.connected!==true' in html, "Unconnected PostHog data must not be labeled as zero"
