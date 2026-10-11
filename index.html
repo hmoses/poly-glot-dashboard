@@ -252,6 +252,19 @@ footer a { color: var(--accent); }
   .hero h1 { font-size:1.55rem; }
   .section-title { font-size:1.25rem; }
 }
+.install-timeline-scroll { overflow-x:auto; padding:8px 2px 12px; overscroll-behavior-x:contain; scrollbar-width:thin; }
+.install-timeline { display:grid; gap:5px; align-items:end; width:100%; }
+.install-day { min-width:30px; text-align:center; }
+.install-day-bars { height:104px; display:flex; align-items:flex-end; justify-content:center; gap:3px; padding:0 2px 4px; border-bottom:1px solid rgba(125,211,252,0.2); }
+.install-bar, .delete-bar { width:13px; max-width:45%; border-radius:4px 4px 0 0; min-height:0; }
+.install-bar { background:linear-gradient(180deg,#10b981,#7dd3fc); }
+.delete-bar { background:linear-gradient(180deg,#f87171,#fbbf24); }
+.install-no-row { align-self:flex-end; width:6px; height:6px; border-radius:50%; background:#64748b; margin-bottom:4px; opacity:0.65; }
+.install-day-label { display:block; margin-top:7px; font:0.6rem 'Fira Code',monospace; color:var(--text-muted); white-space:nowrap; }
+.install-timeline-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:0.74rem; color:var(--text-muted); margin-bottom:8px; }
+.install-timeline-legend span { display:inline-flex; align-items:center; gap:6px; }
+.install-timeline-legend i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+.install-key { background:#10b981; } .delete-key { background:#f87171; } .empty-key { background:#64748b; }
 </style>
 </head>
 <body>
@@ -391,13 +404,13 @@ footer a { color: var(--accent); }
   </div>
   <div class="chart-card full" style="margin-top:20px">
     <h3 style="font-size:1rem;font-weight:800;margin-bottom:6px">📱 App Referrer Attribution</h3>
-    <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:14px">Shows whether Apple is attributing app-referrer traffic to taps and installs. These are source-attributed aggregates, not a same-user clickstream.</p>
+    <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:14px">App Store product-page visits, Get/Open/Share taps, and downloads are different Apple reports. Totals describe events, not a matched user journey.</p>
     <div class="attribution-flow" style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:12px">
       <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Visitors</div><div class="stat-value" id="attr-appref-visitors" style="color:var(--accent)">—</div><div class="stat-detail" id="attr-appref-visitors-range">Unique page views · —</div></div>
       <div class="attribution-arrow" style="align-self:center;color:var(--text-faint);font-size:1.3rem">→</div>
       <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Taps</div><div class="stat-value" id="attr-appref-taps" style="color:#38bdf8">—</div><div class="stat-detail" id="attr-appref-taps-range">Apple-attributed taps · —</div></div>
       <div class="attribution-arrow" style="align-self:center;color:var(--text-faint);font-size:1.3rem">→</div>
-      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Downloads</div><div class="stat-value" id="attr-appref-downloads" style="color:#10b981">—</div><div class="stat-detail" id="attr-appref-downloads-range">Installs attributed to App referrer · —</div></div>
+      <div class="stat-card" style="margin:0"><div class="stat-label">App Referrer Downloads</div><div class="stat-value" id="attr-appref-downloads" style="color:#10b981">—</div><div class="stat-detail" id="attr-appref-downloads-range">Downloads attributed to App referrer · —</div></div>
     </div>
     <div id="attr-appref-note" style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(125,211,252,0.05);border:1px solid rgba(125,211,252,0.10);font-size:0.72rem;line-height:1.5;color:var(--text-faint)">Loading attribution coverage…</div>
   </div>
@@ -487,8 +500,8 @@ footer a { color: var(--accent); }
 
 <!-- ============ REAL-TIME INSTALLS + DELETES ============ -->
 <section class="section"><div class="container">
-  <span class="section-eyebrow">📲 Real-Time Installs</span>
-  <h2 class="section-title">Installs &amp; Deletes</h2>
+  <span class="section-eyebrow">📲 Opt-in Installation Analytics</span>
+  <h2 class="section-title">Reported Installs &amp; Deletes</h2>
   <p class="section-desc">Apple-reported installations from devices sharing analytics. This opt-in population can be smaller than total App Store downloads; auto-downloads count as installs, updates do not.</p>
   <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:20px">
     <div class="stat-card"><div class="stat-label">First-Time Downloads</div><div class="stat-value" id="stat-inst-first" style="color:#10b981">—</div><div class="stat-detail">Brand-new users</div></div>
@@ -498,7 +511,7 @@ footer a { color: var(--accent); }
   </div>
   <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
     <div class="stat-card"><div class="stat-label">Deletes</div><div class="stat-value" id="stat-inst-deletes" style="color:#f87171">—</div><div class="stat-detail">App removals</div></div>
-    <div class="stat-card"><div class="stat-label">Net Installs</div><div class="stat-value" id="stat-inst-net" style="color:#fbbf24">—</div><div class="stat-detail">User downloads − deletes; updates excluded</div></div>
+    <div class="stat-card"><div class="stat-label">Net Installs</div><div class="stat-value" id="stat-inst-net" style="color:#fbbf24">—</div><div class="stat-detail">Reported opt-in install events − reported deletes</div></div>
   </div>
   <div class="chart-grid" style="margin-top:20px">
     <div class="chart-card">
@@ -513,19 +526,13 @@ footer a { color: var(--accent); }
   </div>
   <div class="chart-grid" style="margin-top:16px">
     <div class="chart-card full">
-      <div class="chart-title">📅 Installs vs Deletes by Day</div>
-      <div style="display:flex;gap:20px">
-        <div style="flex:1">
-          <div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:6px;font-family:'Fira Code',monospace">✅ INSTALLS</div>
-          <div id="inst-daily-chart" class="sparkline-row" style="height:60px"></div>
-          <div id="inst-daily-labels" class="spark-labels"></div>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:6px;font-family:'Fira Code',monospace">❌ DELETES</div>
-          <div id="del-daily-chart" class="sparkline-row" style="height:60px"></div>
-          <div id="del-daily-labels" class="spark-labels"></div>
-        </div>
+      <div class="chart-title">📅 Installs vs Deletes · Full Reporting Window</div>
+      <p class="chart-help" id="inst-chart-coverage">Checking installation report event dates…</p>
+      <p class="install-timeline-legend"><span><i class="install-key"></i> Opt-in installs</span><span><i class="delete-key"></i> Opt-in deletes</span><span><i class="empty-key"></i> No reported event row</span></p>
+      <div class="install-timeline-scroll" tabindex="0" aria-label="Scroll timeline of Apple reported installs and deletes from September 18 through the reporting cutoff">
+        <div id="inst-event-timeline" class="install-timeline" role="img" aria-label="Per-day reported opt-in installation and deletion events"></div>
       </div>
+      <p class="chart-help" style="margin-top:10px">Blank dates are not proof of zero installations: Apple reports only opted-in devices and may deliver data later. Swipe horizontally to see the reporting cutoff.</p>
     </div>
   </div>
   <div class="chart-grid" style="margin-top:16px">
@@ -972,29 +979,43 @@ function render(data){
   var srcData=funnel.source_breakdown||data.unique_page_views_by_source||{'App Store search':0,'Web referrer':0,'App referrer':0,'App Store browse':0,'Unavailable':0};
   var appRefVisitors=(data.unique_page_views_by_source||srcData)['App referrer']||funnel.app_referrer||0;
   var tapsBySource=data.taps_by_source||{};
-  var appRefTaps=(tapsBySource['App referrer'] ?? null);
+  var appRefTaps=tapsBySource['App referrer']; // Missing Apple source category is not "pending" or zero.
   var inst=data.installs||{};
-  var appRefDownloads=(inst.installs_by_source||{})['App referrer']||0;
+  var appRefOptInInstalls=(inst.installs_by_source||{})['App referrer']||0;
+  // Source-attributed downloads are from the App Downloads report, NOT opted-in
+  // installation events. The raw download rows are complete and provide a
+  // backwards-compatible fallback until a refreshed source summary is generated.
+  var reportedDownloadsBySource=data.downloads_by_source;
+  if(!reportedDownloadsBySource && Array.isArray(data.raw_downloads)){
+    reportedDownloadsBySource={};
+    data.raw_downloads.forEach(function(r){
+      if(!['First-time download','Redownload'].includes(r['Download Type']))return;
+      const k=r['Source Type']||'Unavailable';
+      reportedDownloadsBySource[k]=(reportedDownloadsBySource[k]||0)+Number(r.Counts||0);
+    });
+  }
+  var appRefDownloads=reportedDownloadsBySource?.['App referrer'];
 
   document.getElementById('attr-appref-visitors').textContent=appRefVisitors.toLocaleString();
-  document.getElementById('attr-appref-taps').textContent=appRefTaps===null?'Pending':appRefTaps.toLocaleString();
-  document.getElementById('attr-appref-downloads').textContent=appRefDownloads.toLocaleString();
+  document.getElementById('attr-appref-taps').textContent=Number.isFinite(appRefTaps)?appRefTaps.toLocaleString():'Not broken out';
+  document.getElementById('attr-appref-downloads').textContent=Number.isFinite(appRefDownloads)?appRefDownloads.toLocaleString():'—';
 
-  // Show observed event dates rather than the requested end of a reporting period;
-  // the latter can include days that have not yet appeared in Apple's reports.
+  // The last observed event is not proof that Apple delivered every later date.
   var latestEventDate=byDate=>Object.keys(byDate||{}).sort().at(-1)||'none recorded';
   var latestPageView=latestEventDate(data.page_views_by_date);
   var latestTap=latestEventDate(data.taps_by_date);
+  var latestDownload=latestEventDate(data.downloads_by_date);
   var latestInstall=latestEventDate(inst.installs_by_date);
   document.getElementById('attr-appref-visitors-range').textContent='Unique page views · last event '+latestPageView;
-  document.getElementById('attr-appref-taps-range').textContent='Apple-attributed taps · last event '+latestTap;
-  document.getElementById('attr-appref-downloads-range').textContent='Opt-in installs attributed to App referrer · last event '+latestInstall;
+  document.getElementById('attr-appref-taps-range').textContent='Apple tap source breakdown · last event '+latestTap;
+  document.getElementById('attr-appref-downloads-range').textContent='Apple Downloads report · last event '+latestDownload;
   var note=document.getElementById('attr-appref-note');
-  if(appRefTaps===null){
-    note.textContent='App-referrer download attribution is available now. App-referrer tap attribution will populate after the next analytics refresh with the new source-level tap aggregation.';
-  } else {
-    note.textContent='Apple attributes '+appRefDownloads.toLocaleString()+' opt-in installs to App referrer. Latest recorded events: page views '+latestPageView+', taps '+latestTap+', installs '+latestInstall+'. Source-attributed aggregates are not matched to the same users; no visitor-to-install conversion rate is calculated.';
-  }
+  note.textContent='Apple reports '+(Number.isFinite(appRefDownloads)?appRefDownloads.toLocaleString():'unavailable')+
+    ' App-referrer downloads in the '+s.date_range_start+'–'+s.date_range_end+' reporting window, versus '+
+    appRefOptInInstalls.toLocaleString()+' opted-in App-referrer installation events (last recorded '+latestInstall+'). '+
+    (Number.isFinite(appRefTaps)?'Reported App-referrer tap count: '+appRefTaps+'. ':
+     'Apple did not supply an App-referrer tap source category in the available engagement rows; those taps may be classified under other sources. ')+
+    'These aggregates are not matched to individual users, and later opt-in installation coverage is unverified.';
 
   // Discovery-source breakdown: unique page-view visitors only.
   var srcB=document.getElementById('source-bars');
@@ -1287,34 +1308,49 @@ function render(data){
     });
   } else { isB.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No install source data yet</div>'; }
 
-  // Install daily chart
+  // Draw every requested calendar day, not just dates with a reported event.
+  // A missing Apple opt-in install row means "not reported", never an assumed zero.
   var instByDate=inst.installs_by_date||{};
   var delByDate=inst.deletes_by_date||{};
-  var allInstDates=Object.keys(Object.assign({},instByDate,delByDate)).sort();
-  var instC=document.getElementById('inst-daily-chart'), instL=document.getElementById('inst-daily-labels');
-  var delC=document.getElementById('del-daily-chart'), delL=document.getElementById('del-daily-labels');
-  if(allInstDates.length>0){
-    var mxInst=Math.max.apply(null,allInstDates.map(function(d){return instByDate[d]||0}));
-    var mxDel=Math.max.apply(null,allInstDates.map(function(d){return delByDate[d]||0}));
-    if(mxInst<1) mxInst=1; if(mxDel<1) mxDel=1;
-    allInstDates.forEach(function(date){
-      var ic=instByDate[date]||0, dc2=delByDate[date]||0;
-      var ibar=document.createElement('div'); ibar.className='spark-bar';
-      ibar.style.height=Math.max((ic/mxInst)*100,5)+'%';
-      ibar.style.background='linear-gradient(135deg, #10b981 0%, #7dd3fc 100%)';
-      ibar.innerHTML='<div class="tooltip">'+date+': '+ic+' installs</div>';
-      instC.appendChild(ibar);
-      var ilb=document.createElement('div'); ilb.className='spark-label'; ilb.textContent=date.slice(5); instL.appendChild(ilb);
-      var dbar=document.createElement('div'); dbar.className='spark-bar';
-      dbar.style.height=Math.max((dc2/mxDel)*100,5)+'%';
-      dbar.style.background='linear-gradient(135deg, #f87171 0%, #fbbf24 100%)';
-      dbar.innerHTML='<div class="tooltip">'+date+': '+dc2+' deletes</div>';
-      delC.appendChild(dbar);
-      var dlb=document.createElement('div'); dlb.className='spark-label'; dlb.textContent=date.slice(5); delL.appendChild(dlb);
+  var lastInstallEvent=Object.keys(instByDate).sort().at(-1)||'none';
+  var lastDeleteEvent=Object.keys(delByDate).sort().at(-1)||'none';
+  document.getElementById('inst-chart-coverage').textContent=
+    'Reporting cutoff '+s.date_range_end+' · Last recorded install event '+lastInstallEvent+
+    ' · Last recorded deletion event '+lastDeleteEvent+
+    '. The opt-in Install/Deletion report has no later event rows in this dataset; this does not establish later daily coverage.';
+  var timeline=document.getElementById('inst-event-timeline');
+  var dayStart=Date.parse(s.date_range_start+'T00:00:00Z');
+  var dayEnd=Date.parse(s.date_range_end+'T00:00:00Z');
+  if(Number.isFinite(dayStart)&&Number.isFinite(dayEnd)&&dayEnd>=dayStart&&dayEnd-dayStart<366*86400000){
+    var fullDates=[];
+    for(var tm=dayStart;tm<=dayEnd;tm+=86400000)fullDates.push(new Date(tm).toISOString().slice(0,10));
+    var topInst=Math.max(1,...Object.values(instByDate).map(Number));
+    var topDel=Math.max(1,...Object.values(delByDate).map(Number));
+    timeline.style.gridTemplateColumns='repeat('+fullDates.length+',minmax(34px,1fr))';
+    timeline.style.minWidth=(fullDates.length*39)+'px';
+    fullDates.forEach(function(day,index){
+      var iv=instByDate[day],dv=delByDate[day];
+      var recorded=iv!==undefined||dv!==undefined;
+      var cell=document.createElement('div');cell.className='install-day';
+      var desc=day+': '+(iv===undefined?'no install event reported':iv+' installs')+
+        '; '+(dv===undefined?'no deletion event reported':dv+' deletions');
+      cell.title=desc;cell.setAttribute('aria-label',desc);
+      var bars=document.createElement('div');bars.className='install-day-bars';
+      if(!recorded){
+        var dot=document.createElement('span');dot.className='install-no-row';bars.appendChild(dot);
+      }else{
+        for(const [count,cls,max] of [[iv,'install-bar',topInst],[dv,'delete-bar',topDel]]){
+          var bar=document.createElement('div');bar.className=cls;
+          bar.style.height=count===undefined?'0':Math.max(5,Math.round(92*count/max))+'px';
+          bars.appendChild(bar);
+        }
+      }
+      var lab=document.createElement('span');lab.className='install-day-label';
+      lab.textContent=(index%4===0||index===fullDates.length-1)?day.slice(5):'·';
+      cell.appendChild(bars);cell.appendChild(lab);timeline.appendChild(cell);
     });
-  } else {
-    instC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No data yet</div>';
-    delC.innerHTML='<div style="color:var(--text-faint);font-size:0.85rem;padding:20px 0">No data yet</div>';
+  }else{
+    timeline.textContent='Installation report range unavailable.';
   }
 
   // Install by country bars
