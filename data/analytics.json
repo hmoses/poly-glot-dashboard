@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-13T10:26:06.913490+00:00",
+  "updated_at": "2026-10-13T18:10:27.491478+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 15021,
@@ -13,7 +13,7 @@
     "date_range_end": "2026-10-13",
     "total_countries": 149,
     "total_downloads": 81,
-    "total_updates": 124,
+    "total_updates": 142,
     "total_subscriptions": 0,
     "total_purchases": 0
   },
@@ -6170,7 +6170,247 @@
       "Pre-Order": "",
       "Territory": "EG",
       "Counts": "1",
-      "_date": "2026-10-12"
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 27.2",
+      "Source Type": "App Store browse",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "TR",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 18.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "LK",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 27.0",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPad",
+      "Platform Version": "iOS 26.5",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 18.7",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "AR",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 15.8",
+      "Source Type": "App Store browse",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "LK",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 15.8",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Manual update",
+      "App Version": "1.1.5",
+      "Device": "iPad",
+      "Platform Version": "iOS 27.2",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "EE",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.5",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 16.7",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "SA",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "2",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 27.0",
+      "Source Type": "App referrer",
+      "Page Type": "Store sheet",
+      "Pre-Order": "",
+      "Territory": "EG",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App Store search",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "CA",
+      "Counts": "1",
+      "_date": "2026-10-13"
+    },
+    {
+      "Date": "2026-10-12",
+      "App Name": "Poly-Glot AI Workspace",
+      "App Apple Identifier": "6804499285",
+      "Download Type": "Auto-update",
+      "App Version": "1.1.5",
+      "Device": "iPhone",
+      "Platform Version": "iOS 26.6",
+      "Source Type": "App referrer",
+      "Page Type": "Product page",
+      "Pre-Order": "",
+      "Territory": "US",
+      "Counts": "2",
+      "_date": "2026-10-13"
     }
   ],
   "raw_subscriptions": [],
@@ -6218,11 +6458,12 @@
     "2026-10-08": 14,
     "2026-10-09": 4,
     "2026-10-10": 4,
-    "2026-10-11": 1
+    "2026-10-11": 1,
+    "2026-10-12": 18
   },
   "updates_by_type": {
-    "Auto-update": 116,
-    "Manual update": 8
+    "Auto-update": 133,
+    "Manual update": 9
   },
   "acquisitions": {
     "total_page_views_detailed": 6997,
@@ -6250,13 +6491,13 @@
       "com.kayac.ball-run": 7,
       "com.football.soccer.league": 7,
       "com.videobrowser.ios": 7,
-      "com.ss.iphone.ugc.tiktok.lite": 6,
       "ai.socialapps.speakmaster": 6,
+      "com.ss.iphone.ugc.tiktok.lite": 6,
       "com.weup.cooking.wonderland.chef.game": 6,
       "com.RastleksGames.TheShootout": 6,
-      "com.arrow.surge.app": 5,
       "com.Vezta.blood.tracker": 5,
       "com.ecffri.arrows": 5,
+      "com.arrow.surge.app": 5,
       "com.storymatrix.drama": 5,
       "com.LifeIsGame.ArtCanvas": 5
     },
@@ -6283,13 +6524,13 @@
       "com.kayac.ball-run": "com.kayac.ball-run",
       "com.football.soccer.league": "com.football.soccer.league",
       "com.videobrowser.ios": "com.videobrowser.ios",
-      "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
       "ai.socialapps.speakmaster": "ai.socialapps.speakmaster",
+      "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
       "com.weup.cooking.wonderland.chef.game": "com.weup.cooking.wonderland.chef.game",
       "com.RastleksGames.TheShootout": "com.RastleksGames.TheShootout",
-      "com.arrow.surge.app": "com.arrow.surge.app",
       "com.Vezta.blood.tracker": "com.Vezta.blood.tracker",
       "com.ecffri.arrows": "com.ecffri.arrows",
+      "com.arrow.surge.app": "com.arrow.surge.app",
       "com.storymatrix.drama": "com.storymatrix.drama",
       "com.LifeIsGame.ArtCanvas": "com.LifeIsGame.ArtCanvas"
     },
@@ -6329,9 +6570,9 @@
         "ai.mokio.kaonworld": 6
       },
       "2026-09-28": {
+        "com.zhiliaoapp.musically": 5,
         "com.ss.iphone.ugc.tiktok.lite": 6,
-        "com.ss.iphone.ugc.Ame": 13,
-        "com.zhiliaoapp.musically": 5
+        "com.ss.iphone.ugc.Ame": 13
       },
       "2026-09-29": {
         "com.lenovo.anyshare": 130,
@@ -6564,15 +6805,15 @@
         "pct": 0.1
       },
       {
-        "bundle_id": "com.ss.iphone.ugc.tiktok.lite",
-        "name": "TikTok Lite",
+        "bundle_id": "ai.socialapps.speakmaster",
+        "name": "ai.socialapps.speakmaster",
         "count": 6,
         "unique": 6,
         "pct": 0.1
       },
       {
-        "bundle_id": "ai.socialapps.speakmaster",
-        "name": "ai.socialapps.speakmaster",
+        "bundle_id": "com.ss.iphone.ugc.tiktok.lite",
+        "name": "TikTok Lite",
         "count": 6,
         "unique": 6,
         "pct": 0.1
@@ -6592,13 +6833,6 @@
         "pct": 0.1
       },
       {
-        "bundle_id": "com.arrow.surge.app",
-        "name": "com.arrow.surge.app",
-        "count": 5,
-        "unique": 5,
-        "pct": 0.1
-      },
-      {
         "bundle_id": "com.Vezta.blood.tracker",
         "name": "com.Vezta.blood.tracker",
         "count": 5,
@@ -6608,6 +6842,13 @@
       {
         "bundle_id": "com.ecffri.arrows",
         "name": "com.ecffri.arrows",
+        "count": 5,
+        "unique": 5,
+        "pct": 0.1
+      },
+      {
+        "bundle_id": "com.arrow.surge.app",
+        "name": "com.arrow.surge.app",
         "count": 5,
         "unique": 5,
         "pct": 0.1
@@ -7517,7 +7758,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-07",
@@ -7534,7 +7775,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-07",
@@ -7551,7 +7792,7 @@
         "Territory": "LK",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-07",
@@ -7568,7 +7809,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-07",
@@ -7585,7 +7826,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-07",
@@ -7602,7 +7843,7 @@
         "Territory": "TR",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-08",
@@ -7619,7 +7860,7 @@
         "Territory": "US",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-08",
@@ -7636,7 +7877,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-08",
@@ -7653,7 +7894,7 @@
         "Territory": "EE",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-08",
@@ -7670,7 +7911,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       },
       {
         "Date": "2026-10-08",
@@ -7687,7 +7928,7 @@
         "Territory": "EG",
         "Counts": "1",
         "Unique Devices": "1",
-        "_date": "2026-10-12"
+        "_date": "2026-10-13"
       }
     ]
   },
@@ -7761,7 +8002,7 @@
       "id": "e8786409-e7f9-4fe0-8a26-f4299057ed8a",
       "versionString": "1.1.6",
       "platform": "IOS",
-      "appStoreState": "DEVELOPER_REJECTED",
+      "appStoreState": "PREPARE_FOR_SUBMISSION",
       "createdDate": "2026-10-12T17:24:49-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -7841,7 +8082,7 @@
       "id": "9ff84c7d-6996-45e4-b779-2732f64778ae",
       "versionString": "3.6",
       "platform": "MAC_OS",
-      "appStoreState": "DEVELOPER_REJECTED",
+      "appStoreState": "WAITING_FOR_REVIEW",
       "createdDate": "2026-10-12T17:25:14-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -7926,8 +8167,8 @@
     "user_installs": 81,
     "download_events": 81,
     "reported_opt_in_installs": 21,
-    "manual_updates": 8,
-    "auto_updates": 116,
+    "manual_updates": 9,
+    "auto_updates": 133,
     "real_downloads": 81,
     "tiktok_page_views": 69,
     "tiktok_unique_views": 46,

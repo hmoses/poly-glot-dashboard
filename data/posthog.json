@@ -1,29 +1,29 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-13",
-  "updated": "2026-10-13T10:27:23.016386+00:00",
+  "updated": "2026-10-13T18:11:26.405358+00:00",
   "connected": true,
   "events": {
     "trial_started": 16,
     "first_send": 20,
-    "provider_opened": 157,
-    "app_returned": 118,
-    "compare_used": 49,
+    "provider_opened": 183,
+    "app_returned": 143,
+    "compare_used": 58,
     "daily_free_send_used": 3
   },
   "providers": {
-    "mistral": 4,
-    "gemini": 6,
-    "grok": 12,
-    "copilot": 6,
-    "chatgpt": 93,
-    "claude": 10,
-    "perplexity": 13,
-    "huggingchat": 2,
-    "duckduckgo": 11
+    "mistral": 5,
+    "gemini": 8,
+    "grok": 13,
+    "copilot": 13,
+    "chatgpt": 97,
+    "claude": 14,
+    "perplexity": 17,
+    "huggingchat": 3,
+    "duckduckgo": 13
   },
   "platform_split": {
-    "ios": 143,
+    "ios": 169,
     "macos": 14
   },
   "by_build": {
@@ -63,6 +63,18 @@
         "daily_free_send_used": 1
       }
     },
+    "ios \u00b7 849": {
+      "platform": "ios",
+      "build": "849",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 10,
+        "app_returned": 10,
+        "compare_used": 4,
+        "daily_free_send_used": 0
+      }
+    },
     "ios \u00b7 840": {
       "platform": "ios",
       "build": "840",
@@ -87,6 +99,30 @@
         "daily_free_send_used": 0
       }
     },
+    "ios \u00b7 847": {
+      "platform": "ios",
+      "build": "847",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 10,
+        "app_returned": 9,
+        "compare_used": 0,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 852": {
+      "platform": "ios",
+      "build": "852",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 1,
+        "app_returned": 1,
+        "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
     "macos \u00b7 Unattributed build": {
       "platform": "macos",
       "build": "Unattributed build",
@@ -108,6 +144,18 @@
         "provider_opened": 2,
         "app_returned": 2,
         "compare_used": 3,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 851": {
+      "platform": "ios",
+      "build": "851",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 5,
+        "app_returned": 5,
+        "compare_used": 4,
         "daily_free_send_used": 0
       }
     }
