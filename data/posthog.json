@@ -1,39 +1,52 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-12",
-  "updated": "2026-10-12T20:15:21.304222+00:00",
+  "updated": "2026-10-13T02:33:05.547694+00:00",
   "connected": true,
   "events": {
     "trial_started": 16,
     "first_send": 20,
-    "provider_opened": 99,
-    "app_returned": 76,
-    "compare_used": 38,
-    "daily_free_send_used": 2
+    "provider_opened": 109,
+    "app_returned": 81,
+    "compare_used": 42,
+    "daily_free_send_used": 3
   },
   "providers": {
     "gemini": 1,
     "grok": 5,
-    "chatgpt": 76,
-    "claude": 3,
+    "copilot": 1,
+    "chatgpt": 83,
+    "claude": 5,
     "perplexity": 6,
     "duckduckgo": 8
   },
   "platform_split": {
-    "ios": 85,
+    "ios": 95,
     "macos": 14
   },
   "by_build": {
+    "ios \u00b7 839": {
+      "platform": "ios",
+      "build": "839",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 5,
+        "app_returned": 2,
+        "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
     "ios \u00b7 Unattributed build": {
       "platform": "ios",
       "build": "Unattributed build",
       "events": {
         "trial_started": 16,
         "first_send": 18,
-        "provider_opened": 85,
-        "app_returned": 65,
-        "compare_used": 35,
-        "daily_free_send_used": 0
+        "provider_opened": 90,
+        "app_returned": 68,
+        "compare_used": 38,
+        "daily_free_send_used": 1
       }
     },
     "macos \u00b7 Unattributed build": {
