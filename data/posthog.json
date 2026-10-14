@@ -1,30 +1,30 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-14",
-  "updated": "2026-10-14T15:04:52.445796+00:00",
+  "updated": "2026-10-14T19:20:23.275756+00:00",
   "connected": true,
   "events": {
-    "trial_started": 18,
+    "trial_started": 20,
     "first_send": 21,
-    "provider_opened": 203,
-    "app_returned": 163,
-    "compare_used": 65,
+    "provider_opened": 208,
+    "app_returned": 167,
+    "compare_used": 67,
     "daily_free_send_used": 3
   },
   "providers": {
-    "mistral": 5,
+    "mistral": 6,
     "gemini": 12,
     "grok": 13,
     "copilot": 13,
-    "chatgpt": 103,
+    "chatgpt": 104,
     "claude": 15,
-    "perplexity": 20,
-    "huggingchat": 6,
+    "perplexity": 21,
+    "huggingchat": 8,
     "duckduckgo": 16
   },
   "platform_split": {
-    "ios": 184,
-    "macos": 19
+    "ios": 186,
+    "macos": 22
   },
   "by_build": {
     "ios \u00b7 839": {
@@ -123,6 +123,18 @@
         "daily_free_send_used": 0
       }
     },
+    "macos \u00b7 844": {
+      "platform": "macos",
+      "build": "844",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 3,
+        "app_returned": 2,
+        "compare_used": 2,
+        "daily_free_send_used": 0
+      }
+    },
     "ios \u00b7 846": {
       "platform": "ios",
       "build": "846",
@@ -156,6 +168,18 @@
         "provider_opened": 1,
         "app_returned": 1,
         "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 863": {
+      "platform": "ios",
+      "build": "863",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 2,
+        "app_returned": 2,
+        "compare_used": 0,
         "daily_free_send_used": 0
       }
     },
@@ -207,6 +231,18 @@
         "daily_free_send_used": 0
       }
     },
+    "ios \u00b7 864": {
+      "platform": "ios",
+      "build": "864",
+      "events": {
+        "trial_started": 1,
+        "first_send": 0,
+        "provider_opened": 0,
+        "app_returned": 0,
+        "compare_used": 0,
+        "daily_free_send_used": 0
+      }
+    },
     "ios \u00b7 851": {
       "platform": "ios",
       "build": "851",
@@ -227,6 +263,18 @@
         "first_send": 0,
         "provider_opened": 1,
         "app_returned": 1,
+        "compare_used": 0,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 862": {
+      "platform": "ios",
+      "build": "862",
+      "events": {
+        "trial_started": 1,
+        "first_send": 0,
+        "provider_opened": 0,
+        "app_returned": 0,
         "compare_used": 0,
         "daily_free_send_used": 0
       }
