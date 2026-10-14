@@ -1,29 +1,29 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-14",
-  "updated": "2026-10-14T10:06:25.363907+00:00",
+  "updated": "2026-10-14T15:04:52.445796+00:00",
   "connected": true,
   "events": {
-    "trial_started": 16,
-    "first_send": 20,
-    "provider_opened": 196,
-    "app_returned": 156,
-    "compare_used": 63,
+    "trial_started": 18,
+    "first_send": 21,
+    "provider_opened": 203,
+    "app_returned": 163,
+    "compare_used": 65,
     "daily_free_send_used": 3
   },
   "providers": {
     "mistral": 5,
-    "gemini": 11,
+    "gemini": 12,
     "grok": 13,
     "copilot": 13,
-    "chatgpt": 102,
+    "chatgpt": 103,
     "claude": 15,
-    "perplexity": 18,
-    "huggingchat": 4,
-    "duckduckgo": 15
+    "perplexity": 20,
+    "huggingchat": 6,
+    "duckduckgo": 16
   },
   "platform_split": {
-    "ios": 177,
+    "ios": 184,
     "macos": 19
   },
   "by_build": {
@@ -63,6 +63,18 @@
         "daily_free_send_used": 1
       }
     },
+    "ios \u00b7 861": {
+      "platform": "ios",
+      "build": "861",
+      "events": {
+        "trial_started": 1,
+        "first_send": 1,
+        "provider_opened": 4,
+        "app_returned": 4,
+        "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
     "ios \u00b7 854": {
       "platform": "ios",
       "build": "854",
@@ -81,9 +93,9 @@
       "events": {
         "trial_started": 0,
         "first_send": 0,
-        "provider_opened": 2,
-        "app_returned": 2,
-        "compare_used": 3,
+        "provider_opened": 3,
+        "app_returned": 3,
+        "compare_used": 4,
         "daily_free_send_used": 0
       }
     },
@@ -144,6 +156,18 @@
         "provider_opened": 1,
         "app_returned": 1,
         "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 860": {
+      "platform": "ios",
+      "build": "860",
+      "events": {
+        "trial_started": 1,
+        "first_send": 0,
+        "provider_opened": 2,
+        "app_returned": 2,
+        "compare_used": 0,
         "daily_free_send_used": 0
       }
     },
