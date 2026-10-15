@@ -1,13 +1,13 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-15",
-  "updated": "2026-10-15T09:49:28.816448+00:00",
+  "updated": "2026-10-15T14:56:13.392320+00:00",
   "connected": true,
   "events": {
     "trial_started": 20,
     "first_send": 21,
-    "provider_opened": 209,
-    "app_returned": 168,
+    "provider_opened": 210,
+    "app_returned": 169,
     "compare_used": 67,
     "daily_free_send_used": 4
   },
@@ -16,14 +16,14 @@
     "gemini": 12,
     "grok": 13,
     "copilot": 13,
-    "chatgpt": 105,
+    "chatgpt": 106,
     "claude": 15,
     "perplexity": 21,
     "huggingchat": 8,
     "duckduckgo": 16
   },
   "platform_split": {
-    "ios": 187,
+    "ios": 188,
     "macos": 22
   },
   "by_build": {
@@ -81,8 +81,8 @@
       "events": {
         "trial_started": 0,
         "first_send": 0,
-        "provider_opened": 1,
-        "app_returned": 1,
+        "provider_opened": 2,
+        "app_returned": 2,
         "compare_used": 0,
         "daily_free_send_used": 1
       }
