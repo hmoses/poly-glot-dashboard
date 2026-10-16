@@ -1,13 +1,13 @@
 {
   "date_range_start": "2026-09-18",
   "date_range_end": "2026-10-16",
-  "updated": "2026-10-16T12:21:18.887721+00:00",
+  "updated": "2026-10-16T17:22:48.325152+00:00",
   "connected": true,
   "events": {
-    "trial_started": 22,
+    "trial_started": 24,
     "first_send": 22,
-    "provider_opened": 213,
-    "app_returned": 171,
+    "provider_opened": 214,
+    "app_returned": 172,
     "compare_used": 67,
     "daily_free_send_used": 4
   },
@@ -18,12 +18,12 @@
     "copilot": 13,
     "chatgpt": 108,
     "claude": 15,
-    "perplexity": 21,
+    "perplexity": 22,
     "huggingchat": 8,
     "duckduckgo": 16
   },
   "platform_split": {
-    "ios": 191,
+    "ios": 192,
     "macos": 22
   },
   "by_build": {
@@ -96,6 +96,18 @@
         "provider_opened": 4,
         "app_returned": 4,
         "compare_used": 1,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 877": {
+      "platform": "ios",
+      "build": "877",
+      "events": {
+        "trial_started": 0,
+        "first_send": 0,
+        "provider_opened": 1,
+        "app_returned": 1,
+        "compare_used": 0,
         "daily_free_send_used": 0
       }
     },
@@ -255,6 +267,18 @@
         "daily_free_send_used": 0
       }
     },
+    "ios \u00b7 881": {
+      "platform": "ios",
+      "build": "881",
+      "events": {
+        "trial_started": 1,
+        "first_send": 0,
+        "provider_opened": 0,
+        "app_returned": 0,
+        "compare_used": 0,
+        "daily_free_send_used": 0
+      }
+    },
     "macos \u00b7 840": {
       "platform": "macos",
       "build": "840",
@@ -299,6 +323,18 @@
         "first_send": 0,
         "provider_opened": 1,
         "app_returned": 1,
+        "compare_used": 0,
+        "daily_free_send_used": 0
+      }
+    },
+    "ios \u00b7 879": {
+      "platform": "ios",
+      "build": "879",
+      "events": {
+        "trial_started": 1,
+        "first_send": 0,
+        "provider_opened": 0,
+        "app_returned": 0,
         "compare_used": 0,
         "daily_free_send_used": 0
       }

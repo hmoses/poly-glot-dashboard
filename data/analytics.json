@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T12:20:17.777001+00:00",
+  "updated_at": "2026-10-16T17:21:23.322712+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 17662,
@@ -6933,13 +6933,13 @@
       "com.kayac.ball-run": 7,
       "com.football.soccer.league": 7,
       "com.videobrowser.ios": 7,
-      "com.ss.iphone.ugc.tiktok.lite": 6,
       "ai.socialapps.speakmaster": 6,
+      "com.ss.iphone.ugc.tiktok.lite": 6,
       "com.weup.cooking.wonderland.chef.game": 6,
       "com.RastleksGames.TheShootout": 6,
-      "com.arrow.surge.app": 5,
       "com.Vezta.blood.tracker": 5,
       "com.ecffri.arrows": 5,
+      "com.arrow.surge.app": 5,
       "com.storymatrix.drama": 5,
       "com.LifeIsGame.ArtCanvas": 5,
       "com.gimica.sugarmatch": 5
@@ -6967,13 +6967,13 @@
       "com.kayac.ball-run": "com.kayac.ball-run",
       "com.football.soccer.league": "com.football.soccer.league",
       "com.videobrowser.ios": "com.videobrowser.ios",
-      "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
       "ai.socialapps.speakmaster": "ai.socialapps.speakmaster",
+      "com.ss.iphone.ugc.tiktok.lite": "TikTok Lite",
       "com.weup.cooking.wonderland.chef.game": "com.weup.cooking.wonderland.chef.game",
       "com.RastleksGames.TheShootout": "com.RastleksGames.TheShootout",
-      "com.arrow.surge.app": "com.arrow.surge.app",
       "com.Vezta.blood.tracker": "com.Vezta.blood.tracker",
       "com.ecffri.arrows": "com.ecffri.arrows",
+      "com.arrow.surge.app": "com.arrow.surge.app",
       "com.storymatrix.drama": "com.storymatrix.drama",
       "com.LifeIsGame.ArtCanvas": "com.LifeIsGame.ArtCanvas",
       "com.gimica.sugarmatch": "com.gimica.sugarmatch"
@@ -7014,9 +7014,9 @@
         "ai.mokio.kaonworld": 6
       },
       "2026-09-28": {
+        "com.zhiliaoapp.musically": 5,
         "com.ss.iphone.ugc.tiktok.lite": 6,
-        "com.ss.iphone.ugc.Ame": 13,
-        "com.zhiliaoapp.musically": 5
+        "com.ss.iphone.ugc.Ame": 13
       },
       "2026-09-29": {
         "com.lenovo.anyshare": 130,
@@ -7255,15 +7255,15 @@
         "pct": 0.1
       },
       {
-        "bundle_id": "com.ss.iphone.ugc.tiktok.lite",
-        "name": "TikTok Lite",
+        "bundle_id": "ai.socialapps.speakmaster",
+        "name": "ai.socialapps.speakmaster",
         "count": 6,
         "unique": 6,
         "pct": 0.1
       },
       {
-        "bundle_id": "ai.socialapps.speakmaster",
-        "name": "ai.socialapps.speakmaster",
+        "bundle_id": "com.ss.iphone.ugc.tiktok.lite",
+        "name": "TikTok Lite",
         "count": 6,
         "unique": 6,
         "pct": 0.1
@@ -7283,13 +7283,6 @@
         "pct": 0.1
       },
       {
-        "bundle_id": "com.arrow.surge.app",
-        "name": "com.arrow.surge.app",
-        "count": 5,
-        "unique": 5,
-        "pct": 0.1
-      },
-      {
         "bundle_id": "com.Vezta.blood.tracker",
         "name": "com.Vezta.blood.tracker",
         "count": 5,
@@ -7299,6 +7292,13 @@
       {
         "bundle_id": "com.ecffri.arrows",
         "name": "com.ecffri.arrows",
+        "count": 5,
+        "unique": 5,
+        "pct": 0.1
+      },
+      {
+        "bundle_id": "com.arrow.surge.app",
+        "name": "com.arrow.surge.app",
         "count": 5,
         "unique": 5,
         "pct": 0.1
@@ -8559,9 +8559,9 @@
   "app_versions": [
     {
       "id": "c5adadcb-ac51-453e-8930-755c6f493a50",
-      "versionString": "1.1.7",
+      "versionString": "1.1.8",
       "platform": "IOS",
-      "appStoreState": "WAITING_FOR_REVIEW",
+      "appStoreState": "DEVELOPER_REJECTED",
       "createdDate": "2026-10-15T07:31:41-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
@@ -8639,9 +8639,9 @@
     },
     {
       "id": "4f19945f-2d3c-42c8-879c-a8b81474fb3d",
-      "versionString": "3.7",
+      "versionString": "3.8",
       "platform": "MAC_OS",
-      "appStoreState": "WAITING_FOR_REVIEW",
+      "appStoreState": "DEVELOPER_REJECTED",
       "createdDate": "2026-10-15T20:23:57-07:00",
       "releaseType": "MANUAL"
     },
