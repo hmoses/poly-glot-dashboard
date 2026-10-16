@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T20:59:00.978162+00:00",
+  "updated_at": "2026-10-16T23:30:17.711260+00:00",
   "app_name": "Poly-Glot AI: Prompt Studio",
   "summary": {
     "total_impressions": 18935,
@@ -8581,7 +8581,7 @@
       "id": "c5adadcb-ac51-453e-8930-755c6f493a50",
       "versionString": "1.1.8",
       "platform": "IOS",
-      "appStoreState": "PREPARE_FOR_SUBMISSION",
+      "appStoreState": "DEVELOPER_REJECTED",
       "createdDate": "2026-10-15T07:31:41-07:00",
       "releaseType": "AFTER_APPROVAL"
     },
